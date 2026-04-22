@@ -1,9 +1,21 @@
 import { startAuth, completeAuth } from '../services/auth/authFlow.service.js';
 import { getState, setState, clearState } from '../common/session.service.js';
 
-export async function handleMaxMessage(ctx) {
-  const userId = String(ctx.from.id);
-  const text = ctx.message?.text?.trim();
+export async function handleMaxMessage(ctx, inputText = null) {
+  // ✅ правильные данные из MAX
+  const userId = String(ctx.message?.sender?.user_id);
+  const text = (inputText || ctx.message?.body?.text || '').trim();
+
+  console.log('📩', userId, text);
+
+  if (!userId) {
+    console.log('❌ NO USER ID');
+    return;
+  }
+
+  if (!text) {
+    return ctx.reply('Введите данные');
+  }
 
   let state = await getState(userId);
 
@@ -17,7 +29,13 @@ export async function handleMaxMessage(ctx) {
   if (state.step === 'WAIT_EMAIL') {
     const email = text;
 
-    const result = await startAuth(email);
+    let result;
+    try {
+      result = await startAuth(email);
+    } catch (e) {
+      console.error('startAuth ERROR:', e);
+      return ctx.reply('Ошибка отправки кода');
+    }
 
     if (result.status === 'EMAIL_REQUIRED') {
       return ctx.reply('Введите email');
@@ -42,14 +60,20 @@ export async function handleMaxMessage(ctx) {
   // ===== WAIT_CODE =====
   if (state.step === 'WAIT_CODE') {
     const code = text;
-    const { email, checkResult } = state.data;
+    const { email, checkResult } = state.data || {};
 
-    const result = await completeAuth({
-      vk_id: userId, // 🔥 используем как universal id
-      email,
-      code,
-      checkResult,
-    });
+    let result;
+    try {
+      result = await completeAuth({
+        vk_id: userId,
+        email,
+        code,
+        checkResult,
+      });
+    } catch (e) {
+      console.error('completeAuth ERROR:', e);
+      return ctx.reply('Ошибка авторизации');
+    }
 
     if (result.status === 'INVALID_CODE') {
       return ctx.reply('Неверный код');
@@ -74,6 +98,7 @@ export async function handleMaxMessage(ctx) {
     return ctx.reply('Авторизация успешна');
   }
 
+  // ===== fallback =====
   await clearState(userId);
   return ctx.reply('Ошибка состояния. Начните заново');
 }
