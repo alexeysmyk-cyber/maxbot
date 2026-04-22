@@ -1,7 +1,9 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { startMaxBot } from './src/max/max.service.js';
 
+startMaxBot();
 dotenv.config();
 
 const app = express();

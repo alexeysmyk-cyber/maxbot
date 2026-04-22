@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "activeRole" TEXT;
+ALTER TABLE "User" ADD COLUMN "name" TEXT;
+ALTER TABLE "User" ADD COLUMN "type" TEXT;

@@ -1,7 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -9,15 +6,135 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./db.sqlite"
+  url      = env("DATABASE_URL")
 }
 
+//
+// ===== ENUM ROLES =====
+//
+
+enum RoleKey {
+  ADMIN
+  DOCTOR
+  MANAGER
+  CALL_CENTER
+  CASHIER
+  NURSE
+  HEAD_NURSE
+  HEAD_MANAGER
+  HEAD_CALL_CENTER
+  HEAD_DOCTOR
+  ACCOUNTANT
+  SYSTEM_ADMINISTRATOR
+  PATIENT
+}
+
+//
+// ===== USER =====
+//
+
 model User {
-  id           Int     @id @default(autoincrement())
-  vk_id        String  @unique
-  telegram_id  String?
-  phone        String?
-  whatsapp     String?
-  name         String?
-  role         String?
+  id        Int    @id @default(autoincrement())
+  vk_id     String @unique
+  email     String?
+  mis_id    String?
+  name      String?
+
+  type      String?   // EMPLOYEE / PATIENT
+  activeRole String?  // для будущего переключения ролей
+
+  roles     UserRole[]
+  overrides UserPermissionOverride[]
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ===== ROLE =====
+//
+
+model Role {
+  id    Int     @id @default(autoincrement())
+  key   RoleKey @unique
+  name  String
+
+  users       UserRole[]
+  permissions RolePermission[]
+}
+
+//
+// ===== USER ↔ ROLE =====
+//
+
+model UserRole {
+  id     Int @id @default(autoincrement())
+  userId Int
+  roleId Int
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+}
+
+//
+// ===== PERMISSIONS =====
+//
+
+model Permission {
+  id   Int    @id @default(autoincrement())
+  key  String @unique
+  name String
+
+  roles RolePermission[]
+  users UserPermissionOverride[]
+}
+
+//
+// ===== ROLE → PERMISSION =====
+//
+
+model RolePermission {
+  id           Int @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+}
+
+//
+// ===== USER OVERRIDE =====
+//
+
+model UserPermissionOverride {
+  id           Int @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  allowed      Boolean
+
+  user       User       @relation(fields: [userId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([userId, permissionId])
+}
+
+model AuthCode {
+  id        Int      @id @default(autoincrement())
+  email     String?
+  phone     String?   // 👈 есть
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model VkSession {
+  id        Int      @id @default(autoincrement())
+  vk_id     String   @unique
+  step      String
+  data      Json?
+  updatedAt DateTime @updatedAt
 }
