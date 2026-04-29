@@ -14,8 +14,8 @@ console.log('ENV SECRET:', process.env.MIS_WEBHOOK_SECRET);
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
