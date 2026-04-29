@@ -227,9 +227,12 @@ export async function handleEntry(ctx, userId) {
     where: { vk_id: userId }
   });
 
-  if (existingUser) {
-    return sendMainMenu(ctx, existingUser);
-  }
+  if (existingUser && existingUser.activeRole) {
+  return sendMainMenu(ctx, existingUser);
+}
+
+// ❗ если нет роли — начинаем заново
+
 
   return sendWelcome(ctx, userId);
 }
@@ -257,9 +260,29 @@ export async function sendWelcome(ctx, userId) {
 
 export async function sendMainMenu(ctx, user) {
 
-  const role = await prisma.role.findFirst({
-  where: { key: user.activeRole }
-});
+let role = null;
+
+if (user.activeRole) {
+  role = await prisma.role.findFirst({
+    where: { key: user.activeRole }
+  });
+}
+
+
+if (!user.activeRole) {
+  return ctx.reply(
+    '⚠️ Роль не выбрана. Пожалуйста, начните заново',
+    {
+      attachments: [
+        Keyboard.inlineKeyboard([
+          [Keyboard.button.callback('🔄 Начать', 'start')]
+        ])
+      ]
+    }
+  );
+}
+
+
 
 const roleLabel = role?.name || user.activeRole || user.type;
 
@@ -380,7 +403,7 @@ if (text === 'reset') {
 
 
 
-if (text === '/start') {
+if (text === '/start' || text === 'start') {
   await clearState(userId);
   return handleEntry(ctx, userId);
 }
