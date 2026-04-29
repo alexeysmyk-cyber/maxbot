@@ -60,7 +60,10 @@ export async function checkEmail(email) {
   }
 
   // ⚫ ничего
-  return {
-    status: AuthStatus.NOT_FOUND,
-  };
+return {
+  status: 'NOT_FOUND',
+  next: {
+    status: 'NOT_FOUND'
+  }
+};
 }

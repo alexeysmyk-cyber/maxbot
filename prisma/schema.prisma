@@ -45,8 +45,12 @@ model User {
 
   roles     UserRole[]
   overrides UserPermissionOverride[]
+notifications UserNotification[]
+  
+  alerts UpcomingVisitAlert[]
 
   createdAt DateTime @default(now())
+  
 }
 
 //
@@ -57,9 +61,10 @@ model Role {
   id    Int     @id @default(autoincrement())
   key   RoleKey @unique
   name  String
-
+mis_code String? 
   users       UserRole[]
   permissions RolePermission[]
+  roleNotifications RoleNotification[]
 }
 
 //
@@ -70,8 +75,8 @@ model UserRole {
   id     Int @id @default(autoincrement())
   userId Int
   roleId Int
-
-  user User @relation(fields: [userId], references: [id])
+  mis_code String? 
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role Role @relation(fields: [roleId], references: [id])
 
   @@unique([userId, roleId])
@@ -99,8 +104,8 @@ model RolePermission {
   roleId       Int
   permissionId Int
 
-  role       Role       @relation(fields: [roleId], references: [id])
-  permission Permission @relation(fields: [permissionId], references: [id])
+role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
 }
@@ -115,7 +120,7 @@ model UserPermissionOverride {
   permissionId Int
   allowed      Boolean
 
-  user       User       @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   permission Permission @relation(fields: [permissionId], references: [id])
 
   @@unique([userId, permissionId])
@@ -137,4 +142,54 @@ model VkSession {
   step      String
   data      Json?
   updatedAt DateTime @updatedAt
+}
+
+model NotificationType {
+  id       Int    @id @default(autoincrement())
+  key      String @unique
+  name     String
+  modeType String // TRIPLE | BOOLEAN
+userSettings UserNotification[]
+  roles    RoleNotification[]
+}
+
+model RoleNotification {
+  id       Int @id @default(autoincrement())
+
+  roleId   Int
+  typeId   Int
+
+  defaultMode String // default значение
+
+role     Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+type     NotificationType @relation(fields: [typeId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, typeId])
+}
+
+model UserNotification {
+  id     Int @id @default(autoincrement())
+
+  userId Int
+  typeId Int
+
+  mode   String
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type   NotificationType @relation(fields: [typeId], references: [id])
+
+  @@unique([userId, typeId])
+}
+
+model UpcomingVisitAlert {
+  id        Int      @id @default(autoincrement())
+
+  userId    Int
+  mode      String   // self | all
+  type     String 
+  time      String   // "07:00"
+  enabled   Boolean  @default(true)
+  lastSent  DateTime?
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

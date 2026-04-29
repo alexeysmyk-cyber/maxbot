@@ -3,18 +3,20 @@ import { createAuthCode, verifyAuthCode } from './authCode.service.js';
 import { confirmAuth } from './confirmAuth.js';
 
 // ===== ШАГ 1: ввод email =====
-export async function startAuth(email) {
+export async function startAuth(email, checkResult) {
   if (!email) {
     return { status: 'EMAIL_REQUIRED' };
   }
 
-  const result = await checkEmail(email);
+  if (!checkResult) {
+  checkResult = await checkEmail(email);
+}
 
   // ❌ нельзя авторизовать
   if (
-    result.status === 'NOT_FOUND' ||
-    result.status === 'MULTI_PATIENT'
-  ) {
+  checkResult.status === 'NOT_FOUND' ||
+  checkResult.status === 'MULTI_PATIENT'
+){
     return result;
   }
 
@@ -22,9 +24,9 @@ export async function startAuth(email) {
   await createAuthCode({ email });
 
   return {
-    status: 'CODE_SENT',
-    next: result, // сохраняем результат checkEmail
-  };
+  status: 'CODE_SENT',
+  next: checkResult,
+};
 }
 
 // ===== ШАГ 2: ввод кода =====

@@ -47,6 +47,7 @@ export async function verifyAuthCode({ email, phone, code }) {
   const record = await prisma.authCode.findFirst({
     where: {
       code,
+      email,
       used: false,
       expiresAt: { gt: new Date() },
       OR: [

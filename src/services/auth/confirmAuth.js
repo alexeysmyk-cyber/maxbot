@@ -17,6 +17,22 @@ const MIS_ROLE_MAP = {
   "16364": "SYSTEM_ADMINISTRATOR",
 };
 
+const ROLE_NAME_MAP = {
+  ADMIN: 'Директор',
+  DOCTOR: 'Врач',
+  MANAGER: 'Администратор',
+  CALL_CENTER: 'Call-центр',
+  CASHIER: 'Кассир',
+  NURSE: 'Медсестра',
+  HEAD_NURSE: 'Старшая медсестра',
+  HEAD_MANAGER: 'Старший администратор',
+  HEAD_CALL_CENTER: 'Руководитель call-центра',
+  HEAD_DOCTOR: 'Главный врач',
+  ACCOUNTANT: 'Бухгалтер',
+  SYSTEM_ADMINISTRATOR: 'Системный администратор',
+  PATIENT: 'Пациент'
+};
+
 // ===== ОСНОВНАЯ ФУНКЦИЯ =====
 export async function confirmAuth({ vk_id, type, data }) {
   if (!vk_id) throw new Error('VK_ID_REQUIRED');
@@ -28,9 +44,19 @@ export async function confirmAuth({ vk_id, type, data }) {
   if (type === 'EMPLOYEE') {
     const employee = data;
 
-    const roleKeys = (employee.role || [])
-      .map(r => MIS_ROLE_MAP[r])
-      .filter(Boolean);
+ const rolesRaw = Array.isArray(employee.role)
+  ? employee.role
+  : employee.role
+    ? [employee.role]
+    : [];
+
+console.log('MIS RAW ROLE:', rolesRaw);
+
+const roleKeys = rolesRaw
+  .map(r => MIS_ROLE_MAP[r])
+  .filter(Boolean);
+
+console.log('MAPPED ROLES:', roleKeys);
 
     // 1. создаём или обновляем пользователя
     user = await prisma.user.upsert({
@@ -56,20 +82,33 @@ export async function confirmAuth({ vk_id, type, data }) {
     });
 
     // 3. назначаем роли
-    for (const key of roleKeys) {
-      const role = await prisma.role.findUnique({
-        where: { key }
-      });
+   for (const raw of rolesRaw) {
+  const key = MIS_ROLE_MAP[raw];
 
-      if (role) {
-        await prisma.userRole.create({
-          data: {
-            userId: user.id,
-            roleId: role.id,
-          }
-        });
-      }
+  if (!key) continue;
+
+  const role = await prisma.role.upsert({
+    where: { key },
+    update: {
+      name: ROLE_NAME_MAP[key] || key,
+      mis_code: String(raw) // 👈 ВАЖНО
+    },
+    create: {
+      key,
+      name: ROLE_NAME_MAP[key] || key,
+      mis_code: String(raw)
     }
+  });
+
+  await prisma.userRole.create({
+    data: {
+      userId: user.id,
+      roleId: role.id,
+    }
+  });
+}
+
+
   }
 
   // ===== PATIENT =====
@@ -94,9 +133,16 @@ export async function confirmAuth({ vk_id, type, data }) {
     });
 
     // пациенту можно назначить роль PATIENT (если хочешь)
-    const role = await prisma.role.findUnique({
-      where: { key: 'PATIENT' }
-    });
+const role = await prisma.role.upsert({
+  where: { key: 'PATIENT' },
+  update: {
+    name: 'Пациент'
+  },
+  create: {
+    key: 'PATIENT',
+    name: 'Пациент'
+  }
+});
 
     if (role) {
       await prisma.userRole.deleteMany({
@@ -123,6 +169,13 @@ export async function confirmAuth({ vk_id, type, data }) {
       }
     }
   });
-
   return fullUser;
+
+
+
+
+
+
+
+
 }

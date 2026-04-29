@@ -2,6 +2,11 @@ import 'dotenv/config';
 import axios from 'axios';
 import qs from 'querystring';
 
+let employeesCache = null;
+let lastFetch = 0;
+
+
+
 // ===== Получить всех сотрудников =====
 export async function getEmployees() {
   const body = qs.stringify({
@@ -23,9 +28,12 @@ export async function getEmployees() {
 
 // ===== Найти сотрудника по email =====
 export async function findEmployeeByEmail(email) {
-  const employees = await getEmployees();
+  if (!employeesCache || Date.now() - lastFetch > 60_000) {
+    employeesCache = await getEmployees();
+    lastFetch = Date.now();
+  }
 
-  return employees.find(
+  return employeesCache.find(
     u => u.email && u.email.toLowerCase() === email.toLowerCase()
   );
 }
@@ -48,4 +56,31 @@ export async function getPatientsByEmail(email) {
   }
 
   return response.data.data || [];
+}
+
+// ===== Получить визит по ID =====
+// ===== Получить визит по ID (через getAppointments) =====
+export async function getAppointmentById(id) {
+  try {
+    const body = qs.stringify({
+      api_key: process.env.API_KEY,
+      appointment_id: id
+    });
+
+    const url = process.env.BASE_URL.replace(/\/$/, '') + '/getAppointments';
+
+    const response = await axios.post(url, body, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    if (!response.data || response.data.error !== 0) {
+      throw new Error('MIS_GET_APPOINTMENT_ERROR');
+    }
+
+    return response.data.data || null;
+
+  } catch (e) {
+    console.error('❌ getAppointmentById error:', e.message);
+    return null;
+  }
 }

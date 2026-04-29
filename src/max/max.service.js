@@ -1,48 +1,84 @@
-import 'dotenv/config';
 import { Bot } from '@maxhub/max-bot-api';
-import { handleMaxMessage } from './max.handler.js';
+import { handleMaxMessage, sendWelcome, sendMainMenu, handleEntry } from './max.handler.js';
+import { prisma } from '../db/prisma.js';
+import { runUpcomingVisitsJob } from '../jobs/upcomingVisits.job.js';
 
-const bot = new Bot(process.env.MAX_BOT_TOKEN);
+
+
+let botInstance = null;
+
+
+
+
 
 export function startMaxBot() {
-  // ловим ВСЁ
-  bot.on('message', async (ctx) => {
-    console.log('========================');
-    console.log('🔥 FULL CTX:');
-    console.dir(ctx, { depth: null });
+  console.log('🚀 BOT START');
 
-    console.log('👉 ctx.from:', ctx.from);
-    console.log('👉 ctx.chat:', ctx.chat);
-    console.log('👉 ctx.message:', ctx.message);
-    console.log('👉 ctx.update:', ctx.update);
+const bot = new Bot(process.env.MAX_BOT_TOKEN);
+botInstance = bot; 
 
-    try {
-      await ctx.reply('pong');
-    } catch (e) {
-      console.error('REPLY ERROR:', e);
-    }
-  });
+  // ===== /start =====
 
-  // отдельно команда
- bot.command('start', async (ctx) => {
-  await ctx.reply('Введите email: /email your@mail.com');
+bot.on('bot_started', async (ctx) => {
+  const userId = String(ctx.user?.user_id);
+  return handleEntry(ctx, userId);
 });
 
-bot.command('email', async (ctx) => {
-  const text = ctx.message?.body?.text || '';
-  const email = text.replace('/email', '').trim();
-
-  await handleMaxMessage(ctx, email);
+  bot.command('start', async (ctx) => {
+  const userId = String(ctx.message?.sender?.user_id);
+  return handleEntry(ctx, userId);
 });
 
-bot.command('code', async (ctx) => {
-  const text = ctx.message?.body?.text || '';
-  const code = text.replace('/code', '').trim();
+  // ===== ВСЕ СООБЩЕНИЯ =====
+bot.on('message_created', async (ctx) => {
+  const text = ctx.message?.body?.text;
 
-  await handleMaxMessage(ctx, code);
+  // ❗ ИГНОРИМ ПУСТЫЕ / СИСТЕМНЫЕ
+  if (!text) return;
+
+  console.log('📩 MESSAGE:', text);
+
+  try {
+    await handleMaxMessage(ctx, text);
+  } catch (e) {
+    console.error('HANDLER ERROR:', e);
+    // ❗ временно убери reply
+  }
 });
-bot.on('message', async (ctx) => {
-    console.log('🔥 MESSAGE EVENT:', ctx.message?.body?.text);
-  });
+
+  // ===== КНОПКИ =====
+bot.on('message_callback', async (ctx) => {
+  console.log('====================');
+  console.log('🔥 CALLBACK EVENT');
+  console.dir(ctx, { depth: null });
+
+const payload = ctx.update?.callback?.payload;
+
+  console.log('👉 PAYLOAD:', payload);
+
+  try {
+    await handleMaxMessage(ctx, payload);
+  } catch (e) {
+    console.error(e);
+  }
+});
+
   bot.start();
+  console.log('✅ MAX bot started');
 }
+
+
+export function getBot() {
+  if (!botInstance) {
+    throw new Error('❌ Bot not initialized');
+  }
+  return botInstance;
+}
+
+
+// 🔥 ЗАПУСК JOB
+setInterval(() => {
+  if (!botInstance) return;
+  runUpcomingVisitsJob(botInstance);
+}, 60 * 1000);
+console.log('⏰ JOB RUN');

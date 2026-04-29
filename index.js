@@ -1,11 +1,16 @@
+
+import dotenv from 'dotenv';
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+
 import { startMaxBot } from './src/max/max.service.js';
+import { handleMisWebhook} from './src/services/mis/misWebhook.service.js';
+import { getBot } from './src/max/max.service.js';
+import path from 'path';
 
 startMaxBot();
 dotenv.config();
-
+console.log('ENV SECRET:', process.env.MIS_WEBHOOK_SECRET);
 const app = express();
 const prisma = new PrismaClient();
 
@@ -16,6 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PORT = process.env.PORT || 3000;
+
+
 
 // ===== AUTH =====
 function basicAuth(req, res, next) {
@@ -146,7 +153,19 @@ app.post('/admin/add', basicAuth, async (req, res) => {
   }
 });
 
+app.post('/webhook/mis', async (req, res) => {
+  console.log('🔥 WEBHOOK HIT');
+
+  try {
+    await handleMisWebhook(req, res, getBot());
+  } catch (e) {
+    console.error('❌ WEBHOOK ERROR:', e);
+    res.status(500).send('ERROR');
+  }
+});
 // ===== START =====
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
+
+app.use('/files', express.static(path.resolve('uploads')));

@@ -22,6 +22,7 @@
     "express-session": "^1.19.0",
     "nodemailer": "^8.0.5",
     "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
     "vk-io": "^4.10.1"
   }
 }
