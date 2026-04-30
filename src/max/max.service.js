@@ -7,23 +7,41 @@ import { sendWithRetry } from '../common/maxRetry.js';
 
 let botInstance = null;
 
+function patchContext(ctx, bot) {
+  const originalReply = ctx.reply.bind(ctx);
 
-
-function patchBotApi(bot) {
-  const originalSend = bot.api.sendMessageToUser.bind(bot.api);
-
-  bot.api.sendMessageToUser = async (...args) => {
+  ctx.reply = async (...args) => {
     try {
-      const res = await sendWithRetry(() => originalSend(...args));
-
-      console.log('✅ MESSAGE SENT');
-
-      return res;
+      return await sendWithRetry(() => originalReply(...args));
     } catch (e) {
-      console.error('💀 FINAL SEND FAIL:', e.message);
+      console.error('💀 FINAL FAIL [ctx.reply]', e.message);
       return null;
     }
   };
+
+  // 🔥 ВАЖНО
+  if (ctx.api) {
+    ctx.api.sendMessageToUser = bot.api.sendMessageToUser;
+  }
+}
+
+function patchBotApi(bot) {
+  const api = bot.api;
+
+  for (const key of Object.keys(api)) {
+    const original = api[key];
+
+    if (typeof original !== 'function') continue;
+
+    api[key] = async (...args) => {
+      try {
+        return await sendWithRetry(() => original.apply(api, args));
+      } catch (e) {
+        console.error(`💀 FINAL FAIL [${key}]`, e.message);
+        return null;
+      }
+    };
+  }
 }
 
 
@@ -54,6 +72,9 @@ bot.on('bot_started', async (ctx) => {
 
   // ===== ВСЕ СООБЩЕНИЯ =====
 bot.on('message_created', async (ctx) => {
+
+patchContext(ctx, bot);
+
   const text = ctx.message?.body?.text;
 
   // ❗ ИГНОРИМ ПУСТЫЕ / СИСТЕМНЫЕ
@@ -71,6 +92,9 @@ bot.on('message_created', async (ctx) => {
 
   // ===== КНОПКИ =====
 bot.on('message_callback', async (ctx) => {
+  
+  patchContext(ctx, bot);
+  
   console.log('====================');
   console.log('🔥 CALLBACK EVENT');
   console.dir(ctx, { depth: null });

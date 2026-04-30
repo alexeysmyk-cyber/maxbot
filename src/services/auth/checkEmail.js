@@ -10,12 +10,18 @@ export const AuthStatus = {
 };
 
 export async function checkEmail(email) {
+  
+    console.log('📧 CHECK EMAIL:', email);
+  
   if (!email) {
     throw new Error('EMAIL_REQUIRED');
   }
 
   const employee = await findEmployeeByEmail(email);
+   console.log('👨‍⚕️ EMPLOYEE FOUND:', !!employee);
   const patients = await getPatientsByEmail(email);
+   console.log('🧑 PATIENTS RAW:', patients);
+  console.log('🧑 PATIENTS COUNT:', patients.length);
 
   // 🟡 сотрудник + 1 пациент → выбор
   if (employee && patients.length === 1) {

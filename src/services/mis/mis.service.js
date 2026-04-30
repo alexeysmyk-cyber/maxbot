@@ -55,7 +55,12 @@ export async function getPatientsByEmail(email) {
     throw new Error('MIS_GET_PATIENT_ERROR');
   }
 
-  return response.data.data || [];
+const data = response.data.data;
+
+if (!data) return [];
+
+// 🔥 НОРМАЛИЗАЦИЯ
+return Array.isArray(data) ? data : [data];
 }
 
 // ===== Получить визит по ID =====

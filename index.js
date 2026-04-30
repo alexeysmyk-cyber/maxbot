@@ -154,6 +154,8 @@ app.post('/admin/add', basicAuth, async (req, res) => {
 });
 
 app.post('/webhook/mis', async (req, res) => {
+  
+  res.send('OK'); // 🔥 СРАЗУ
   console.log('🔥 WEBHOOK HIT');
 
   try {
