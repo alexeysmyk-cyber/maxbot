@@ -294,7 +294,7 @@ if (event === 'create_invoice') {
 
   key = 'invoice_create';
 
-  message = `🧾 Создан счёт\n\n`;
+ 
   const number = data.number;
   const date = data.date;
   const value = data.value;
@@ -326,26 +326,39 @@ else if (event === 'full_payment_invoice') {
 
   if (data.moved_from) return null;
 
-  key = 'visit_create';
-  doctorId = data.doctor_id;
+  key = 'invoice_pay';
+ 
+  const number = data.number;
+  const date = data.date;
+  const value = data.value;
+  const status = data.status;
+  const paymentType = data.payment_type_name;
 
-  const timeStart = data.time_start;
-  const room = data.room;
-  const doctor = data.doctor;
-  const patientName = data.patient_name;
-  const patientPhone = data.patient_phone;
-  const source = data.source || '';
+  const patient = data.patient || data.patient_name;
+  const patientBirth = data.patient_birth_date;
+  const patientGender = data.patient_gender;
+  const patientMobile = data.patient_mobile;
+  const patientEmail = data.patient_email;
 
-  message = `🆕 Новый визит\n\n`;
+  message = `💳 Счёт полностью оплачен\n\n`;
 
-  if (timeStart) message += `📅 Время: ${timeStart}\n`;
-  if (room) message += `🚪 Кабинет: ${room}\n`;
-  if (doctor) message += `👨‍⚕️ Врач: ${doctor}\n\n`;
+  if (number) message += `🆔 Счёт №: ${number}\n`;
+  if (date) message += `📅 Дата: ${date}\n`;
+  if (value) message += `💰 Сумма: ${value} ₽\n`;
+  if (status) message += `📌 Статус: ${status}\n`;
+  if (paymentType) message += `💳 Способ оплаты: ${paymentType}\n`;
 
-  if (patientName) message += `👤 Пациент: ${patientName}\n`;
-  if (patientPhone) message += `📞 Телефон: ${patientPhone}\n`;
-  if (source) message += `🌐 Источник: ${source}\n`;
+  message += `\n👤 Пациент:\n`;
+
+  if (patient) message += `ФИО: ${patient}\n`;
+  if (patientBirth) message += `🎂 Дата рождения: ${patientBirth}\n`;
+  if (patientGender) message += `⚥ Пол: ${patientGender}\n`;
+  if (patientMobile) message += `📞 Телефон: ${patientMobile}\n`;
+  if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
+
+
+
 
 
 
