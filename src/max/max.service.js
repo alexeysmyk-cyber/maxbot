@@ -2,11 +2,29 @@ import { Bot } from '@maxhub/max-bot-api';
 import { handleMaxMessage, sendWelcome, sendMainMenu, handleEntry } from './max.handler.js';
 import { prisma } from '../db/prisma.js';
 import { runUpcomingVisitsJob } from '../jobs/upcomingVisits.job.js';
-
+import { sendWithRetry } from '../common/maxRetry.js';
 
 
 let botInstance = null;
 
+
+
+function patchBotApi(bot) {
+  const originalSend = bot.api.sendMessageToUser.bind(bot.api);
+
+  bot.api.sendMessageToUser = async (...args) => {
+    try {
+      const res = await sendWithRetry(() => originalSend(...args));
+
+      console.log('✅ MESSAGE SENT');
+
+      return res;
+    } catch (e) {
+      console.error('💀 FINAL SEND FAIL:', e.message);
+      return null;
+    }
+  };
+}
 
 
 
@@ -15,6 +33,11 @@ export function startMaxBot() {
   console.log('🚀 BOT START');
 
 const bot = new Bot(process.env.MAX_BOT_TOKEN);
+
+
+
+patchBotApi(bot);
+
 botInstance = bot; 
 
   // ===== /start =====
