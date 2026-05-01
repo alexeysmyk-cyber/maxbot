@@ -97,7 +97,10 @@ return smartReply(
     [Keyboard.button.callback('📅 Визиты', 'notif_group_visit')],
     [Keyboard.button.callback('🧪 Анализы', 'notif_group_lab')],
     [Keyboard.button.callback('💰 Финансы', 'notif_group_invoice')],
-    [Keyboard.button.callback('⬅️ Назад', 'settings')]
+     [
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('🏠 Домой', 'back_to_menu')
+      ]
   ])
 );
 }
@@ -145,8 +148,11 @@ export async function openNotificationSettings(ctx, user, text) {
     );
   }
 
-  buttons.push([
-    Keyboard.button.callback('⬅️ Назад', 'notifications')
+  buttons.push(
+     [
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('🏠 Домой', 'back_to_menu')
+      
   ]);
 
 return smartReply(

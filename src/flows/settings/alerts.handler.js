@@ -16,7 +16,10 @@ export async function handleAlerts(ctx, user, text) {
         '📅 У вас нет оповещений',
         Keyboard.inlineKeyboard([
           [Keyboard.button.callback('➕ Добавить', 'alert_add')],
-          [Keyboard.button.callback('⬅️ Назад', 'settings')]
+           [
+           Keyboard.button.callback('⬅️ Назад', 'settings'),
+           Keyboard.button.callback('🏠 Домой', 'back_to_menu')
+           ]
         ])
       );
     }
@@ -35,7 +38,10 @@ export async function handleAlerts(ctx, user, text) {
       Keyboard.inlineKeyboard([
         [Keyboard.button.callback('➕ Добавить', 'alert_add')],
         [Keyboard.button.callback('🗑 Удалить', 'alert_delete')],
-        [Keyboard.button.callback('⬅️ Назад', 'settings')]
+         [
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('🏠 Домой', 'back_to_menu')
+      ]
       ])
     );
   }
