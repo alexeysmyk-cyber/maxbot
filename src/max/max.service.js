@@ -80,7 +80,7 @@ patchContext(ctx, bot);
   // ❗ ИГНОРИМ ПУСТЫЕ / СИСТЕМНЫЕ
   if (!text) return;
 
-  console.log('📩 MESSAGE:', text);
+
 
   try {
     await handleMaxMessage(ctx, text);
@@ -95,13 +95,13 @@ bot.on('message_callback', async (ctx) => {
   
   patchContext(ctx, bot);
   
-  console.log('====================');
-  console.log('🔥 CALLBACK EVENT');
-  console.dir(ctx, { depth: null });
+  
+
+
 
 const payload = ctx.update?.callback?.payload;
 
-  console.log('👉 PAYLOAD:', payload);
+
 
   try {
     await handleMaxMessage(ctx, payload);

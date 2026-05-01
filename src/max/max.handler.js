@@ -288,11 +288,11 @@ const roleLabel = role?.name || user.activeRole || user.type;
 
   const buttons = [];
 
-  if (user.type === 'EMPLOYEE') {
-    buttons.push([
-      Keyboard.button.callback('💰 Создать счёт', 'create_invoice')
-    ]);
-  }
+ if (user.activeRole !== 'PATIENT') {
+  buttons.push([
+    Keyboard.button.callback('💰 Создать счёт', 'create_invoice')
+  ]);
+}
 
   buttons.push([
     Keyboard.button.callback('⚙️ Настройки', 'settings')
@@ -409,6 +409,13 @@ if (text === '/start' || text === 'start') {
 }
 
 if (text === 'create_invoice') {
+ const user = await requireAuth(ctx, userId);
+  if (!user) return sendWelcome(ctx, userId);
+
+  if (user.activeRole === 'PATIENT') {
+    return ctx.reply('❌ У вас нет доступа');
+  }
+
   await setState(userId, 'WAIT_PAYMENT_SUM');
   return ctx.reply('Введите сумму');
 }
@@ -536,7 +543,7 @@ if (text === 'settings') {
     return sendWelcome(ctx, userId);
   }
 
-  return showSettingsMenu(ctx);
+  return showSettingsMenu(ctx, user);
 }
 
 if (text === 'back_to_menu') {
@@ -554,15 +561,21 @@ if (text === 'noop') {
 }
 
 if (text === 'system_settings') {
-  return showSystemSettings(ctx);
+
+  const user = await requireAuth(ctx, userId);
+  if (!user) return sendWelcome(ctx, userId);
+
+  return showSystemSettings(ctx, user);
 }
 
 if (text === 'change_role') {
-  const user = await requireAuth(ctx, userId);
 
-if (!user) {
-  return sendWelcome(ctx, userId);
-}
+  const user = await requireAuth(ctx, userId);
+  if (!user) return sendWelcome(ctx, userId);
+
+  if (user.activeRole === 'PATIENT') {
+    return ctx.reply('❌ Смена роли недоступна');
+  }
 
   return startChangeRole(ctx, user);
 }

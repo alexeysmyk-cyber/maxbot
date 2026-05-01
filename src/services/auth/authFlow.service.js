@@ -17,7 +17,7 @@ export async function startAuth(email, checkResult) {
   checkResult.status === 'NOT_FOUND' ||
   checkResult.status === 'MULTI_PATIENT'
 ){
-    return result;
+    return { status: 'NOT_ALLOWED' };
   }
 
   // ✅ отправляем код

@@ -5,10 +5,10 @@ const existing = await prisma.userNotification.findFirst({
   where: { userId }
 });
 
-//if (existing) {
-//  console.log('⚠️ Notifications already exist, skip init');
-//  return;
-//}
+if (existing) {
+  console.log('⚠️ Notifications already exist, skip init');
+  return;
+}
 
 
   const dbRole = await prisma.role.findFirst({

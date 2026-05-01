@@ -389,11 +389,9 @@ console.log('BODY RAW:', req.body);
     req.headers['x-webhook-secret'] ||
     req.body?.secret;
 
-    console.log('SECRET FINAL:', secret);
-console.log('EQUAL:', secret === process.env.MIS_WEBHOOK_SECRET);
-
+    
   if (secret !== process.env.MIS_WEBHOOK_SECRET) {
-    console.log('❌ INVALID WEBHOOK SECRET:', secret);
+    
     return ;
   }
 
@@ -430,10 +428,27 @@ const settings = await prisma.userNotification.findMany({
   include: { user: true }
 });
 
-console.log('👥 SETTINGS FOUND:', settings.length);
 
 for (const s of settings) {
-  const user = s.user;
+
+  const user = s.user; // 👈 ВАЖНО СЮДА
+
+  if (user.activeRole === 'PATIENT') {
+
+    if (!['lab_full', 'lab_partial', 'invoice_create', 'invoice_pay'].includes(key)) {
+      continue;
+    }
+
+    const patientId =
+      data.patient_id ||
+      data.patientId ||
+      data.patient?.id;
+
+    if (String(user.mis_id) !== String(patientId)) {
+      continue;
+    }
+  }
+ 
 
   // 🔥 фильтр по режиму
   if (s.mode === 'self') {

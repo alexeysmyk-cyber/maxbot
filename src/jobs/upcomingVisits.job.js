@@ -25,6 +25,9 @@ export async function runUpcomingVisitsJob(bot) {
     include: { user: true }
   });
   for (const alert of alerts) {
+    if (user.activeRole === 'PATIENT') {
+  continue;
+}
 const user = alert.user;
 
 

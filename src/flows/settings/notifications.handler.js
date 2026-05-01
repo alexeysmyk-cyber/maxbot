@@ -29,6 +29,15 @@ const GROUP_KEYS = {
 
 
 export async function showNotificationGroup(ctx, user, text) {
+
+  if (user.activeRole === 'PATIENT') {
+
+  // разрешаем только lab
+  if (!text.includes('lab')) {
+    return ctx.reply('❌ Недоступно');
+  }
+}
+
   console.log('🔥 ENTER showNotificationGroup:', text);
 
   if (!text.startsWith('notif_group_')) return;
@@ -75,8 +84,11 @@ export async function showNotificationGroup(ctx, user, text) {
     ];
   });
 
-  buttons.push([
-    Keyboard.button.callback('⬅️ Назад', 'notifications')
+  buttons.push(
+     [
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('🏠 Домой', 'back_to_menu')
+      
   ]);
 
   return smartReply(
@@ -88,7 +100,21 @@ export async function showNotificationGroup(ctx, user, text) {
 
 
 
-export async function showNotifications(ctx) {
+export async function showNotifications(ctx, user) {
+
+  if (user.activeRole === 'PATIENT') {
+  return smartReply(
+    ctx,
+    '🔔 Уведомления',
+    Keyboard.inlineKeyboard([
+      [Keyboard.button.callback('🧪 Анализы', 'notif_group_lab')],
+      [
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('🏠 Домой', 'back_to_menu')
+      ]
+    ])
+  );
+}
 return smartReply(
   ctx,
   '🔔 Уведомления',
@@ -107,6 +133,30 @@ return smartReply(
 
 
 export async function openNotificationSettings(ctx, user, text) {
+
+  if (user.activeRole === 'PATIENT') {
+
+  const raw = text.replace('notif_', '');
+  if (!/^\d+$/.test(raw)) return;
+
+  const typeId = Number(raw);
+
+  const setting = await prisma.userNotification.findFirst({
+    where: {
+      userId: user.id,
+      typeId
+    },
+    include: { type: true }
+  });
+
+  if (!setting) return;
+
+  // разрешаем только анализы
+  if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
+    return ctx.reply('❌ Недоступно');
+  }
+}
+
   if (!text.startsWith('notif_')) return;
 
   const raw = text.replace('notif_', '');
@@ -163,6 +213,26 @@ return smartReply(
 }
 
 export async function setNotificationMode(ctx, user, text) {
+
+ if (user.activeRole === 'PATIENT') {
+
+  const [, , typeId] = text.split('_');
+
+  const setting = await prisma.userNotification.findFirst({
+    where: {
+      userId: user.id,
+      typeId: Number(typeId)
+    },
+    include: { type: true }
+  });
+
+  if (!setting) return;
+
+  if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
+    return ctx.reply('❌ Недоступно');
+  }
+}
+
   if (!text.startsWith('set_mode_')) return;
 
   const [, , typeId, mode] = text.split('_');

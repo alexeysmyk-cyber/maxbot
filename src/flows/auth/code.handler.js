@@ -112,8 +112,7 @@ const user = await prisma.user.findFirst({
 
 const roles = user.roles.map(r => r.role.key);
 
-// 🧪 DEBUG
-console.log('USER ROLES:', roles);
+
 
 // ✅ 1 роль → сразу логин
 if (roles.length === 1) {
