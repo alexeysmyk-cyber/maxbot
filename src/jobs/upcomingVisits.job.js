@@ -25,10 +25,12 @@ export async function runUpcomingVisitsJob(bot) {
     include: { user: true }
   });
   for (const alert of alerts) {
+
+    const user = alert.user;
     if (user.activeRole === 'PATIENT') {
   continue;
 }
-const user = alert.user;
+
 
 
 if (!alert.time || !alert.time.includes(':')) {

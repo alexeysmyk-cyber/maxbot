@@ -380,8 +380,7 @@ else if (event === 'full_payment_invoice') {
 
 export async function handleMisWebhook(req, bot) {
 
-console.log('REQ QUERY:', req.query);
-console.log('BODY RAW:', req.body);
+
 
   // 🔐 секрет
   const secret =
