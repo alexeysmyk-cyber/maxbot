@@ -298,9 +298,9 @@ const roleLabel = role?.name || user.activeRole || user.type;
     Keyboard.button.callback('⚙️ Настройки', 'settings')
   ]);
 
-  buttons.push([
-    Keyboard.button.callback('🚪 Выйти', 'reset')
-  ]);
+ // buttons.push([
+ //   Keyboard.button.callback('🚪 Выйти', 'reset')
+ // ]);
 
   return ctx.reply(
     `👤 ${roleLabel}\n${user.name || ''}`,
