@@ -108,6 +108,12 @@ if (event === 'full_ready_lab_result') {
     message += `👤 ${data.patient_name}\n`;
   }
 
+  const services = data.services || [];
+  if (services.length) {
+    message += `\n📋 Исследования:\n`;
+    services.forEach(s => message += `• ${s}\n`);
+  }
+
   const links = processLabFiles(data);
 
   if (links.length) {
@@ -124,6 +130,12 @@ if (event === 'full_ready_lab_result') {
   }
 
   const links = processLabFiles(data);
+
+   const services = data.services || [];
+  if (services.length) {
+    message += `\n📋 Исследования:\n`;
+    services.forEach(s => message += `• ${s}\n`);
+  } 
 
   if (links.length) {
     message += `\n📎 Доступные результаты:\n`;
@@ -366,7 +378,7 @@ else if (event === 'full_payment_invoice') {
   return { message, doctorId, key };
 }
 
-export async function handleMisWebhook(req, res, bot) {
+export async function handleMisWebhook(req, bot) {
 
 console.log('REQ QUERY:', req.query);
 console.log('BODY RAW:', req.body);
@@ -382,28 +394,28 @@ console.log('EQUAL:', secret === process.env.MIS_WEBHOOK_SECRET);
 
   if (secret !== process.env.MIS_WEBHOOK_SECRET) {
     console.log('❌ INVALID WEBHOOK SECRET:', secret);
-    return res.send('OK');
+    return ;
   }
 
   const { event, data } = req.body;
 
   if (isDuplicate(event, data)) {
-    return res.send('OK');
+    return ;
   }
 
   
 const result = await buildMessage(event, data);
 
-if (!result) return res.send('OK');
+if (!result) return ;
 
 const { message, doctorId, key } = result;
 
 if (!key) {
   console.log('❌ NO KEY');
-  return res.send('OK');
+  return ;
 }
 
-  if (!message) return res.send('OK');
+  if (!message) return ;
 
 
 // ==================================================
@@ -441,7 +453,7 @@ for (const s of settings) {
   }
 }
 
-return res.send('OK');
+return ;
 
 
 
