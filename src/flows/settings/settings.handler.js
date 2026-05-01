@@ -22,7 +22,7 @@ export async function showSystemSettings(ctx) {
       [Keyboard.button.callback('🔄 Сменить роль', 'change_role')],
       [Keyboard.button.callback('🚪 Выйти из аккаунта', 'reset')],
       [
-        Keyboard.button.callback('⬅️ Назад', 'settings')
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
         Keyboard.button.callback('🏠 Домой', 'back_to_menu')
       ]
     ])
