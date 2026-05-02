@@ -154,15 +154,20 @@ app.post('/admin/add', basicAuth, async (req, res) => {
 });
 
 app.post('/webhook/mis', async (req, res) => {
-  
-  res.send('OK'); // 🔥 СРАЗУ
+  res.send('OK');
   console.log('🔥 WEBHOOK HIT');
 
+  const bot = getBot();
+
+  if (!bot || !bot.api) {
+    console.error('❌ BOT NOT READY — SKIP');
+    return;
+  }
+
   try {
-    await handleMisWebhook(req, res, getBot());
+    await handleMisWebhook(req, bot);
   } catch (e) {
     console.error('❌ WEBHOOK ERROR:', e);
-    res.status(500).send('ERROR');
   }
 });
 // ===== START =====
