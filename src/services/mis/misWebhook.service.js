@@ -107,7 +107,7 @@ async function buildMessage(event, data) {
 }
 
 
-if (event === 'full_ready_lab_result') {
+else if (event === 'full_ready_lab_result') {
   message = `🔬 Все анализы готовы\n\n`;
   key = 'lab_full';
   if (data.patient_name) {
@@ -128,7 +128,7 @@ if (event === 'full_ready_lab_result') {
   }
 }
 
- if (event === 'part_ready_lab_result') {
+else if (event === 'part_ready_lab_result') {
   message = `🧪 Частичные анализы готовы\n\n`;
  key = 'lab_partial';
   if (data.patient_name) {
@@ -260,7 +260,7 @@ if (Array.isArray(newAppointment)) {
   // ⛔ НЕ return — идём дальше
 }
 
-if (event === 'update_appointment') {
+else if (event === 'update_appointment') {
 
   if (!Array.isArray(data) || !data.length) return null;
 key = 'visit_finish';
@@ -283,7 +283,7 @@ key = 'visit_finish';
   if (item.room) message += `🚪 ${item.room}\n`;
 }
 
-if (event === 'create_patient') {
+else if (event === 'create_patient') {
 
   key = 'patient_create';
 
@@ -308,7 +308,7 @@ if (event === 'create_patient') {
 
 }
 
-if (event === 'create_invoice') {
+else if (event === 'create_invoice') {
 
   key = 'invoice_create';
 
@@ -374,12 +374,6 @@ else if (event === 'full_payment_invoice') {
   if (patientMobile) message += `📞 Телефон: ${patientMobile}\n`;
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
-
-
-
-
-
-
 
   return { message, doctorId, key };
 }
