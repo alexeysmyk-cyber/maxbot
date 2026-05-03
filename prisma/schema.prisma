@@ -35,7 +35,7 @@ enum RoleKey {
 
 model User {
   id        Int    @id @default(autoincrement())
-  vk_id     String 
+  vk_id     String?
   email     String?
   mis_id    String?
   name      String?
