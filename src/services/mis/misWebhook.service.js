@@ -402,11 +402,80 @@ export async function handleMisWebhook(req, bot) {
 
   const { event, data } = req.body;
 
+  // ===============================
+// 📱 PHONE → HASH
+// ===============================
+const rawPhone =
+  data.patient_phone ||
+  data.phone ||
+  data.patient?.phone;
+
+let phone = null;
+let phoneHash = null;
+
+if (rawPhone) {
+  phone = normalizePhone(rawPhone);
+  phoneHash = hashPhone(phone);
+
+  console.log('📱 PHONE:', phone);
+  console.log('🔐 HASH:', phoneHash);
+}
+
+const patientId =
+  data.patient_id ||
+  data.patientId ||
+  data.patient?.id;
+
+
   if (isDuplicate(event, data)) {
     return ;
   }
 
-  
+ // ===============================
+// 👤 FIND OR CREATE PATIENT USER
+// ===============================
+let patientUser = null;
+
+if (phoneHash && patientId) {
+  patientUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { mis_id: String(patientId) },
+        { phone_hash: phoneHash }
+      ]
+    }
+  });
+
+  if (!patientUser) {
+    patientUser = await prisma.user.create({
+      data: {
+        mis_id: String(patientId),
+        phone_hash: phoneHash,
+        activeRole: 'PATIENT'
+      }
+    });
+
+    console.log('🆕 PATIENT USER CREATED');
+  } else {
+    await prisma.user.update({
+      where: { id: patientUser.id },
+      data: {
+        mis_id: String(patientId),
+        phone_hash: phoneHash
+      }
+    });
+
+    console.log('♻️ PATIENT USER UPDATED');
+  }
+} 
+
+// ===============================
+// 🚀 FIRST CONTACT (ПОКА ЛОГ)
+// ===============================
+if (patientUser && !patientUser.vk_id) {
+  console.log('📱 NEED FIRST CONTACT:', phoneHash);
+}
+
 const result = await buildMessage(event, data);
 
 if (!result) return ;
