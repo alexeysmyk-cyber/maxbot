@@ -43,9 +43,10 @@ model User {
   type      String?   // EMPLOYEE / PATIENT
   activeRole String?  // для будущего переключения ролей
 
+  phone_hash  String? @unique
   roles     UserRole[]
   overrides UserPermissionOverride[]
-notifications UserNotification[]
+  notifications UserNotification[]
   
   alerts UpcomingVisitAlert[]
 

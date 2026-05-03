@@ -1,5 +1,11 @@
 import { prisma } from '../../db/prisma.js';
 import { getAppointmentById } from './mis.service.js';
+import { normalizePhone } from '../../common/phone.util.js';
+import { hashPhone } from '../../common/hash.util.js';
+
+
+
+
 
 
 
