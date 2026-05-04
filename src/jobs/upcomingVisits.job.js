@@ -43,7 +43,7 @@ const [h, m] = alert.time.split(':');
 const alertDate = new Date();
 alertDate.setHours(h, m, 0, 0);
 
-alertDate.setHours(alertDate.getHours() - 3);
+//alertDate.setHours(alertDate.getHours() - 3);
 
 console.log('NOW:', now.toISOString());
 console.log('ALERT:', alertDate.toISOString());
