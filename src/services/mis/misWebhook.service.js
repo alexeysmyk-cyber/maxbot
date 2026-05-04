@@ -81,6 +81,7 @@ async function buildMessage(event, data) {
 
     let key = null;   // 🔥 ВОТ ЭТО ДОБАВЬ
 
+    console.log('📦 RAW EVENT:', event);
 
  if (event === 'create_appointment') {
 
@@ -400,7 +401,12 @@ else if (event === 'full_payment_invoice') {
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
 
-  return { message, doctorId, key };
+  if (!key || !message) {
+  console.log('⚠️ SKIP EVENT:', event);
+  return null;
+}
+
+return { message, doctorId, key };
 }
 
 export async function handleMisWebhook(req, bot) {
@@ -496,6 +502,9 @@ if (patientUser && !patientUser.vk_id) {
 }
 
 const result = await buildMessage(event, data);
+
+console.log('📦 EVENT:', event);
+console.log('🧠 BUILD RESULT:', result);
 
 if (!result) return ;
 
