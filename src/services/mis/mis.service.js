@@ -89,3 +89,28 @@ export async function getAppointmentById(id) {
     return null;
   }
 }
+
+export async function getPatientById(id) {
+  try {
+    const body = qs.stringify({
+      api_key: process.env.API_KEY,
+      patient_id: id
+    });
+
+    const url = process.env.BASE_URL.replace(/\/$/, '') + '/getPatient';
+
+    const response = await axios.post(url, body, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    if (!response.data || response.data.error !== 0) {
+      throw new Error('MIS_GET_PATIENT_ERROR');
+    }
+
+    return response.data.data || null;
+
+  } catch (e) {
+    console.error('❌ getPatientById error:', e.message);
+    return null;
+  }
+}

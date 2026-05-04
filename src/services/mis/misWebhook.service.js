@@ -4,8 +4,8 @@ import { normalizePhone } from '../../common/phone.util.js';
 import { hashPhone } from '../../common/hash.util.js';
 import { resolveChannel } from '../notification/resolveChannel.js';
 import { sendEmailSafe } from '../notification/email.util.js';
-
-
+import { getPatientById } from './mis.service.js';
+ 
 
 
 
@@ -545,11 +545,25 @@ for (const s of settings) {
       continue;
     }
 
-    const patient = data.patient_full || {
-      email: data.patient_email,
-      send_email: true,
-      send_email_lab: true
-    };
+   let patient = null;
+
+try {
+  patient = await getPatientById(patientIdFromEvent);
+} catch (e) {
+  console.error('❌ LOAD PATIENT ERROR');
+}
+
+if (!patient) {
+  console.log('❌ PATIENT NOT FOUND IN MIS');
+  continue;
+}
+
+console.log('📊 PATIENT FROM MIS:', {
+  email: patient.email,
+  send_email: patient.send_email,
+  send_email_lab: patient.send_email_lab
+});
+
 
     const channel = resolveChannel(user, patient, key);
 
