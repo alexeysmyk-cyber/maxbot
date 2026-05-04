@@ -94,7 +94,7 @@ export async function getPatientById(id) {
   try {
     const body = qs.stringify({
       api_key: process.env.API_KEY,
-      patient_id: id
+      id: id
     });
 
     const url = process.env.BASE_URL.replace(/\/$/, '') + '/getPatient';
