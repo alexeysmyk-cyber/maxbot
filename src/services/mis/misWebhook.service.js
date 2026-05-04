@@ -563,8 +563,6 @@ if (patientUser) {
     }
   }
 }
-return;
-
 
 if (!key) {
   console.log('❌ NO KEY');
@@ -590,6 +588,10 @@ console.log('📊 SETTINGS COUNT:', settings.length);
 for (const s of settings) {
 
   const user = s.user;
+
+if (s.user.activeRole === 'PATIENT') {
+  continue;
+}
 
   // 🔥 ОБЩИЙ ФИЛЬТР
   if (s.mode === 'self') {
