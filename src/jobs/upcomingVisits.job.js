@@ -43,6 +43,7 @@ const [h, m] = alert.time.split(':');
 const alertDate = new Date();
 alertDate.setHours(h, m, 0, 0);
 
+alertDate.setHours(alertDate.getHours() - 3);
 if (Math.abs(now - alertDate) > 60 * 1000) continue;
 
 
@@ -67,6 +68,7 @@ if (lastStr === todayStr) continue;
     // ===== дата завтра =====
 
 let targetDate = new Date();
+targetDate.setHours(0, 0, 0, 0);
 
 if (alert.type === 'tomorrow') {
   targetDate.setDate(targetDate.getDate() + 1);

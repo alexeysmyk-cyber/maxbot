@@ -107,45 +107,69 @@ async function buildMessage(event, data) {
 }
 
 
-else if (event === 'full_ready_lab_result') {
-  message = `🔬 Все анализы готовы\n\n`;
-  key = 'lab_full';
-  if (data.patient_name) {
-    message += `👤 ${data.patient_name}\n`;
+else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result') {
+
+  const appointmentId = data.appointment_id;
+
+  if (!appointmentId) {
+    console.log('⚠️ NO appointment_id');
+    return null;
   }
 
-  const services = data.services || [];
-  if (services.length) {
+  const isFull = event === 'full_ready_lab_result';
+
+  key = isFull ? 'lab_full' : 'lab_partial';
+
+  let appointment = null;
+
+  try {
+    appointment = await getAppointmentById(appointmentId);
+  } catch (e) {
+    console.error('❌ getAppointment error:', e.message);
+  }
+
+  if (!appointment) {
+    console.log('⚠️ appointment not found');
+    return null;
+  }
+
+  const patientName = appointment.patient_name;
+  const doctor = appointment.doctor;
+
+  message = isFull
+    ? '🔬 Анализы полностью готовы\n\n'
+    : '🧪 Частично выполненные анализы\n\n';
+
+  if (patientName) {
+    message += `👤 Пациент: ${patientName}\n`;
+  }
+
+  if (doctor) {
+    message += `👨‍⚕️ Врач: ${doctor}\n`;
+  }
+
+  if (data.lab) {
+    message += `🧪 Лаборатория: ${data.lab}\n`;
+  }
+
+  if (data.date) {
+    message += `📅 Дата: ${data.date}\n`;
+  }
+
+  if (Array.isArray(data.services) && data.services.length) {
     message += `\n📋 Исследования:\n`;
-    services.forEach(s => message += `• ${s}\n`);
+    data.services.forEach(s => {
+      message += `• ${s}\n`;
+    });
   }
 
   const links = processLabFiles(data);
 
   if (links.length) {
     message += `\n📎 Результаты:\n`;
-    links.forEach(l => message += `${l}\n`);
-  }
-}
-
-else if (event === 'part_ready_lab_result') {
-  message = `🧪 Частичные анализы готовы\n\n`;
- key = 'lab_partial';
-  if (data.patient_name) {
-    message += `👤 ${data.patient_name}\n`;
-  }
-
-  const links = processLabFiles(data);
-
-   const services = data.services || [];
-  if (services.length) {
-    message += `\n📋 Исследования:\n`;
-    services.forEach(s => message += `• ${s}\n`);
-  } 
-
-  if (links.length) {
-    message += `\n📎 Доступные результаты:\n`;
-    links.forEach(l => message += `${l}\n`);
+    links.forEach(l => {
+      message += `${l}\n`;
+    });
   }
 }
 
