@@ -1,3 +1,6 @@
+import { sendEmail } from "../email/email.service.js";
+
+
 export function getEmailForSend(patient) {
   const testMode = process.env.FORCE_TEST_EMAIL === 'true';
 
@@ -7,6 +10,8 @@ export function getEmailForSend(patient) {
 
   return patient.email;
 }
+
+
 
 export function buildEmailMessage(message, patient) {
   return `
@@ -20,6 +25,8 @@ Email пациента: ${patient.email || 'нет'}
 ${message}
 `;
 }
+
+
 
 export function canSendEmail(patient, key) {
   const isLab =
@@ -35,6 +42,8 @@ export function canSendEmail(patient, key) {
   return patient.send_email === true;
 }
 
+
+
 export async function sendEmailSafe(patient, message) {
   const email = getEmailForSend(patient);
 
@@ -42,5 +51,9 @@ export async function sendEmailSafe(patient, message) {
 
   console.log('📧 EMAIL SEND:', email);
 
-  await sendEmail(email, finalMessage);
+  await sendEmail(
+    email,
+    'Уведомление клиники',
+    finalMessage
+  );
 }

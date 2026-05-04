@@ -22,3 +22,16 @@ export async function sendAuthCodeEmail(email, code) {
 
   console.log('📧 Email отправлен:', info.messageId);
 }
+
+// ===== универсальная отправка =====
+export async function sendEmail(to, subject, text) {
+  const info = await transporter.sendMail({
+    from: `"Clinic Bot" <${process.env.SMTP_FROM}>`,
+    to,
+    subject,
+    text,
+    html: `<pre>${text}</pre>`,
+  });
+
+  console.log('📧 EMAIL SENT:', info.messageId);
+}
