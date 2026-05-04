@@ -510,6 +510,62 @@ if (!result) return ;
 
 const { message, doctorId, key } = result;
 
+// ===============================
+// 👤 ПРЯМАЯ ОТПРАВКА ПАЦИЕНТУ
+// ===============================
+if (patientUser) {
+
+  const patientIdFromEvent =
+    data.patient_id ||
+    data.patientId ||
+    data.patient?.id;
+
+  if (String(patientUser.mis_id) === String(patientIdFromEvent)) {
+
+    let patient = null;
+
+    try {
+      patient = await getPatientById(patientIdFromEvent);
+    } catch (e) {
+      console.error('❌ LOAD PATIENT ERROR');
+    }
+
+    if (patient) {
+
+      console.log('📊 PATIENT FROM MIS:', {
+        email: patient.email,
+        send_email: patient.send_email,
+        send_email_lab: patient.send_email_lab
+      });
+
+      const channel = resolveChannel(patientUser, patient, key);
+
+      console.log('📡 PATIENT CHANNEL:', channel);
+
+      if (channel === 'MAX') {
+        console.log('📨 PATIENT MAX:', patientUser.vk_id);
+
+        await bot.api.sendMessageToUser(
+          Number(patientUser.vk_id),
+          message
+        );
+      }
+
+      else if (channel === 'EMAIL') {
+        console.log('📧 PATIENT EMAIL');
+
+        await sendEmailSafe(patient, message);
+      }
+
+      else {
+        console.log('🚫 NO CHANNEL FOR PATIENT');
+      }
+    }
+  }
+}
+return;
+
+
 if (!key) {
   console.log('❌ NO KEY');
   return ;
@@ -529,7 +585,7 @@ const settings = await prisma.userNotification.findMany({
   },
   include: { user: true }
 });
-
+console.log('📊 SETTINGS COUNT:', settings.length);
 
 for (const s of settings) {
 
