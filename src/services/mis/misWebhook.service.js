@@ -2,7 +2,8 @@ import { prisma } from '../../db/prisma.js';
 import { getAppointmentById } from './mis.service.js';
 import { normalizePhone } from '../../common/phone.util.js';
 import { hashPhone } from '../../common/hash.util.js';
-
+import { resolveChannel } from '../notification/resolveChannel.js';
+import { sendEmailSafe } from '../notification/email.util.js';
 
 
 
@@ -523,30 +524,68 @@ const settings = await prisma.userNotification.findMany({
 
 for (const s of settings) {
 
-  const user = s.user; // 👈 ВАЖНО СЮДА
+  const user = s.user;
 
-  if (user.activeRole === 'PATIENT') {
-
-    if (!['lab_full', 'lab_partial', 'invoice_create', 'invoice_pay'].includes(key)) {
-      continue;
-    }
-
-    const patientId =
-      data.patient_id ||
-      data.patientId ||
-      data.patient?.id;
-
-    if (String(user.mis_id) !== String(patientId)) {
-      continue;
-    }
-  }
- 
-
-  // 🔥 фильтр по режиму
+  // 🔥 ОБЩИЙ ФИЛЬТР
   if (s.mode === 'self') {
     if (String(user.mis_id) !== String(doctorId)) continue;
   }
 
+  // ===============================
+  // 👤 ПАЦИЕНТЫ — НОВАЯ ЛОГИКА
+  // ===============================
+  if (user.activeRole === 'PATIENT') {
+
+    const patientIdFromEvent =
+      data.patient_id ||
+      data.patientId ||
+      data.patient?.id;
+
+    if (String(user.mis_id) !== String(patientIdFromEvent)) {
+      continue;
+    }
+
+    const patient = data.patient_full || {
+      email: data.patient_email,
+      send_email: true,
+      send_email_lab: true
+    };
+
+    const channel = resolveChannel(user, patient, key);
+
+    console.log('📡 PATIENT CHANNEL:', channel);
+
+    try {
+
+      if (channel === 'MAX') {
+        console.log('📨 SEND TO MAX:', user.vk_id);
+
+        await bot.api.sendMessageToUser(
+          Number(user.vk_id),
+          message
+        );
+      }
+
+      else if (channel === 'EMAIL') {
+        console.log('📧 SEND EMAIL');
+
+        await sendEmailSafe(patient, message);
+      }
+
+      else {
+        console.log('🚫 NO CHANNEL FOR PATIENT');
+      }
+
+    } catch (e) {
+      console.error('❌ PATIENT SEND ERROR:', e.message);
+    }
+
+    continue;
+  }
+
+  // ===============================
+  // 👨‍⚕️ СОТРУДНИКИ — СТАРАЯ ЛОГИКА
+  // ===============================
   try {
     console.log('📨 SEND TO:', user.vk_id);
 
@@ -559,14 +598,6 @@ for (const s of settings) {
     console.error('❌ SEND ERROR:', e.message);
   }
 }
-
-return ;
-
-
-
-
-
-
 
 
   // дальше всё ок
