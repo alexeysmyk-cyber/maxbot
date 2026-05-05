@@ -68,9 +68,12 @@ return Array.isArray(data) ? data : [data];
 export async function getAppointmentById(id) {
   try {
     const body = qs.stringify({
-      api_key: process.env.API_KEY,
-      appointment_id: id
-    });
+  api_key: process.env.API_KEY,
+  appointment_id: String(id).trim()
+});
+
+console.log('📡 SEND TO MIS:', body);
+console.log('📡 MIS RESPONSE:', response.data);
 
     const url = process.env.BASE_URL.replace(/\/$/, '') + '/getAppointments';
 
