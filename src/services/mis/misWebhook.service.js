@@ -5,8 +5,8 @@ import { hashPhone } from '../../common/hash.util.js';
 import { resolveChannel } from '../notification/resolveChannel.js';
 import { sendEmailSafe } from '../notification/email.util.js';
 import { getPatientById } from './mis.service.js';
- 
-
+import fs from 'fs';
+import path from 'path';
 
 
 
@@ -686,8 +686,6 @@ console.log('📊 PATIENT FROM MIS:', {
   // дальше всё ок
 }
 
-import fs from 'fs';
-import path from 'path';
 
 function saveBase64File(base64, filename) {
   const buffer = Buffer.from(base64, 'base64');
@@ -708,7 +706,6 @@ function processLabFiles(data) {
 
   data.files.forEach((file, index) => {
 
-    // 🔥 поддержка ОБОИХ форматов
     const base64 = typeof file === 'string'
       ? file
       : file?.base64;
@@ -717,11 +714,11 @@ function processLabFiles(data) {
 
     const filename = `lab_${Date.now()}_${index}.pdf`;
 
-    const buffer = Buffer.from(base64, 'base64');
-
     const filePath = `./uploads/${filename}`;
 
-    require('fs').writeFileSync(filePath, buffer);
+    const buffer = Buffer.from(base64, 'base64');
+
+    fs.writeFileSync(filePath, buffer);
 
     const url = `https://maxbot.sredaclinic.ru/uploads/${filename}`;
 
