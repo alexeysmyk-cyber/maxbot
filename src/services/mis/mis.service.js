@@ -68,12 +68,33 @@ return Array.isArray(data) ? data : [data];
 export async function getAppointmentById(id) {
   try {
     const body = qs.stringify({
-  api_key: process.env.API_KEY,
-  appointment_id: String(id).trim()
-});
+      api_key: process.env.API_KEY,
+      appointment_id: String(id).trim()
+    });
 
-console.log('📡 SEND TO MIS:', body);
-console.log('📡 MIS RESPONSE:', response.data);
+    const url = process.env.BASE_URL.replace(/\/$/, '') + '/getAppointments';
+
+    console.log('📡 SEND TO MIS:', body);
+
+    // ✅ СНАЧАЛА запрос
+    const response = await axios.post(url, body, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    // ✅ ПОТОМ лог
+    console.log('📡 MIS RESPONSE:', response.data);
+
+    if (!response.data || response.data.error !== 0) {
+      throw new Error('MIS_GET_APPOINTMENT_ERROR');
+    }
+
+    return response.data;
+
+  } catch (e) {
+    console.error('❌ getAppointmentById error:', e.message);
+    return null;
+  }
+}
 
     const url = process.env.BASE_URL.replace(/\/$/, '') + '/getAppointments';
 
