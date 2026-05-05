@@ -144,6 +144,8 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
   const patientName = appointment.patient_name;
   const doctor = appointment.doctor;
 
+ doctorId = appointment.doctor_id;
+
   message = isFull
     ? '🔬 Анализы полностью готовы\n\n'
     : '🧪 Частично выполненные анализы\n\n';
