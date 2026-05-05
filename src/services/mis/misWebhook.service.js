@@ -87,7 +87,7 @@ function isDuplicate(event, data) {
   return false;
 }
 
-async function buildMessage(event, data) {
+async function buildMessage(event, data, appointment) {
   let message = '';
   let doctorId = null;
 
@@ -134,13 +134,7 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
 
   key = isFull ? 'lab_full' : 'lab_partial';
 
-  let appointment = null;
-
-  try {
-   appointment = await getAppointmentWithRetry(appointmentId);
-  } catch (e) {
-    console.error('❌ getAppointment error:', e.message);
-  }
+ 
 
   if (!appointment) {
     console.log('⚠️ appointment not found');
@@ -523,14 +517,20 @@ if (patientUser && !patientUser.vk_id) {
   console.log('📱 NEED FIRST CONTACT:', phoneHash);
 }
 
-const result = await buildMessage(event, data);
+let appointment = null;
+
+if (data.appointment_id) {
+  appointment = await getAppointmentWithRetry(data.appointment_id);
+}
+
+const result = await buildMessage(event, data, appointment);
 
 console.log('📦 EVENT:', event);
 console.log('🧠 BUILD RESULT:', result);
 
 if (!result) return ;
 
-const { message, doctorId, key, appointment } = result;
+const { message, doctorId, key } = result;
 
 // ===============================
 // 👤 ПРЯМАЯ ОТПРАВКА ПАЦИЕНТУ
