@@ -702,26 +702,31 @@ function saveBase64File(base64, filename) {
 function processLabFiles(data) {
   const links = [];
 
-  if (!data.files) return links;
+  if (!data.files || !Array.isArray(data.files)) {
+    return links;
+  }
 
-  for (let i = 0; i < data.files.length; i++) {
-    const file = data.files[i];
+  data.files.forEach((file, index) => {
 
-    // 🔥 ВАЖНО — поддержка ОБОИХ форматов
+    // 🔥 поддержка ОБОИХ форматов
     const base64 = typeof file === 'string'
       ? file
-      : file.base64;
+      : file?.base64;
 
-    if (!base64) continue;
+    if (!base64) return;
 
-    const filename = `lab_${Date.now()}_${i}.pdf`;
+    const filename = `lab_${Date.now()}_${index}.pdf`;
 
-    saveBase64File(base64, filename);
+    const buffer = Buffer.from(base64, 'base64');
 
-    const url = `https://maxbot.sredaclinic.ru/files/${filename}`;
+    const filePath = `./uploads/${filename}`;
+
+    require('fs').writeFileSync(filePath, buffer);
+
+    const url = `https://maxbot.sredaclinic.ru/uploads/${filename}`;
 
     links.push(url);
-  }
+  });
 
   return links;
 }
