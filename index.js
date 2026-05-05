@@ -8,6 +8,8 @@ import { handleMisWebhook} from './src/services/mis/misWebhook.service.js';
 import { getBot } from './src/max/max.service.js';
 import path from 'path';
 
+
+
 startMaxBot();
 dotenv.config();
 console.log('ENV SECRET:', process.env.MIS_WEBHOOK_SECRET);
@@ -16,6 +18,7 @@ const prisma = new PrismaClient();
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
