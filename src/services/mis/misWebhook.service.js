@@ -125,9 +125,7 @@ async function buildMessage(event, data) {
 
 else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result') {
 
-  const appointmentId =
-  data.appointment_id ||
-  req.body['data[appointment_id]'];
+ const appointmentId = data.appointment_id;
 
   if (!appointmentId) {
     console.log('⚠️ NO appointment_id');
@@ -141,7 +139,7 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
   let appointment = null;
 
   try {
-    appointment = await getAppointmentById(appointmentId);
+   appointment = await getAppointmentWithRetry(appointmentId);
   } catch (e) {
     console.error('❌ getAppointment error:', e.message);
   }
@@ -421,8 +419,10 @@ else if (event === 'full_payment_invoice') {
   console.log('⚠️ SKIP EVENT:', event);
   return null;
 }
-
+console.log('📦 BUILD EVENT:', event);
 return { message, doctorId, key };
+
+
 }
 
 export async function handleMisWebhook(req, bot) {
@@ -441,7 +441,17 @@ export async function handleMisWebhook(req, bot) {
     return ;
   }
 
-  const { event, data } = req.body;
+ const event = req.body.event;
+
+// 🔥 нормализация data
+let data = req.body.data || {};
+
+for (const key in req.body) {
+  const match = key.match(/^data\[(.+)\]$/);
+  if (match) {
+    data[match[1]] = req.body[key];
+  }
+}
 
   // ===============================
 // 📱 PHONE → HASH
@@ -532,9 +542,10 @@ const { message, doctorId, key } = result;
 if (patientUser) {
 
   const patientIdFromEvent =
-    data.patient_id ||
-    data.patientId ||
-    data.patient?.id;
+  data.patient_id ||
+  data.patientId ||
+  data.patient?.id ||
+  appointment?.patient_id;
 
   if (String(patientUser.mis_id) === String(patientIdFromEvent)) {
 
@@ -620,9 +631,10 @@ if (s.user.activeRole === 'PATIENT') {
   if (user.activeRole === 'PATIENT') {
 
     const patientIdFromEvent =
-      data.patient_id ||
-      data.patientId ||
-      data.patient?.id;
+  data.patient_id ||
+  data.patientId ||
+  data.patient?.id ||
+  appointment?.patient_id;
 
     if (String(user.mis_id) !== String(patientIdFromEvent)) {
       continue;
