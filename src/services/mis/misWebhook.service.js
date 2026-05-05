@@ -20,9 +20,7 @@ async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
         continue;
       }
 
-      const appointment = res.data?.find(
-        a => String(a.id) === String(id)
-      );
+      const appointment = res.data?.[0];
 
       if (appointment) {
         console.log('✅ FOUND APPOINTMENT:', id);
@@ -207,9 +205,7 @@ else if (event === 'cancel_appointment') {
   if (data.moved_to) {
     newAppointment = await getAppointmentWithRetry(data.moved_to);
   }
-if (newAppointment?.data) {
-  newAppointment = newAppointment.data;
-}
+
 
 if (Array.isArray(newAppointment)) {
   newAppointment = newAppointment[0];
@@ -420,7 +416,7 @@ else if (event === 'full_payment_invoice') {
   return null;
 }
 console.log('📦 BUILD EVENT:', event);
-return { message, doctorId, key };
+return { message, doctorId, key, appointment };
 
 
 }
@@ -534,7 +530,7 @@ console.log('🧠 BUILD RESULT:', result);
 
 if (!result) return ;
 
-const { message, doctorId, key } = result;
+const { message, doctorId, key, appointment } = result;
 
 // ===============================
 // 👤 ПРЯМАЯ ОТПРАВКА ПАЦИЕНТУ
