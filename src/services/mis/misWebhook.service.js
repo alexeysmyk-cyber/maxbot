@@ -12,21 +12,35 @@ import path from 'path';
 
 async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
   for (let i = 0; i < tries; i++) {
-    const res = await getAppointmentById(id);
+    try {
+      const res = await getAppointmentById(id);
 
-    if (res) {
-      console.log('✅ FOUND APPOINTMENT:', id);
-      return res;
+      if (!res || res.error !== 0) {
+        console.log('❌ MIS ERROR');
+        continue;
+      }
+
+      const appointment = res.data?.find(
+        a => String(a.id) === String(id)
+      );
+
+      if (appointment) {
+        console.log('✅ FOUND APPOINTMENT:', id);
+        return appointment;
+      }
+
+      console.log(`⏳ NOT FOUND YET, retry ${i + 1} for id=${id}`);
+
+    } catch (e) {
+      console.error('❌ API ERROR:', e.message);
     }
 
-    console.log(`⏳ RETRY ${i + 1} for id=${id}`);
     await new Promise(r => setTimeout(r, delay));
   }
 
   console.log('❌ NOT FOUND AFTER RETRIES:', id);
   return null;
 }
-
 // 🔥 анти-дубли (в памяти)
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
