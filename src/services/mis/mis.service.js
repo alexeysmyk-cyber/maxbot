@@ -76,37 +76,17 @@ export async function getAppointmentById(id) {
 
     console.log('📡 SEND TO MIS:', body);
 
-    // ✅ СНАЧАЛА запрос
     const response = await axios.post(url, body, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
 
-    // ✅ ПОТОМ лог
     console.log('📡 MIS RESPONSE:', response.data);
 
     if (!response.data || response.data.error !== 0) {
       throw new Error('MIS_GET_APPOINTMENT_ERROR');
     }
 
-    return response.data;
-
-  } catch (e) {
-    console.error('❌ getAppointmentById error:', e.message);
-    return null;
-  }
-}
-
-    const url = process.env.BASE_URL.replace(/\/$/, '') + '/getAppointments';
-
-    const response = await axios.post(url, body, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    if (!response.data || response.data.error !== 0) {
-      throw new Error('MIS_GET_APPOINTMENT_ERROR');
-    }
-
-    return response.data.data || null;
+    return response.data; // ✅ ВНУТРИ функции
 
   } catch (e) {
     console.error('❌ getAppointmentById error:', e.message);
