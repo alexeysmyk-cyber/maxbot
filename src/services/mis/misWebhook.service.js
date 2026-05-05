@@ -111,7 +111,9 @@ async function buildMessage(event, data) {
 
 else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result') {
 
-  const appointmentId = data.appointment_id;
+  const appointmentId =
+  data.appointment_id ||
+  req.body['data[appointment_id]'];
 
   if (!appointmentId) {
     console.log('⚠️ NO appointment_id');
@@ -705,11 +707,16 @@ function processLabFiles(data) {
   for (let i = 0; i < data.files.length; i++) {
     const file = data.files[i];
 
-    if (!file.base64) continue;
+    // 🔥 ВАЖНО — поддержка ОБОИХ форматов
+    const base64 = typeof file === 'string'
+      ? file
+      : file.base64;
+
+    if (!base64) continue;
 
     const filename = `lab_${Date.now()}_${i}.pdf`;
 
-    saveBase64File(file.base64, filename);
+    saveBase64File(base64, filename);
 
     const url = `https://maxbot.sredaclinic.ru/files/${filename}`;
 
