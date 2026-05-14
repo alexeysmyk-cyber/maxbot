@@ -43,17 +43,15 @@ export async function createAuthCode({ email, phone }) {
 }
 
 // ===== ПРОВЕРИТЬ КОД =====
-export async function verifyAuthCode({ email, phone, code }) {
+export async function verifyAuthCode({  code }) {
   const record = await prisma.authCode.findFirst({
     where: {
       code,
-      email,
       used: false,
       expiresAt: { gt: new Date() },
-      OR: [
-        email ? { email } : undefined,
-        phone ? { phone } : undefined,
-      ].filter(Boolean)
+    },
+    orderBy: {
+      id:'desc'
     }
   });
 

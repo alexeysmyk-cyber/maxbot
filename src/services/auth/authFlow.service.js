@@ -42,7 +42,7 @@ export async function completeAuth({
   if (!code) return { status: 'CODE_REQUIRED' };
   if (!checkResult) return { status: 'CHECK_REQUIRED' };
 
-  const isValid = await verifyAuthCode({ email, code });
+  const isValid = await verifyAuthCode({ code });
 
   if (!isValid) {
     return { status: 'INVALID_CODE' };
