@@ -479,15 +479,15 @@ const patientId =
 // ===============================
 let patientUser = null;
 
-if (phoneHash && patientId) {
-  patientUser = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { mis_id: String(patientId) },
-        { phone_hash: phoneHash }
-      ]
-    }
-  });
+if (patientId || phoneHash) {
+ patientUser = await prisma.user.findFirst({
+  where: {
+    OR: [
+      patientId ? { mis_id: String(patientId) } : undefined,
+      phoneHash ? { phone_hash: phoneHash } : undefined
+    ].filter(Boolean)
+  }
+});
 
   if (!patientUser) {
     patientUser = await prisma.user.create({
@@ -568,7 +568,12 @@ if (patientUser) {
       console.log('📡 PATIENT CHANNEL:', channel);
 
       if (channel === 'MAX') {
-        console.log('📨 PATIENT MAX:', patientUser.vk_id);
+        if (!patientUser?.vk_id) {
+    console.log('❌ NO VK_ID → FALLBACK EMAIL');
+
+    await sendEmailSafe(patient, message);
+    return;
+  }
 
         await bot.api.sendMessageToUser(
           Number(patientUser.vk_id),
@@ -666,7 +671,12 @@ console.log('📊 PATIENT FROM MIS:', {
 
       if (channel === 'MAX') {
         console.log('📨 SEND TO MAX:', user.vk_id);
+if (!user?.vk_id) {
+    console.log('❌ NO VK_ID → FALLBACK EMAIL');
 
+    await sendEmailSafe(patient, message);
+    continue;
+  }
         await bot.api.sendMessageToUser(
           Number(user.vk_id),
           message

@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import { prisma } from '../../db/prisma.js';
+import { normalizePhone } from '../../common/phone.util.js';
+import { hashPhone } from '../../common/hash.util.js';
+
 
 // маппинг ролей МИС → твои роли
 const MIS_ROLE_MAP = {
   "16353": "ADMIN",
   "16354": "DOCTOR",
-  "16355": "MANAGER",
+  "16355": "MANAGER", 
   "16356": "CALL_CENTER",
   "16357": "CASHIER",
   "16358": "NURSE",
@@ -58,6 +61,12 @@ const roleKeys = rolesRaw
 
 console.log('MAPPED ROLES:', roleKeys);
 
+  const phone = normalizePhone(
+    patient.phone || patient.mobile
+  );
+
+  const phoneHash = phone ? hashPhone(phone) : null;
+
     // 1. создаём или обновляем пользователя
     user = await prisma.user.upsert({
       where: { vk_id },
@@ -66,6 +75,7 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(employee.id),
         type: 'EMPLOYEE',
         name: employee.name || null,
+      phone_hash: phoneHash
       },
       create: {
         vk_id,
@@ -73,6 +83,7 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(employee.id),
         type: 'EMPLOYEE',
         name: employee.name || null,
+      phone_hash: phoneHash
       }
     });
 
@@ -115,6 +126,12 @@ console.log('MAPPED ROLES:', roleKeys);
   if (type === 'PATIENT') {
     const patient = data;
 
+      const phone = normalizePhone(
+    patient.phone || patient.mobile
+  );
+
+  const phoneHash = phone ? hashPhone(phone) : null;
+
     user = await prisma.user.upsert({
       where: { vk_id },
       update: {
@@ -122,6 +139,7 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(patient.patient_id),
         type: 'PATIENT',
         name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
+        phone_hash: phoneHash   
       },
       create: {
         vk_id,
@@ -129,6 +147,7 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(patient.patient_id),
         type: 'PATIENT',
         name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
+        phone_hash: phoneHash 
       }
     });
 
