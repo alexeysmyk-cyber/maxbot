@@ -45,29 +45,61 @@ export async function confirmAuth({ vk_id, type, data }) {
 
   // ===== EMPLOYEE =====
   if (type === 'EMPLOYEE') {
-    const employee = data;
+  const employee = data;
 
- const rolesRaw = Array.isArray(employee.role)
-  ? employee.role
-  : employee.role
-    ? [employee.role]
-    : [];
+  const rolesRaw = Array.isArray(employee.role)
+    ? employee.role
+    : employee.role
+      ? [employee.role]
+      : [];
 
-console.log('MIS RAW ROLE:', rolesRaw);
+  console.log('MIS RAW ROLE:', rolesRaw);
 
-const roleKeys = rolesRaw
-  .map(r => MIS_ROLE_MAP[r])
-  .filter(Boolean);
+  const roleKeys = rolesRaw
+    .map(r => MIS_ROLE_MAP[r])
+    .filter(Boolean);
 
-console.log('MAPPED ROLES:', roleKeys);
+  console.log('MAPPED ROLES:', roleKeys);
 
- const phone = normalizePhone(
-  employee.phone || employee.mobile
-);
+  const phone = normalizePhone(
+    employee.phone || employee.mobile
+  );
 
   const phoneHash = phone ? hashPhone(phone) : null;
 
-    // 1. создаём или обновляем пользователя
+  let existingByPhone = null;
+
+  if (phoneHash) {
+    existingByPhone = await prisma.user.findUnique({
+      where: { phone_hash: phoneHash }
+    });
+  }
+
+  // ===== MERGE =====
+  if (existingByPhone && existingByPhone.vk_id !== vk_id) {
+    console.log('🔗 MERGE EMPLOYEE USERS');
+
+    user = await prisma.user.update({
+      where: { id: existingByPhone.id },
+      data: {
+        vk_id,
+        email: employee.email,
+        mis_id: String(employee.id),
+        type: 'EMPLOYEE',
+        name: employee.name || null
+      }
+    });
+
+    await prisma.user.deleteMany({
+      where: {
+        vk_id,
+        NOT: { id: existingByPhone.id }
+      }
+    });
+  }
+
+  // ===== UPSERT =====
+  else {
     user = await prisma.user.upsert({
       where: { vk_id },
       update: {
@@ -75,7 +107,7 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(employee.id),
         type: 'EMPLOYEE',
         name: employee.name || null,
-      phone_hash: phoneHash
+        phone_hash: phoneHash ?? undefined
       },
       create: {
         vk_id,
@@ -83,44 +115,41 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(employee.id),
         type: 'EMPLOYEE',
         name: employee.name || null,
-      phone_hash: phoneHash
+        phone_hash: phoneHash
+      }
+    });
+  }
+
+  // ===== ROLES =====
+  await prisma.userRole.deleteMany({
+    where: { userId: user.id }
+  });
+
+  for (const raw of rolesRaw) {
+    const key = MIS_ROLE_MAP[raw];
+    if (!key) continue;
+
+    const role = await prisma.role.upsert({
+      where: { key },
+      update: {
+        name: ROLE_NAME_MAP[key] || key,
+        mis_code: String(raw)
+      },
+      create: {
+        key,
+        name: ROLE_NAME_MAP[key] || key,
+        mis_code: String(raw)
       }
     });
 
-    // 2. очищаем роли
-    await prisma.userRole.deleteMany({
-      where: { userId: user.id }
+    await prisma.userRole.create({
+      data: {
+        userId: user.id,
+        roleId: role.id,
+      }
     });
-
-    // 3. назначаем роли
-   for (const raw of rolesRaw) {
-  const key = MIS_ROLE_MAP[raw];
-
-  if (!key) continue;
-
-  const role = await prisma.role.upsert({
-    where: { key },
-    update: {
-      name: ROLE_NAME_MAP[key] || key,
-      mis_code: String(raw) // 👈 ВАЖНО
-    },
-    create: {
-      key,
-      name: ROLE_NAME_MAP[key] || key,
-      mis_code: String(raw)
-    }
-  });
-
-  await prisma.userRole.create({
-    data: {
-      userId: user.id,
-      roleId: role.id,
-    }
-  });
-}
-
-
   }
+}
 
   // ===== PATIENT =====
   if (type === 'PATIENT') {
@@ -132,6 +161,36 @@ console.log('MAPPED ROLES:', roleKeys);
 
   const phoneHash = phone ? hashPhone(phone) : null;
 
+  let existingByPhone = null;
+
+if (phoneHash) {
+  existingByPhone = await prisma.user.findUnique({
+    where: { phone_hash: phoneHash }
+  });
+}
+
+if (existingByPhone && existingByPhone.vk_id !== vk_id) {
+  console.log('🔗 MERGE PATIENT USERS');
+
+  user = await prisma.user.update({
+    where: { id: existingByPhone.id },
+    data: {
+      vk_id,
+      email: patient.email,
+      mis_id: String(patient.patient_id),
+      type: 'PATIENT',
+      name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim()
+    }
+  });
+
+  await prisma.user.deleteMany({
+    where: {
+      vk_id,
+      NOT: { id: existingByPhone.id }
+    }
+  });
+}
+else {
     user = await prisma.user.upsert({
       where: { vk_id },
       update: {
@@ -139,7 +198,7 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(patient.patient_id),
         type: 'PATIENT',
         name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
-        phone_hash: phoneHash   
+       phone_hash: phoneHash ?? undefined  
       },
       create: {
         vk_id,
@@ -147,9 +206,12 @@ console.log('MAPPED ROLES:', roleKeys);
         mis_id: String(patient.patient_id),
         type: 'PATIENT',
         name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
-        phone_hash: phoneHash 
+        phone_hash: phoneHash ?? undefined
       }
     });
+  }
+
+
 
     // пациенту можно назначить роль PATIENT (если хочешь)
 const role = await prisma.role.upsert({
