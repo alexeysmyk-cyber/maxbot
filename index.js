@@ -56,14 +56,9 @@ app.get('/', (req, res) => {
 });
 
 // ===== API =====
-app.get('/test-db', async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
-app.get('/api/templates', getTemplates);
-app.post('/api/templates/update', updateTemplate);
-app.post('/api/templates/create', createTemplate);
+app.get('/api/templates',basicAuth, getTemplates);
+app.post('/api/templates/update',basicAuth, updateTemplate);
+app.post('/api/templates/create',basicAuth, createTemplate);
 
 app.post('/api/templates/preview', (req, res) => {
   const { text } = req.body;
@@ -81,100 +76,9 @@ app.post('/api/templates/preview', (req, res) => {
 });
 
 
-app.post('/add-user', async (req, res) => {
-  try {
-    const { vk_id, telegram_id, phone, whatsapp, name, role } = req.body;
-
-    const user = await prisma.user.create({
-      data: {
-        vk_id,
-        telegram_id,
-        phone,
-        whatsapp,
-        name,
-        role,
-      },
-    });
-
-    res.json(user);
-  } catch (e) {
-    res.status(500).send(e.message);
-  }
-});
-
-app.get('/check-user/:vk_id', async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: { vk_id: req.params.vk_id },
-  });
-
-  if (!user) {
-    return res.json({ exists: false });
-  }
-
-  res.json({
-    exists: true,
-    role: user.role,
-    user,
-  });
-});
-
 // ===== ADMIN =====
-app.get('/admin', basicAuth, async (req, res) => {
-  const users = await prisma.user.findMany();
-
-  let html = `
-    <h1>Users</h1>
-    <table border="1" cellpadding="5">
-      <tr>
-        <th>ID</th>
-        <th>VK</th>
-        <th>Role</th>
-        <th>Name</th>
-      </tr>
-  `;
-
-  users.forEach(u => {
-    html += `
-      <tr>
-        <td>${u.id}</td>
-        <td>${u.vk_id}</td>
-        <td>${u.role || ''}</td>
-        <td>${u.name || ''}</td>
-      </tr>
-    `;
-  });
-
-  html += `</table>`;
-
-  html += `
-    <h2>Добавить пользователя</h2>
-    <form method="POST" action="/admin/add">
-      <input name="vk_id" placeholder="vk_id" required /><br/>
-      <input name="name" placeholder="name" /><br/>
-      <input name="role" placeholder="role (employee)" /><br/>
-      <button type="submit">Добавить</button>
-    </form>
-  `;
-
-  res.send(html);
-});
-
-app.post('/admin/add', basicAuth, async (req, res) => {
-  const { vk_id, name, role } = req.body;
-
-  try {
-    await prisma.user.create({
-      data: {
-        vk_id,
-        name,
-        role,
-      },
-    });
-
-    res.redirect('/admin');
-  } catch (e) {
-    res.send('Ошибка: ' + e.message);
-  }
+app.get('/admin', basicAuth, (req, res) => {
+  res.sendFile(path.resolve('public/templates.html'));
 });
 
 app.post('/webhook/mis', async (req, res) => {
@@ -200,4 +104,4 @@ app.listen(PORT, () => {
 });
 
 app.use('/files', express.static(path.resolve('uploads')));
-app.use(express.static('public'));
+app.use('/public', express.static('public'));
