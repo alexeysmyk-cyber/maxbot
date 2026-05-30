@@ -200,3 +200,4 @@ app.listen(PORT, () => {
 });
 
 app.use('/files', express.static(path.resolve('uploads')));
+app.use(express.static('public'));
