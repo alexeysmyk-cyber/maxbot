@@ -61,9 +61,9 @@ const roleKeys = rolesRaw
 
 console.log('MAPPED ROLES:', roleKeys);
 
-  const phone = normalizePhone(
-    patient.phone || patient.mobile
-  );
+ const phone = normalizePhone(
+  employee.phone || employee.mobile
+);
 
   const phoneHash = phone ? hashPhone(phone) : null;
 
