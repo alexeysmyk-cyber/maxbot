@@ -195,7 +195,6 @@ model UpcomingVisitAlert {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
 model NotificationTemplate {
   id        Int      @id @default(autoincrement())
   key       String
