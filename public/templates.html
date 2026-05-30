@@ -1,11 +1,87 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="UTF-8">
+  <title>Templates</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      background: #f7f7f7;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    textarea {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      margin-right: 10px;
+      margin-top: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    .preview {
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      border-radius: 6px;
+    }
+
+    .create {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
 <body>
 
-<h2>Templates</h2>
+<h2>📨 Notification Templates</h2>
+
+<!-- CREATE -->
+<div class="create">
+  <h3>➕ Create Template</h3>
+
+  <input id="new-key" placeholder="key (visit_create)" />
+  <input id="new-channel" placeholder="channel (MAX / EMAIL)" />
+  <input id="new-subject" placeholder="subject (only EMAIL)" />
+
+  <textarea id="new-text" rows="5" placeholder="template text"></textarea>
+
+  <button onclick="create()">Create</button>
+</div>
+
 <div id="list"></div>
 
 <script>
+
 async function load() {
   const res = await fetch('/api/templates');
   const data = await res.json();
@@ -15,13 +91,22 @@ async function load() {
 
   data.forEach(t => {
     const div = document.createElement('div');
+    div.className = 'card';
 
     div.innerHTML = `
       <h3>${t.key} (${t.channel})</h3>
-      <textarea id="t-${t.id}" rows="6">${t.text}</textarea>
-      <br/>
-      <button onclick="save(${t.id})">Save</button>
-      <hr/>
+
+      ${t.channel === 'EMAIL' ? `
+        <b>Subject:</b>
+        <input id="s-${t.id}" value="${t.subject || ''}" />
+      ` : ''}
+
+      <textarea id="t-${t.id}" rows="5">${t.text}</textarea>
+
+      <button onclick="save(${t.id})">💾 Save</button>
+      <button onclick="preview(${t.id})">👁 Preview</button>
+
+      <div id="p-${t.id}" class="preview"></div>
     `;
 
     list.appendChild(div);
@@ -30,17 +115,63 @@ async function load() {
 
 async function save(id) {
   const text = document.getElementById('t-' + id).value;
+  const subjectEl = document.getElementById('s-' + id);
 
-  await fetch('/api/templates', {
+  await fetch('/api/templates/update', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ id, text })
+    body: JSON.stringify({
+      id,
+      text,
+      subject: subjectEl ? subjectEl.value : null
+    })
   });
 
   alert('Saved');
 }
 
+async function preview(id) {
+  const text = document.getElementById('t-' + id).value;
+
+  const res = await fetch('/api/templates/preview', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ text })
+  });
+
+  const result = await res.text();
+  document.getElementById('p-' + id).innerText = result;
+}
+
+async function create() {
+  const key = document.getElementById('new-key').value;
+  const channel = document.getElementById('new-channel').value;
+  const subject = document.getElementById('new-subject').value;
+  const text = document.getElementById('new-text').value;
+
+  await fetch('/api/templates/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      key,
+      channel,
+      subject,
+      text
+    })
+  });
+
+  alert('Created');
+
+  document.getElementById('new-key').value = '';
+  document.getElementById('new-channel').value = '';
+  document.getElementById('new-subject').value = '';
+  document.getElementById('new-text').value = '';
+
+  load();
+}
+
 load();
+
 </script>
 
 </body>

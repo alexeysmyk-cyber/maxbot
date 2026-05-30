@@ -7,8 +7,8 @@ import { startMaxBot } from './src/max/max.service.js';
 import { handleMisWebhook} from './src/services/mis/misWebhook.service.js';
 import { getBot } from './src/max/max.service.js';
 import path from 'path';
-import { getTemplates, updateTemplate } from './src/api/template.controller.js';
-
+import { getTemplates, updateTemplate, createTemplate } from './src/api/template.controller.js';
+import { renderTemplate } from './src/common/template.util.js';
 
 
 startMaxBot();
@@ -62,7 +62,24 @@ app.get('/test-db', async (req, res) => {
 });
 
 app.get('/api/templates', getTemplates);
-app.post('/api/templates', updateTemplate);
+app.post('/api/templates/update', updateTemplate);
+app.post('/api/templates/create', createTemplate);
+
+app.post('/api/templates/preview', (req, res) => {
+  const { text } = req.body;
+
+  const fakeData = {
+    patient_name: 'Иван Иванов',
+    doctor_name: 'Петров П.П.',
+    date: '01.06.2026 18:00',
+    cabinet: 'Кабинет 2'
+  };
+
+  const result = renderTemplate(text, fakeData);
+
+  res.send(result);
+});
+
 
 app.post('/add-user', async (req, res) => {
   try {
