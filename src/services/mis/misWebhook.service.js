@@ -7,6 +7,7 @@ import { sendEmailSafe } from '../notification/email.util.js';
 import { getPatientById } from './mis.service.js';
 import fs from 'fs';
 import path from 'path';
+import { renderTemplate } from '../../common/template.util.js';
 
 
 
@@ -527,10 +528,38 @@ if (data.appointment_id) {
 
 const result = await buildMessage(event, data, appointment);
 
+
+if (!result) return ;
+
 console.log('📦 EVENT:', event);
 console.log('🧠 BUILD RESULT:', result);
 
-if (!result) return ;
+
+const templateData = {
+  patient_name: data.patient_name || appointment?.patient_name || '',
+  doctor_name: data.doctor || appointment?.doctor || '',
+  date: data.time_start || appointment?.time_start || '',
+  cabinet: data.room || appointment?.room || '',
+  phone: phone,
+  email: ''
+};
+
+const template = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key: result.key,
+      channel: 'MAX'
+    }
+  }
+});
+
+// 🔥 ВОТ ГЛАВНОЕ
+result.message = renderTemplate(
+  template?.text || result.message,
+  templateData
+);
+
+
 
 const { message, doctorId, key } = result;
 
@@ -570,7 +599,20 @@ if (patientUser) {
       if (channel === 'MAX') {
         if (!patientUser?.vk_id) {
     console.log('❌ NO VK_ID → FALLBACK EMAIL');
+    
+const emailTemplate = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key: result.key,
+      channel: 'EMAIL'
+    }
+  }
+});
 
+const emailText = renderTemplate(
+  emailTemplate?.text || result.message,
+  templateData
+);
     await sendEmailSafe(patient, message);
     return;
   }
@@ -583,7 +625,19 @@ if (patientUser) {
 
       else if (channel === 'EMAIL') {
         console.log('📧 PATIENT EMAIL');
+const emailTemplate = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key: result.key,
+      channel: 'EMAIL'
+    }
+  }
+});
 
+const emailText = renderTemplate(
+  emailTemplate?.text || result.message,
+  templateData
+);
         await sendEmailSafe(patient, message);
       }
 
@@ -674,7 +728,11 @@ console.log('📊 PATIENT FROM MIS:', {
 if (!user?.vk_id) {
     console.log('❌ NO VK_ID → FALLBACK EMAIL');
 
-    await sendEmailSafe(patient, message);
+    await sendEmailSafe({
+  to: patient.email,
+  subject: emailTemplate?.subject || 'Уведомление',
+  text: emailText
+});
     continue;
   }
         await bot.api.sendMessageToUser(
@@ -686,7 +744,11 @@ if (!user?.vk_id) {
       else if (channel === 'EMAIL') {
         console.log('📧 SEND EMAIL');
 
-        await sendEmailSafe(patient, message);
+           await sendEmailSafe({
+  to: patient.email,
+  subject: emailTemplate?.subject || 'Уведомление',
+  text: emailText
+});
       }
 
       else {

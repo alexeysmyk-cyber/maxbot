@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Templates</h2>
+<div id="list"></div>
+
+<script>
+async function load() {
+  const res = await fetch('/api/templates');
+  const data = await res.json();
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  data.forEach(t => {
+    const div = document.createElement('div');
+
+    div.innerHTML = `
+      <h3>${t.key} (${t.channel})</h3>
+      <textarea id="t-${t.id}" rows="6">${t.text}</textarea>
+      <br/>
+      <button onclick="save(${t.id})">Save</button>
+      <hr/>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+async function save(id) {
+  const text = document.getElementById('t-' + id).value;
+
+  await fetch('/api/templates', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ id, text })
+  });
+
+  alert('Saved');
+}
+
+load();
+</script>
+
+</body>
+</html>

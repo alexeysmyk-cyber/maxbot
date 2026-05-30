@@ -20,6 +20,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "handlebars": "^4.7.9",
     "nodemailer": "^8.0.5",
     "prisma": "^6.19.3",
     "qrcode": "^1.5.4",

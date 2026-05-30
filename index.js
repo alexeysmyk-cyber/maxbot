@@ -7,6 +7,7 @@ import { startMaxBot } from './src/max/max.service.js';
 import { handleMisWebhook} from './src/services/mis/misWebhook.service.js';
 import { getBot } from './src/max/max.service.js';
 import path from 'path';
+import { getTemplates, updateTemplate } from './src/api/template.controller.js';
 
 
 
@@ -59,6 +60,9 @@ app.get('/test-db', async (req, res) => {
   const users = await prisma.user.findMany();
   res.json(users);
 });
+
+app.get('/api/templates', getTemplates);
+app.post('/api/templates', updateTemplate);
 
 app.post('/add-user', async (req, res) => {
   try {
