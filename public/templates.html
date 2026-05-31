@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
   <meta charset="UTF-8">
@@ -7,7 +8,7 @@
   <style>
     body {
       font-family: Arial;
-      max-width: 900px;
+      max-width: 1100px;
       margin: auto;
       padding: 20px;
       background: #f7f7f7;
@@ -15,6 +16,19 @@
 
     h2 {
       text-align: center;
+    }
+
+    .layout {
+      display: flex;
+      gap: 20px;
+    }
+
+    .left {
+      flex: 2;
+    }
+
+    .right {
+      flex: 1;
     }
 
     .card {
@@ -30,7 +44,7 @@
       margin-top: 10px;
     }
 
-    input {
+    input, select {
       width: 100%;
       margin-top: 5px;
       margin-bottom: 10px;
@@ -52,6 +66,27 @@
       border-radius: 6px;
     }
 
+    .vars {
+      background: #222;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .var {
+      cursor: pointer;
+      display: inline-block;
+      margin: 3px;
+      padding: 3px 6px;
+      background: #333;
+      border-radius: 4px;
+    }
+
+    .var:hover {
+      background: #555;
+    }
+
     .create {
       background: #fff;
       padding: 15px;
@@ -59,28 +94,111 @@
       margin-bottom: 20px;
     }
   </style>
+
 </head>
 
 <body>
 
 <h2>📨 Notification Templates</h2>
 
+<div class="layout">
+
+<div class="left">
+
 <!-- CREATE -->
+
 <div class="create">
   <h3>➕ Create Template</h3>
 
-  <input id="new-key" placeholder="key (visit_create)" />
-  <input id="new-channel" placeholder="channel (MAX / EMAIL)" />
+  <select id="new-key">
+    <option value="">-- select event --</option>
+    <option value="visit_create">Запись на визит</option>
+    <option value="visit_cancel">Отмена визита</option>
+    <option value="visit_move">Перенос визита</option>
+    <option value="visit_reminder">Напоминание</option>
+    <option value="full_ready_lab_result">Анализы готовы</option>
+    <option value="part_ready_lab_result">Анализы частично</option>
+    <option value="birthday_message">День рождения</option>
+    <option value="feedback_message">Отзыв</option>
+    <option value="next_visit_reminder">Повторная явка</option>
+  </select>
+
+  <select id="new-channel">
+    <option value="MAX">MAX</option>
+    <option value="EMAIL">EMAIL</option>
+  </select>
+
   <input id="new-subject" placeholder="subject (only EMAIL)" />
 
   <textarea id="new-text" rows="5" placeholder="template text"></textarea>
 
-  <button onclick="create()">Create</button>
+<button onclick="create()">Create</button>
+
 </div>
 
 <div id="list"></div>
 
+</div>
+
+<!-- VARIABLES PANEL -->
+
+<div class="right">
+  <div class="card">
+    <h3>📌 Variables (click to insert)</h3>
+
+```
+<div class="vars">
+
+  <b>Основные:</b><br>
+  <span class="var" onclick="insertVar('{{patient_name}}')">{{patient_name}}</span>
+  <span class="var" onclick="insertVar('{{doctor_name}}')">{{doctor_name}}</span>
+  <span class="var" onclick="insertVar('{{date}}')">{{date}}</span>
+  <span class="var" onclick="insertVar('{{time_start}}')">{{time_start}}</span>
+  <span class="var" onclick="insertVar('{{time_end}}')">{{time_end}}</span>
+  <span class="var" onclick="insertVar('{{cabinet}}')">{{cabinet}}</span>
+  <span class="var" onclick="insertVar('{{clinic}}')">{{clinic}}</span>
+  <span class="var" onclick="insertVar('{{phone}}')">{{phone}}</span>
+  <span class="var" onclick="insertVar('{{email}}')">{{email}}</span>
+
+  <br><br><b>Перенос визита:</b><br>
+  <span class="var" onclick="insertVar('{{old_date}}')">{{old_date}}</span>
+  <span class="var" onclick="insertVar('{{new_date}}')">{{new_date}}</span>
+  <span class="var" onclick="insertVar('{{old_doctor}}')">{{old_doctor}}</span>
+  <span class="var" onclick="insertVar('{{new_doctor}}')">{{new_doctor}}</span>
+
+  <br><br><b>Дополнительно:</b><br>
+  <span class="var" onclick="insertVar('{{author_name}}')">{{author_name}}</span>
+  <span class="var" onclick="insertVar('{{status}}')">{{status}}</span>
+
+</div>
+```
+
+  </div>
+</div>
+
+</div>
+
 <script>
+
+let activeTextarea = null;
+
+document.addEventListener('focusin', (e) => {
+  if (e.target.tagName === 'TEXTAREA') {
+    activeTextarea = e.target;
+  }
+});
+
+function insertVar(variable) {
+  if (!activeTextarea) return;
+
+  const start = activeTextarea.selectionStart;
+  const end = activeTextarea.selectionEnd;
+
+  activeTextarea.value =
+    activeTextarea.value.substring(0, start) +
+    variable +
+    activeTextarea.value.substring(end);
+}
 
 async function load() {
   const res = await fetch('/api/templates');
@@ -103,71 +221,74 @@ async function load() {
 
       <textarea id="t-${t.id}" rows="5">${t.text}</textarea>
 
-      <button onclick="save(${t.id})">💾 Save</button>
-      <button onclick="preview(${t.id})">👁 Preview</button>
+```
+  <button onclick="save(${t.id})">💾 Save</button>
+  <button onclick="preview(${t.id})">👁 Preview</button>
+  <div id="p-${t.id}" class="preview"></div>
+`;
 
-      <div id="p-${t.id}" class="preview"></div>
-    `;
+list.appendChild(div);
+```
 
-    list.appendChild(div);
-  });
+});
 }
 
 async function save(id) {
-  const text = document.getElementById('t-' + id).value;
-  const subjectEl = document.getElementById('s-' + id);
+const text = document.getElementById('t-' + id).value;
+const subjectEl = document.getElementById('s-' + id);
 
-  await fetch('/api/templates/update', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      id,
-      text,
-      subject: subjectEl ? subjectEl.value : null
-    })
-  });
+await fetch('/api/templates/update', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({
+id,
+text,
+subject: subjectEl ? subjectEl.value : null
+})
+});
 
-  alert('Saved');
+alert('Saved');
 }
 
 async function preview(id) {
-  const text = document.getElementById('t-' + id).value;
+const text = document.getElementById('t-' + id).value;
 
-  const res = await fetch('/api/templates/preview', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ text })
-  });
+const res = await fetch('/api/templates/preview', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({ text })
+});
 
-  const result = await res.text();
-  document.getElementById('p-' + id).innerText = result;
+const result = await res.text();
+document.getElementById('p-' + id).innerText = result;
 }
 
 async function create() {
-  const key = document.getElementById('new-key').value;
-  const channel = document.getElementById('new-channel').value;
-  const subject = document.getElementById('new-subject').value;
-  const text = document.getElementById('new-text').value;
+const key = document.getElementById('new-key').value;
+const channel = document.getElementById('new-channel').value;
+const subject = document.getElementById('new-subject').value;
+const text = document.getElementById('new-text').value;
 
-  await fetch('/api/templates/create', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      key,
-      channel,
-      subject,
-      text
-    })
-  });
+if (!key) {
+alert('Выбери тип уведомления');
+return;
+}
 
-  alert('Created');
+await fetch('/api/templates/create', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({
+key,
+channel,
+subject,
+text
+})
+});
 
-  document.getElementById('new-key').value = '';
-  document.getElementById('new-channel').value = '';
-  document.getElementById('new-subject').value = '';
-  document.getElementById('new-text').value = '';
+alert('Created');
 
-  load();
+document.getElementById('new-text').value = '';
+load();
 }
 
 load();
