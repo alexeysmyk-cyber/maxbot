@@ -14,84 +14,41 @@
       background: #f7f7f7;
     }
 
-    h2 {
-      text-align: center;
-    }
-
     .layout {
       display: flex;
       gap: 20px;
     }
 
-    .left {
-      flex: 2;
-    }
-
-    .right {
-      flex: 1;
-    }
+    .left { flex: 2; }
+    .right { flex: 1; }
 
     .card {
       background: white;
       border-radius: 8px;
       padding: 15px;
       margin-bottom: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    textarea {
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    input, select {
+    textarea, input, select {
       width: 100%;
       margin-top: 5px;
       margin-bottom: 10px;
     }
 
-    button {
-      margin-right: 10px;
-      margin-top: 10px;
-      padding: 6px 12px;
+    .var {
+      display: inline-block;
+      background: #333;
+      color: #0f0;
+      padding: 4px;
+      margin: 2px;
       cursor: pointer;
     }
 
     .preview {
-      background: #111;
+      background: black;
       color: #0f0;
       padding: 10px;
       margin-top: 10px;
-      white-space: pre-wrap;
-      border-radius: 6px;
-    }
-
-    .vars {
-      background: #222;
-      color: #0f0;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 13px;
-    }
-
-    .var {
-      cursor: pointer;
-      display: inline-block;
-      margin: 3px;
-      padding: 3px 6px;
-      background: #333;
-      border-radius: 4px;
-    }
-
-    .var:hover {
-      background: #555;
-    }
-
-    .create {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
     }
   </style>
 
@@ -99,28 +56,20 @@
 
 <body>
 
-<h2>📨 Notification Templates</h2>
+<h2>Templates</h2>
 
 <div class="layout">
 
 <div class="left">
 
-<!-- CREATE -->
-
-<div class="create">
-  <h3>➕ Create Template</h3>
+<div class="card">
+  <h3>Create</h3>
 
   <select id="new-key">
-    <option value="">-- select event --</option>
-    <option value="visit_create">Запись на визит</option>
-    <option value="visit_cancel">Отмена визита</option>
-    <option value="visit_move">Перенос визита</option>
-    <option value="visit_reminder">Напоминание</option>
-    <option value="full_ready_lab_result">Анализы готовы</option>
-    <option value="part_ready_lab_result">Анализы частично</option>
-    <option value="birthday_message">День рождения</option>
-    <option value="feedback_message">Отзыв</option>
-    <option value="next_visit_reminder">Повторная явка</option>
+    <option value="">select</option>
+    <option value="visit_create">visit_create</option>
+    <option value="visit_cancel">visit_cancel</option>
+    <option value="visit_move">visit_move</option>
   </select>
 
   <select id="new-channel">
@@ -128,9 +77,8 @@
     <option value="EMAIL">EMAIL</option>
   </select>
 
-  <input id="new-subject" placeholder="subject (only EMAIL)" />
-
-  <textarea id="new-text" rows="5" placeholder="template text"></textarea>
+  <input id="new-subject" placeholder="subject" />
+  <textarea id="new-text"></textarea>
 
 <button onclick="create()">Create</button>
 
@@ -140,36 +88,15 @@
 
 </div>
 
-<!-- VARIABLES -->
-
 <div class="right">
-  <div class="card">
-    <h3>📌 Variables</h3>
 
-```
-<div class="vars">
+<div class="card">
+  <h3>Variables</h3>
 
-  <b>Основные:</b><br>
-  <span class="var" data-var="{{patient_name}}">{{patient_name}}</span>
-  <span class="var" data-var="{{doctor_name}}">{{doctor_name}}</span>
-  <span class="var" data-var="{{date}}">{{date}}</span>
-  <span class="var" data-var="{{time_start}}">{{time_start}}</span>
-  <span class="var" data-var="{{time_end}}">{{time_end}}</span>
-  <span class="var" data-var="{{cabinet}}">{{cabinet}}</span>
-  <span class="var" data-var="{{clinic}}">{{clinic}}</span>
-  <span class="var" data-var="{{phone}}">{{phone}}</span>
-  <span class="var" data-var="{{email}}">{{email}}</span>
-
-  <br><br><b>Перенос:</b><br>
-  <span class="var" data-var="{{old_date}}">{{old_date}}</span>
-  <span class="var" data-var="{{new_date}}">{{new_date}}</span>
-  <span class="var" data-var="{{old_doctor}}">{{old_doctor}}</span>
-  <span class="var" data-var="{{new_doctor}}">{{new_doctor}}</span>
+<span class="var" onclick="insertVar('{{patient_name}}')">{{patient_name}}</span> <span class="var" onclick="insertVar('{{doctor_name}}')">{{doctor_name}}</span> <span class="var" onclick="insertVar('{{date}}')">{{date}}</span>
 
 </div>
-```
 
-  </div>
 </div>
 
 </div>
@@ -178,76 +105,57 @@
 
 let activeTextarea = null;
 
-// 🔥 фикс выбора textarea
-document.addEventListener('focusin', (e) => {
+document.addEventListener('focusin', function(e) {
   if (e.target.tagName === 'TEXTAREA') {
     activeTextarea = e.target;
   }
 });
 
-// 🔥 вставка переменной
-document.addEventListener('click', (e) => {
-  if (e.target.classList.contains('var')) {
-    const variable = e.target.dataset.var;
+function insertVar(v) {
+  if (!activeTextarea) return;
 
-    if (!activeTextarea) {
-      alert('Сначала кликни в поле текста');
-      return;
+  activeTextarea.value += v;
+  activeTextarea.focus();
+}
+
+async function load() {
+  const res = await fetch('/api/templates');
+  const data = await res.json();
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  data.forEach(function(t) {
+
+    const div = document.createElement('div');
+    div.className = 'card';
+
+    // ❗ ВАЖНО: без template literal вложенных
+    let html = '';
+
+    html += '<h3>' + t.key + ' (' + t.channel + ')</h3>';
+
+    if (t.channel === 'EMAIL') {
+      html += '<input id="s-' + t.id + '" value="' + (t.subject || '') + '" />';
     }
 
-    const start = activeTextarea.selectionStart;
-    const end = activeTextarea.selectionEnd;
-
-    activeTextarea.value =
-      activeTextarea.value.substring(0, start) +
-      variable +
-      activeTextarea.value.substring(end);
-
-    activeTextarea.focus();
-  }
-});
-
-// 🔥 load templates
-async function load() {
-  try {
-    const res = await fetch('/api/templates');
-    const data = await res.json();
-
-    const list = document.getElementById('list');
-    list.innerHTML = '';
-
-    data.forEach(t => {
-      const div = document.createElement('div');
-      div.className = 'card';
-
-      div.innerHTML = `
-        <h3>${t.key} (${t.channel})</h3>
-
-        ${t.channel === 'EMAIL' ? `
-          <b>Subject:</b>
-          <input id="s-${t.id}" value="${t.subject || ''}" />
-        ` : ''}
-
-        <textarea id="t-${t.id}" rows="5">${t.text || ''}</textarea>
+    html += '<textarea id="t-' + t.id + '">' + (t.text || '') + '</textarea>';
 
 ```
-    <button onclick="save(${t.id})">💾 Save</button>
-    <button onclick="preview(${t.id})">👁 Preview</button>
-    <button onclick="removeTemplate(${t.id})">🗑 Delete</button>
+html += '<button onclick="save(' + t.id + ')">Save</button>';
+html += '<button onclick="preview(' + t.id + ')">Preview</button>';
+html += '<button onclick="removeTemplate(' + t.id + ')">Delete</button>';
 
-    <div id="p-${t.id}" class="preview"></div>
-  `;
+html += '<div id="p-' + t.id + '" class="preview"></div>';
 
-  list.appendChild(div);
-});
+div.innerHTML = html;
+
+list.appendChild(div);
 ```
 
-} catch (e) {
-console.error('LOAD ERROR:', e);
-}
+});
 }
 
-// 🔥 save
 async function save(id) {
 const text = document.getElementById('t-' + id).value;
 const subjectEl = document.getElementById('s-' + id);
@@ -256,8 +164,8 @@ await fetch('/api/templates/update', {
 method: 'POST',
 headers: {'Content-Type': 'application/json'},
 body: JSON.stringify({
-id,
-text,
+id: id,
+text: text,
 subject: subjectEl ? subjectEl.value : null
 })
 });
@@ -265,63 +173,49 @@ subject: subjectEl ? subjectEl.value : null
 alert('Saved');
 }
 
-// 🔥 preview
 async function preview(id) {
 const text = document.getElementById('t-' + id).value;
 
 const res = await fetch('/api/templates/preview', {
 method: 'POST',
 headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({ text })
+body: JSON.stringify({ text: text })
 });
 
 const result = await res.text();
 document.getElementById('p-' + id).innerText = result;
 }
 
-// 🔥 create
 async function create() {
 const key = document.getElementById('new-key').value;
 const channel = document.getElementById('new-channel').value;
 const subject = document.getElementById('new-subject').value;
 const text = document.getElementById('new-text').value;
 
-if (!key) {
-alert('Выбери тип уведомления');
-return;
-}
-
 await fetch('/api/templates/create', {
 method: 'POST',
 headers: {'Content-Type': 'application/json'},
 body: JSON.stringify({
-key,
-channel,
-subject,
-text
+key: key,
+channel: channel,
+subject: subject,
+text: text
 })
 });
 
-alert('Created');
-
-document.getElementById('new-text').value = '';
 load();
 }
 
-// 🔥 delete
 async function removeTemplate(id) {
-if (!confirm('Удалить шаблон?')) return;
-
 await fetch('/api/templates/delete', {
 method: 'POST',
 headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({ id })
+body: JSON.stringify({ id: id })
 });
 
 load();
 }
 
-// старт
 load();
 
 </script>
