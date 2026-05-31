@@ -2,94 +2,70 @@
 
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Templates</title>
+<meta charset="UTF-8">
+<title>Templates</title>
 
-  <style>
-    body {
-      font-family: Arial;
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-      background: #f7f7f7;
-    }
+<style>
+body { font-family: Arial; max-width: 1200px; margin:auto; }
+.layout { display:flex; gap:20px; }
+.left { flex:2 }
+.right { flex:1 }
 
-    .layout {
-      display: flex;
-      gap: 20px;
-    }
+.card {
+  background:white;
+  padding:15px;
+  margin-bottom:15px;
+  border-radius:8px;
+}
 
-    .left { flex: 2; }
-    .right { flex: 1; }
+textarea,input,select {
+  width:100%;
+  margin-bottom:10px;
+}
 
-    .card {
-      background: white;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
-    textarea, input, select {
-      width: 100%;
-      margin-top: 5px;
-      margin-bottom: 10px;
-    }
-
-    .var {
-      display: inline-block;
-      background: #333;
-      color: #0f0;
-      padding: 4px;
-      margin: 2px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .preview {
-      background: black;
-      color: #0f0;
-      padding: 10px;
-      margin-top: 10px;
-    }
-
-    button {
-      margin-right: 5px;
-    }
-  </style>
+.var {
+  background:#333;
+  color:#0f0;
+  padding:4px;
+  margin:3px;
+  display:inline-block;
+  cursor:pointer;
+}
+</style>
 
 </head>
 
 <body>
 
-<h2>📨 Templates</h2>
+<h2>Templates</h2>
 
 <div class="layout">
 
 <div class="left">
 
 <div class="card">
-  <h3>Create Template</h3>
+<h3>Create</h3>
 
-  <select id="new-key">
-    <option value="">select event</option>
-    <option value="visit_create">visit_create</option>
-    <option value="visit_cancel">visit_cancel</option>
-    <option value="visit_move">visit_move</option>
-    <option value="visit_reminder">visit_reminder</option>
-    <option value="full_ready_lab_result">full_ready_lab_result</option>
-    <option value="part_ready_lab_result">part_ready_lab_result</option>
-    <option value="birthday_message">birthday_message</option>
-    <option value="feedback_message">feedback_message</option>
-    <option value="next_visit_reminder">next_visit_reminder</option>
-  </select>
+<select id="new-key">
+<option value="">select</option>
+<option value="visit_create">visit_create</option>
+<option value="visit_cancel">visit_cancel</option>
+<option value="visit_move">visit_move</option>
+<option value="visit_reminder">visit_reminder</option>
+<option value="full_ready_lab_result">full_ready_lab_result</option>
+<option value="part_ready_lab_result">part_ready_lab_result</option>
+<option value="birthday_message">birthday_message</option>
+<option value="feedback_message">feedback_message</option>
+<option value="next_visit_reminder">next_visit_reminder</option>
+</select>
 
-  <select id="new-channel">
-    <option value="MAX">MAX</option>
-    <option value="EMAIL">EMAIL</option>
-  </select>
+<select id="new-channel">
+<option value="MAX">MAX</option>
+<option value="EMAIL">EMAIL</option>
+</select>
 
-  <input id="new-subject" placeholder="subject (EMAIL only)" />
-  <textarea id="new-text" placeholder="template text"></textarea>
+<input id="new-subject" placeholder="subject"/>
+<textarea id="new-text"></textarea>
 
 <button onclick="create()">Create</button>
 
@@ -100,16 +76,12 @@
 </div>
 
 <div class="right">
-  <div class="card">
-    <h3>Variables</h3>
+<div class="card">
+<h3>Variables</h3>
 
-```
-<div id="vars">
-  <!-- генерим через JS -->
+<div id="vars"></div>
+
 </div>
-```
-
-  </div>
 </div>
 
 </div>
@@ -118,168 +90,130 @@
 
 let activeTextarea = null;
 
-// фикс активного textarea
-document.addEventListener('focusin', function(e) {
-  if (e.target.tagName === 'TEXTAREA') {
-    activeTextarea = e.target;
-  }
+document.addEventListener('focusin', e=>{
+  if(e.target.tagName==='TEXTAREA') activeTextarea = e.target;
 });
 
-// вставка переменной
-function insertVar(v) {
-  if (!activeTextarea) {
-    alert('Сначала выбери поле текста');
-    return;
-  }
-
+function insertVar(v){
+  if(!activeTextarea) return alert('Выбери поле');
   activeTextarea.value += v;
-  activeTextarea.focus();
 }
 
-// список переменных
 const VARIABLES = [
-  'patient_name','doctor_name','date','time_start','time_end',
-  'cabinet','clinic','phone','email',
-  'old_date','new_date','old_doctor','new_doctor',
-  'author_name','status'
+'patient_name','doctor_name','date','time_start','time_end',
+'cabinet','clinic','phone','email',
+
+// перенос
+'old_date','new_date','old_doctor','new_doctor',
+
+// отзыв
+'review_link',
+
+// доп
+'author_name','status'
 ];
 
-// рисуем переменные
-function renderVars() {
-  const container = document.getElementById('vars');
-  container.innerHTML = '';
-
-  VARIABLES.forEach(v => {
-    const el = document.createElement('span');
-    el.className = 'var';
-    el.innerText = '{{' + v + '}}';
-    el.onclick = () => insertVar('{{' + v + '}}');
-    container.appendChild(el);
+function renderVars(){
+  const v = document.getElementById('vars');
+  VARIABLES.forEach(x=>{
+    const el=document.createElement('span');
+    el.className='var';
+    el.innerText='{{'+x+'}}';
+    el.onclick=()=>insertVar('{{'+x+'}}');
+    v.appendChild(el);
   });
 }
 
-// загрузка templates
-async function load() {
+async function load(){
   const res = await fetch('/api/templates');
-  let data = await res.json();
+  const data = await res.json();
 
-  // 🔥 УБИРАЕМ ДУБЛИ
-  const unique = {};
-  data.forEach(t => {
-    const key = t.key + '_' + t.channel;
-    if (!unique[key]) {
-      unique[key] = t;
-    }
-  });
-
-  data = Object.values(unique);
+  console.log('API RESPONSE:', data);
 
   const list = document.getElementById('list');
-  list.innerHTML = '';
+  list.innerHTML='';
 
-  data.forEach(function(t) {
+  data.forEach(t=>{
+    const div=document.createElement('div');
+    div.className='card';
 
-    const div = document.createElement('div');
-    div.className = 'card';
+    let html='';
+    html+='<h3>'+t.key+' ('+t.channel+')</h3>';
 
-    let html = '';
-
-    html += '<h3>' + t.key + ' (' + t.channel + ')</h3>';
-
-    if (t.channel === 'EMAIL') {
-      html += '<input id="s-' + t.id + '" value="' + (t.subject || '') + '" />';
+    if(t.channel==='EMAIL'){
+      html+='<input id="s-'+t.id+'" value="'+(t.subject||'')+'"/>';
     }
 
-    html += '<textarea id="t-' + t.id + '">' + (t.text || '') + '</textarea>';
+    html+='<textarea id="t-'+t.id+'">'+(t.text||'')+'</textarea>';
 
 ```
-html += '<button onclick="save(' + t.id + ')">Save</button>';
-html += '<button onclick="preview(' + t.id + ')">Preview</button>';
-html += '<button onclick="removeTemplate(' + t.id + ')">Delete</button>';
+html+='<button onclick="save('+t.id+')">Save</button>';
+html+='<button onclick="preview('+t.id+')">Preview</button>';
+html+='<button onclick="removeTemplate('+t.id+')">Delete</button>';
+html+='<div id="p-'+t.id+'"></div>';
 
-html += '<div id="p-' + t.id + '" class="preview"></div>';
-
-div.innerHTML = html;
-
+div.innerHTML=html;
 list.appendChild(div);
 ```
 
 });
 }
 
-// save
-async function save(id) {
-const text = document.getElementById('t-' + id).value;
-const subjectEl = document.getElementById('s-' + id);
+async function save(id){
+const text=document.getElementById('t-'+id).value;
+const subjectEl=document.getElementById('s-'+id);
 
-await fetch('/api/templates/update', {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({
-id: id,
-text: text,
-subject: subjectEl ? subjectEl.value : null
+await fetch('/api/templates/update',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+id,
+text,
+subject:subjectEl?subjectEl.value:null
 })
 });
 
-alert('Saved');
+alert('saved');
 }
 
-// preview
-async function preview(id) {
-const text = document.getElementById('t-' + id).value;
+async function preview(id){
+const text=document.getElementById('t-'+id).value;
 
-const res = await fetch('/api/templates/preview', {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({ text: text })
+const res=await fetch('/api/templates/preview',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({text})
 });
 
-const result = await res.text();
-document.getElementById('p-' + id).innerText = result;
+const r=await res.text();
+document.getElementById('p-'+id).innerText=r;
 }
 
-// create
-async function create() {
-const key = document.getElementById('new-key').value;
-const channel = document.getElementById('new-channel').value;
-const subject = document.getElementById('new-subject').value;
-const text = document.getElementById('new-text').value;
+async function create(){
+const key=document.getElementById('new-key').value;
+const channel=document.getElementById('new-channel').value;
+const subject=document.getElementById('new-subject').value;
+const text=document.getElementById('new-text').value;
 
-if (!key) {
-alert('Выбери тип уведомления');
-return;
-}
-
-await fetch('/api/templates/create', {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({
-key: key,
-channel: channel,
-subject: subject,
-text: text
-})
-});
-
-document.getElementById('new-text').value = '';
-load();
-}
-
-// delete
-async function removeTemplate(id) {
-if (!confirm('Удалить?')) return;
-
-await fetch('/api/templates/delete', {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({ id: id })
+await fetch('/api/templates/create',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({key,channel,subject,text})
 });
 
 load();
 }
 
-// init
+async function removeTemplate(id){
+await fetch('/api/templates/delete',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({id})
+});
+
+load();
+}
+
 renderVars();
 load();
 
