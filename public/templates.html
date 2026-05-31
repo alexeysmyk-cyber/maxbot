@@ -301,6 +301,26 @@ async function create() {
 async function removeTemplate(id) {
   if (!confirm('Удалить шаблон?')) return;
 
+  const res = await fetch('/api/templates/delete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ id })
+  });
+
+  const data = await res.json();
+
+  console.log('DELETE RESPONSE:', data);
+
+  if (!res.ok) {
+    alert('Ошибка удаления');
+    return;
+  }
+
+  load();
+}
+
+  if (!confirm('Удалить шаблон?')) return;
+
   await fetch('/api/templates/delete', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},

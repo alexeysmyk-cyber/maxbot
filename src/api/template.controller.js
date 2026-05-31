@@ -5,6 +5,21 @@ export async function getTemplates(req, res) {
   res.json(templates);
 }
 
+export async function deleteTemplate(req, res) {
+  try {
+    const { id } = req.body;
+
+    await prisma.notificationTemplate.delete({
+      where: { id: Number(id) } // 🔥 ВАЖНО
+    });
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('DELETE ERROR:', e);
+    res.status(500).json({ error: 'DELETE_FAILED' });
+  }
+}
+
 export async function updateTemplate(req, res) {
   try {
     const { id, text, subject } = req.body;
