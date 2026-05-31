@@ -7,7 +7,7 @@ import { startMaxBot } from './src/max/max.service.js';
 import { handleMisWebhook} from './src/services/mis/misWebhook.service.js';
 import { getBot } from './src/max/max.service.js';
 import path from 'path';
-import { getTemplates, updateTemplate, createTemplate } from './src/api/template.controller.js';
+import { getTemplates, updateTemplate, createTemplate, deleteTemplate } from './src/api/template.controller.js';
 import { renderTemplate } from './src/common/template.util.js';
 
 
@@ -59,6 +59,7 @@ app.get('/', (req, res) => {
 app.get('/api/templates',basicAuth, getTemplates);
 app.post('/api/templates/update',basicAuth, updateTemplate);
 app.post('/api/templates/create',basicAuth, createTemplate);
+app.post('/api/templates/delete', basicAuth, deleteTemplate);
 
 app.post('/api/templates/preview', (req, res) => {
   const { text } = req.body;
