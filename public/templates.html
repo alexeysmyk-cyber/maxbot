@@ -6,30 +6,55 @@
 <title>Templates</title>
 
 <style>
-body { font-family: Arial; max-width: 1200px; margin:auto; }
-.layout { display:flex; gap:20px; }
-.left { flex:2 }
-.right { flex:1 }
-
-.card {
-  background:white;
-  padding:15px;
-  margin-bottom:15px;
-  border-radius:8px;
+body {
+  font-family: Arial;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background: #f7f7f7;
 }
 
-textarea,input,select {
-  width:100%;
-  margin-bottom:10px;
+.layout {
+  display: flex;
+  gap: 20px;
+}
+
+.left { flex: 2 }
+.right { flex: 1 }
+
+.card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+textarea, input, select {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+button {
+  margin-right: 5px;
+  padding: 5px 10px;
 }
 
 .var {
-  background:#333;
-  color:#0f0;
-  padding:4px;
-  margin:3px;
-  display:inline-block;
-  cursor:pointer;
+  display: inline-block;
+  background: #333;
+  color: #0f0;
+  padding: 5px;
+  margin: 3px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.preview {
+  background: black;
+  color: #0f0;
+  padding: 10px;
+  margin-top: 10px;
+  white-space: pre-wrap;
 }
 </style>
 
@@ -37,17 +62,19 @@ textarea,input,select {
 
 <body>
 
-<h2>Templates</h2>
+<h2>📨 Templates</h2>
 
 <div class="layout">
+
+<!-- LEFT -->
 
 <div class="left">
 
 <div class="card">
-<h3>Create</h3>
+<h3>Create Template</h3>
 
 <select id="new-key">
-<option value="">select</option>
+<option value="">select event</option>
 <option value="visit_create">visit_create</option>
 <option value="visit_cancel">visit_cancel</option>
 <option value="visit_move">visit_move</option>
@@ -64,8 +91,8 @@ textarea,input,select {
 <option value="EMAIL">EMAIL</option>
 </select>
 
-<input id="new-subject" placeholder="subject"/>
-<textarea id="new-text"></textarea>
+<input id="new-subject" placeholder="subject (EMAIL only)" />
+<textarea id="new-text" placeholder="template text"></textarea>
 
 <button onclick="create()">Create</button>
 
@@ -75,12 +102,12 @@ textarea,input,select {
 
 </div>
 
+<!-- RIGHT -->
+
 <div class="right">
 <div class="card">
 <h3>Variables</h3>
-
 <div id="vars"></div>
-
 </div>
 </div>
 
@@ -88,132 +115,202 @@ textarea,input,select {
 
 <script>
 
+// ===== ACTIVE TEXTAREA =====
 let activeTextarea = null;
 
-document.addEventListener('focusin', e=>{
-  if(e.target.tagName==='TEXTAREA') activeTextarea = e.target;
+document.addEventListener('focusin', e => {
+  if (e.target.tagName === 'TEXTAREA') {
+    activeTextarea = e.target;
+  }
 });
 
-function insertVar(v){
-  if(!activeTextarea) return alert('Выбери поле');
-  activeTextarea.value += v;
-}
-
+// ===== VARIABLES =====
 const VARIABLES = [
-'patient_name','doctor_name','date','time_start','time_end',
-'cabinet','clinic','phone','email',
+  'patient_name','doctor_name','date','time_start','time_end',
+  'cabinet','clinic','phone','email',
 
-// перенос
-'old_date','new_date','old_doctor','new_doctor',
+  // перенос визита
+  'old_date','new_date','old_doctor','new_doctor','old_time','new_time',
 
-// отзыв
-'review_link',
+  // отзыв
+  'review_link',
 
-// доп
-'author_name','status'
+  // прочее
+  'author_name','status'
 ];
 
-function renderVars(){
-  const v = document.getElementById('vars');
-  VARIABLES.forEach(x=>{
-    const el=document.createElement('span');
-    el.className='var';
-    el.innerText='{{'+x+'}}';
-    el.onclick=()=>insertVar('{{'+x+'}}');
-    v.appendChild(el);
+// ===== RENDER VARIABLES =====
+function renderVars() {
+  const container = document.getElementById('vars');
+  container.innerHTML = '';
+
+  VARIABLES.forEach(v => {
+    const el = document.createElement('span');
+    el.className = 'var';
+    el.innerText = '{{' + v + '}}';
+    el.onclick = () => insertVar('{{' + v + '}}');
+    container.appendChild(el);
   });
 }
 
-async function load(){
-  const res = await fetch('/api/templates');
-  const data = await res.json();
+// ===== INSERT VARIABLE =====
+function insertVar(v) {
+  if (!activeTextarea) {
+    alert('Сначала выбери поле текста');
+    return;
+  }
 
-  console.log('API RESPONSE:', data);
+  const start = activeTextarea.selectionStart;
+  const end = activeTextarea.selectionEnd;
 
-  const list = document.getElementById('list');
-  list.innerHTML='';
+  activeTextarea.value =
+    activeTextarea.value.substring(0, start) +
+    v +
+    activeTextarea.value.substring(end);
 
-  data.forEach(t=>{
-    const div=document.createElement('div');
-    div.className='card';
+  activeTextarea.focus();
+}
 
-    let html='';
-    html+='<h3>'+t.key+' ('+t.channel+')</h3>';
+// ===== LOAD TEMPLATES =====
+async function load() {
+  try {
+    const res = await fetch('/api/templates');
+    const data = await res.json();
 
-    if(t.channel==='EMAIL'){
-      html+='<input id="s-'+t.id+'" value="'+(t.subject||'')+'"/>';
+    console.log('API RESPONSE:', data);
+
+    if (!Array.isArray(data)) {
+      console.error('НЕ МАССИВ:', data);
+      return;
     }
 
-    html+='<textarea id="t-'+t.id+'">'+(t.text||'')+'</textarea>';
+    const list = document.getElementById('list');
+    list.innerHTML = '';
 
-```
-html+='<button onclick="save('+t.id+')">Save</button>';
-html+='<button onclick="preview('+t.id+')">Preview</button>';
-html+='<button onclick="removeTemplate('+t.id+')">Delete</button>';
-html+='<div id="p-'+t.id+'"></div>';
+    data.forEach(t => {
 
-div.innerHTML=html;
-list.appendChild(div);
-```
+      const div = document.createElement('div');
+      div.className = 'card';
 
-});
+      // TITLE
+      const title = document.createElement('h3');
+      title.innerText = t.key + ' (' + t.channel + ')';
+      div.appendChild(title);
+
+      // SUBJECT
+      let subjectInput = null;
+      if (t.channel === 'EMAIL') {
+        subjectInput = document.createElement('input');
+        subjectInput.id = 's-' + t.id;
+        subjectInput.value = t.subject || '';
+        div.appendChild(subjectInput);
+      }
+
+      // TEXTAREA (🔥 безопасно)
+      const textarea = document.createElement('textarea');
+      textarea.id = 't-' + t.id;
+      textarea.value = t.text || '';
+      div.appendChild(textarea);
+
+      // BUTTONS
+      const btnSave = document.createElement('button');
+      btnSave.innerText = 'Save';
+      btnSave.onclick = () => save(t.id);
+
+      const btnPreview = document.createElement('button');
+      btnPreview.innerText = 'Preview';
+      btnPreview.onclick = () => preview(t.id);
+
+      const btnDelete = document.createElement('button');
+      btnDelete.innerText = 'Delete';
+      btnDelete.onclick = () => removeTemplate(t.id);
+
+      div.appendChild(btnSave);
+      div.appendChild(btnPreview);
+      div.appendChild(btnDelete);
+
+      // PREVIEW
+      const previewDiv = document.createElement('div');
+      previewDiv.id = 'p-' + t.id;
+      previewDiv.className = 'preview';
+      div.appendChild(previewDiv);
+
+      list.appendChild(div);
+    });
+
+  } catch (e) {
+    console.error('LOAD ERROR:', e);
+  }
 }
 
-async function save(id){
-const text=document.getElementById('t-'+id).value;
-const subjectEl=document.getElementById('s-'+id);
+// ===== SAVE =====
+async function save(id) {
+  const text = document.getElementById('t-' + id).value;
+  const subjectEl = document.getElementById('s-' + id);
 
-await fetch('/api/templates/update',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-id,
-text,
-subject:subjectEl?subjectEl.value:null
-})
-});
+  await fetch('/api/templates/update', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      id,
+      text,
+      subject: subjectEl ? subjectEl.value : null
+    })
+  });
 
-alert('saved');
+  alert('Saved');
 }
 
-async function preview(id){
-const text=document.getElementById('t-'+id).value;
+// ===== PREVIEW =====
+async function preview(id) {
+  const text = document.getElementById('t-' + id).value;
 
-const res=await fetch('/api/templates/preview',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({text})
-});
+  const res = await fetch('/api/templates/preview', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ text })
+  });
 
-const r=await res.text();
-document.getElementById('p-'+id).innerText=r;
+  const result = await res.text();
+  document.getElementById('p-' + id).innerText = result;
 }
 
-async function create(){
-const key=document.getElementById('new-key').value;
-const channel=document.getElementById('new-channel').value;
-const subject=document.getElementById('new-subject').value;
-const text=document.getElementById('new-text').value;
+// ===== CREATE =====
+async function create() {
+  const key = document.getElementById('new-key').value;
+  const channel = document.getElementById('new-channel').value;
+  const subject = document.getElementById('new-subject').value;
+  const text = document.getElementById('new-text').value;
 
-await fetch('/api/templates/create',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({key,channel,subject,text})
-});
+  if (!key) {
+    alert('Выбери тип уведомления');
+    return;
+  }
 
-load();
+  await fetch('/api/templates/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ key, channel, subject, text })
+  });
+
+  document.getElementById('new-text').value = '';
+  load();
 }
 
-async function removeTemplate(id){
-await fetch('/api/templates/delete',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({id})
-});
+// ===== DELETE =====
+async function removeTemplate(id) {
+  if (!confirm('Удалить шаблон?')) return;
 
-load();
+  await fetch('/api/templates/delete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ id })
+  });
+
+  load();
 }
 
+// ===== INIT =====
 renderVars();
 load();
 
