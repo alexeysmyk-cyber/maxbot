@@ -535,13 +535,54 @@ console.log('📦 EVENT:', event);
 console.log('🧠 BUILD RESULT:', result);
 
 
+
+function formatDateRu(dateTime) {
+  if (!dateTime) return '';
+
+  const [datePart] = dateTime.split(' ');
+  const [day, month, year] = datePart.split('.');
+
+  const dateObj = new Date(`${year}-${month}-${day}`);
+
+  const weekdays = [
+    'воскресенье','понедельник','вторник',
+    'среда','четверг','пятница','суббота'
+  ];
+
+  const months = [
+    'января','февраля','марта','апреля','мая','июня',
+    'июля','августа','сентября','октября','ноября','декабря'
+  ];
+
+  return `${day} ${months[month - 1]} ${year}, ${weekdays[dateObj.getDay()]}`;
+}
+
+function formatTime(dateTime) {
+  if (!dateTime) return '';
+
+  const parts = dateTime.split(' ');
+  return parts[1] || '';
+}
+
+
+
+
+
+
+
+
+
+const rawStart = data.time_start || appointment?.time_start || '';
+const rawEnd = data.time_end || appointment?.time_end || '';
+
 const templateData = {
   // ===== ОСНОВНЫЕ =====
   patient_name: data.patient_name || appointment?.patient_name || '',
   doctor_name: data.doctor || appointment?.doctor || '',
-  date: data.time_start || appointment?.time_start || '',
-  time_start: data.time_start || appointment?.time_start || '',
-  time_end: data.time_end || appointment?.time_end || '',
+
+  date: formatDateRu(rawStart),
+  time_start: formatTime(rawStart),
+  time_end: formatTime(rawEnd),
 
   cabinet: data.room || appointment?.room || '',
   clinic: data.clinic || appointment?.clinic || '',
@@ -549,19 +590,20 @@ const templateData = {
   phone: data.patient_phone || phone || '',
   email: data.patient_email || '',
 
-  // ===== ПЕРЕНОС ВИЗИТА =====
-  old_date: data.old_time_start || '',
-  new_date: data.time_start || '',
+  // ===== ПЕРЕНОС =====
+  old_date: formatDateRu(data.old_time_start || ''),
+  new_date: formatDateRu(rawStart),
+
+  old_time: formatTime(data.old_time_start || ''),
+  new_time: formatTime(rawStart),
+
   old_doctor: data.old_doctor || '',
   new_doctor: data.doctor || '',
-
-  old_time: data.old_time_start || '',
-  new_time: data.time_start || '',
 
   // ===== ОТЗЫВ =====
   review_link: data.review_link || '',
 
-  // ===== ДОПОЛНИТЕЛЬНО =====
+  // ===== ДОП =====
   author_name: data.author_name || '',
   status: data.status || ''
 };
