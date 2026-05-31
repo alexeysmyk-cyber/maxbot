@@ -536,13 +536,37 @@ console.log('🧠 BUILD RESULT:', result);
 
 
 const templateData = {
+  // ===== ОСНОВНЫЕ =====
   patient_name: data.patient_name || appointment?.patient_name || '',
   doctor_name: data.doctor || appointment?.doctor || '',
   date: data.time_start || appointment?.time_start || '',
+  time_start: data.time_start || appointment?.time_start || '',
+  time_end: data.time_end || appointment?.time_end || '',
+
   cabinet: data.room || appointment?.room || '',
-  phone: phone,
-  email: ''
+  clinic: data.clinic || appointment?.clinic || '',
+
+  phone: data.patient_phone || phone || '',
+  email: data.patient_email || '',
+
+  // ===== ПЕРЕНОС ВИЗИТА =====
+  old_date: data.old_time_start || '',
+  new_date: data.time_start || '',
+  old_doctor: data.old_doctor || '',
+  new_doctor: data.doctor || '',
+
+  old_time: data.old_time_start || '',
+  new_time: data.time_start || '',
+
+  // ===== ОТЗЫВ =====
+  review_link: data.review_link || '',
+
+  // ===== ДОПОЛНИТЕЛЬНО =====
+  author_name: data.author_name || '',
+  status: data.status || ''
 };
+
+console.log('TEMPLATE DATA:', templateData);
 
 const template = await prisma.notificationTemplate.findUnique({
   where: {
