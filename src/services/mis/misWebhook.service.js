@@ -554,7 +554,7 @@ function formatDateRu(dateTime) {
     'июля','августа','сентября','октября','ноября','декабря'
   ];
 
-  return `${day} ${months[month - 1]} ${year}, ${weekdays[dateObj.getDay()]}`;
+  return `${weekdays[dateObj.getDay()]},  ${day} ${months[month - 1]} ${year}`;
 }
 
 function formatTime(dateTime) {
