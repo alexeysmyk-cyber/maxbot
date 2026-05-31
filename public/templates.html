@@ -140,35 +140,31 @@
 
 </div>
 
-<!-- VARIABLES PANEL -->
+<!-- VARIABLES -->
 
 <div class="right">
   <div class="card">
-    <h3>📌 Variables (click to insert)</h3>
+    <h3>📌 Variables</h3>
 
 ```
 <div class="vars">
 
   <b>Основные:</b><br>
-  <span class="var" onclick="insertVar('{{patient_name}}')">{{patient_name}}</span>
-  <span class="var" onclick="insertVar('{{doctor_name}}')">{{doctor_name}}</span>
-  <span class="var" onclick="insertVar('{{date}}')">{{date}}</span>
-  <span class="var" onclick="insertVar('{{time_start}}')">{{time_start}}</span>
-  <span class="var" onclick="insertVar('{{time_end}}')">{{time_end}}</span>
-  <span class="var" onclick="insertVar('{{cabinet}}')">{{cabinet}}</span>
-  <span class="var" onclick="insertVar('{{clinic}}')">{{clinic}}</span>
-  <span class="var" onclick="insertVar('{{phone}}')">{{phone}}</span>
-  <span class="var" onclick="insertVar('{{email}}')">{{email}}</span>
+  <span class="var" data-var="{{patient_name}}">{{patient_name}}</span>
+  <span class="var" data-var="{{doctor_name}}">{{doctor_name}}</span>
+  <span class="var" data-var="{{date}}">{{date}}</span>
+  <span class="var" data-var="{{time_start}}">{{time_start}}</span>
+  <span class="var" data-var="{{time_end}}">{{time_end}}</span>
+  <span class="var" data-var="{{cabinet}}">{{cabinet}}</span>
+  <span class="var" data-var="{{clinic}}">{{clinic}}</span>
+  <span class="var" data-var="{{phone}}">{{phone}}</span>
+  <span class="var" data-var="{{email}}">{{email}}</span>
 
-  <br><br><b>Перенос визита:</b><br>
-  <span class="var" onclick="insertVar('{{old_date}}')">{{old_date}}</span>
-  <span class="var" onclick="insertVar('{{new_date}}')">{{new_date}}</span>
-  <span class="var" onclick="insertVar('{{old_doctor}}')">{{old_doctor}}</span>
-  <span class="var" onclick="insertVar('{{new_doctor}}')">{{new_doctor}}</span>
-
-  <br><br><b>Дополнительно:</b><br>
-  <span class="var" onclick="insertVar('{{author_name}}')">{{author_name}}</span>
-  <span class="var" onclick="insertVar('{{status}}')">{{status}}</span>
+  <br><br><b>Перенос:</b><br>
+  <span class="var" data-var="{{old_date}}">{{old_date}}</span>
+  <span class="var" data-var="{{new_date}}">{{new_date}}</span>
+  <span class="var" data-var="{{old_doctor}}">{{old_doctor}}</span>
+  <span class="var" data-var="{{new_doctor}}">{{new_doctor}}</span>
 
 </div>
 ```
@@ -182,57 +178,76 @@
 
 let activeTextarea = null;
 
+// 🔥 фикс выбора textarea
 document.addEventListener('focusin', (e) => {
   if (e.target.tagName === 'TEXTAREA') {
     activeTextarea = e.target;
   }
 });
 
-function insertVar(variable) {
-  if (!activeTextarea) return;
+// 🔥 вставка переменной
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('var')) {
+    const variable = e.target.dataset.var;
 
-  const start = activeTextarea.selectionStart;
-  const end = activeTextarea.selectionEnd;
+    if (!activeTextarea) {
+      alert('Сначала кликни в поле текста');
+      return;
+    }
 
-  activeTextarea.value =
-    activeTextarea.value.substring(0, start) +
-    variable +
-    activeTextarea.value.substring(end);
-}
+    const start = activeTextarea.selectionStart;
+    const end = activeTextarea.selectionEnd;
 
-async function load() {
-  const res = await fetch('/api/templates');
-  const data = await res.json();
+    activeTextarea.value =
+      activeTextarea.value.substring(0, start) +
+      variable +
+      activeTextarea.value.substring(end);
 
-  const list = document.getElementById('list');
-  list.innerHTML = '';
-
-  data.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'card';
-
-    div.innerHTML = `
-      <h3>${t.key} (${t.channel})</h3>
-
-      ${t.channel === 'EMAIL' ? `
-        <b>Subject:</b>
-        <input id="s-${t.id}" value="${t.subject || ''}" />
-      ` : ''}
-
-      <textarea id="t-${t.id}" rows="5">${t.text}</textarea>
-
-```
-  <button onclick="save(${t.id})">💾 Save</button>
-  <button onclick="preview(${t.id})">👁 Preview</button>
-  <div id="p-${t.id}" class="preview"></div>
-`;
-
-list.appendChild(div);
-```
-
+    activeTextarea.focus();
+  }
 });
+
+// 🔥 load templates
+async function load() {
+  try {
+    const res = await fetch('/api/templates');
+    const data = await res.json();
+
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+
+    data.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'card';
+
+      div.innerHTML = `
+        <h3>${t.key} (${t.channel})</h3>
+
+        ${t.channel === 'EMAIL' ? `
+          <b>Subject:</b>
+          <input id="s-${t.id}" value="${t.subject || ''}" />
+        ` : ''}
+
+        <textarea id="t-${t.id}" rows="5">${t.text || ''}</textarea>
+
+```
+    <button onclick="save(${t.id})">💾 Save</button>
+    <button onclick="preview(${t.id})">👁 Preview</button>
+    <button onclick="removeTemplate(${t.id})">🗑 Delete</button>
+
+    <div id="p-${t.id}" class="preview"></div>
+  `;
+
+  list.appendChild(div);
+});
+```
+
+} catch (e) {
+console.error('LOAD ERROR:', e);
+}
 }
 
+// 🔥 save
 async function save(id) {
 const text = document.getElementById('t-' + id).value;
 const subjectEl = document.getElementById('s-' + id);
@@ -250,6 +265,7 @@ subject: subjectEl ? subjectEl.value : null
 alert('Saved');
 }
 
+// 🔥 preview
 async function preview(id) {
 const text = document.getElementById('t-' + id).value;
 
@@ -263,6 +279,7 @@ const result = await res.text();
 document.getElementById('p-' + id).innerText = result;
 }
 
+// 🔥 create
 async function create() {
 const key = document.getElementById('new-key').value;
 const channel = document.getElementById('new-channel').value;
@@ -291,6 +308,20 @@ document.getElementById('new-text').value = '';
 load();
 }
 
+// 🔥 delete
+async function removeTemplate(id) {
+if (!confirm('Удалить шаблон?')) return;
+
+await fetch('/api/templates/delete', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({ id })
+});
+
+load();
+}
+
+// старт
 load();
 
 </script>
