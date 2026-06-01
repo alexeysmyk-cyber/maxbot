@@ -609,6 +609,10 @@ if (!key) {
 // 📤 РАССЫЛКА
 // ==================================================
 
+
+
+
+
 const settings = await prisma.userNotification.findMany({
   where: {
     type: { key },
@@ -617,6 +621,28 @@ const settings = await prisma.userNotification.findMany({
   include: { user: true }
 });
 console.log('📊 SETTINGS COUNT:', settings.length);
+
+// ===== TEMPLATE LOADING (GLOBAL) =====
+const maxTemplate = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key,
+      channel: 'MAX'
+    }
+  }
+});
+
+const emailTemplate = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key,
+      channel: 'EMAIL'
+    }
+  }
+});
+
+
+
 
 for (const s of settings) {
 
@@ -665,10 +691,8 @@ for (const s of settings) {
 
   console.log('📡 PATIENT CHANNEL:', channel);
 
-  try {
 
-    // 🔥 добавили единый finalMessage
-// ===== MAX TEMPLATE =====
+// ===== RENDER =====
 let finalMessage = message;
 
 if (maxTemplate?.text?.trim()) {
@@ -687,65 +711,38 @@ if (emailTemplate?.text?.trim()) {
   );
 }
 
-const maxTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key,
-      channel: 'MAX'
+// ===== SEND =====
+try {
+
+  if (channel === 'MAX') {
+    console.log('📨 SEND TO MAX:', user.vk_id);
+
+    if (!user?.vk_id) {
+      console.log('❌ NO VK_ID → FALLBACK EMAIL');
+
+      await sendEmailSafe(patient, emailMessage);
+      continue;
     }
+
+    await bot.api.sendMessageToUser(
+      Number(user.vk_id),
+      finalMessage
+    );
   }
-});
 
-finalMessage = renderTemplate(
-  maxTemplate?.text || message,
-  templateData
-);
-
-// ===== EMAIL TEMPLATE =====
-const emailTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key,
-      channel: 'EMAIL'
-    }
-  }
-});
-
-const emailMessage = renderTemplate(
-  emailTemplate?.text || message,
-  templateData
-);
-
-if (channel === 'MAX') {
-  console.log('📨 SEND TO MAX:', user.vk_id);
-
-  if (!user?.vk_id) {
-    console.log('❌ NO VK_ID → FALLBACK EMAIL');
+  else if (channel === 'EMAIL') {
+    console.log('📧 SEND EMAIL');
 
     await sendEmailSafe(patient, emailMessage);
-
-    continue;
   }
 
-  await bot.api.sendMessageToUser(
-    Number(user.vk_id),
-    finalMessage
-  );
-}
-
-else if (channel === 'EMAIL') {
-  console.log('📧 SEND EMAIL');
-
-  await sendEmailSafe(patient, emailMessage);
-}
-
-    else {
-      console.log('🚫 NO CHANNEL FOR PATIENT');
-    }
-
-  } catch (e) {
-    console.error('❌ PATIENT SEND ERROR:', e.message);
+  else {
+    console.log('🚫 NO CHANNEL FOR PATIENT');
   }
+
+} catch (e) {
+  console.error('❌ PATIENT SEND ERROR:', e.message);
+}
 
   continue;
 }
