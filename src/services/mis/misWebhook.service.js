@@ -44,7 +44,6 @@ async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
 
-
 // 1. маппинг событий
 function mapEventToKey(event, data) {
   if (event === 'create_appointment') return 'visit_create';
@@ -67,8 +66,6 @@ function mapEventToKey(event, data) {
 
   return null;
 }
-
-
 
 function isDuplicate(event, data) {
   const key = JSON.stringify({ event, data });
@@ -420,14 +417,11 @@ return { message, doctorId, key, appointment };
 
 export async function handleMisWebhook(req, bot) {
 
-
-
   // 🔐 секрет
   const secret =
     req.query?.secret ||
     req.headers['x-webhook-secret'] ||
     req.body?.secret;
-
     
   if (secret !== process.env.MIS_WEBHOOK_SECRET) {
     
@@ -446,7 +440,7 @@ for (const key in req.body) {
   }
 }
 
-  // ===============================
+// ===============================
 // 📱 PHONE → HASH
 // ===============================
 const rawPhone =
@@ -534,8 +528,6 @@ if (!result) return ;
 console.log('📦 EVENT:', event);
 console.log('🧠 BUILD RESULT:', result);
 
-
-
 function formatDateRu(dateTime) {
   if (!dateTime) return '';
 
@@ -563,14 +555,6 @@ function formatTime(dateTime) {
   const parts = dateTime.split(' ');
   return parts[1] || '';
 }
-
-
-
-
-
-
-
-
 
 const rawStart = data.time_start || appointment?.time_start || '';
 const rawEnd = data.time_end || appointment?.time_end || '';
@@ -610,109 +594,9 @@ const templateData = {
 
 console.log('TEMPLATE DATA:', templateData);
 
-const template = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key: result.key,
-      channel: 'MAX'
-    }
-  }
-});
-
-// 🔥 ВОТ ГЛАВНОЕ
-result.message = renderTemplate(
-  template?.text || result.message,
-  templateData
-);
-
-
 
 const { message, doctorId, key } = result;
 
-// ===============================
-// 👤 ПРЯМАЯ ОТПРАВКА ПАЦИЕНТУ
-// ===============================
-if (patientUser) {
-
-  const patientIdFromEvent =
-  data.patient_id ||
-  data.patientId ||
-  data.patient?.id ||
-  appointment?.patient_id;
-
-  if (String(patientUser.mis_id) === String(patientIdFromEvent)) {
-
-    let patient = null;
-
-    try {
-      patient = await getPatientById(patientIdFromEvent);
-    } catch (e) {
-      console.error('❌ LOAD PATIENT ERROR');
-    }
-
-    if (patient) {
-
-      console.log('📊 PATIENT FROM MIS:', {
-        email: patient.email,
-        send_email: patient.send_email,
-        send_email_lab: patient.send_email_lab
-      });
-
-      const channel = resolveChannel(patientUser, patient, key);
-
-      console.log('📡 PATIENT CHANNEL:', channel);
-
-      if (channel === 'MAX') {
-        if (!patientUser?.vk_id) {
-    console.log('❌ NO VK_ID → FALLBACK EMAIL');
-    
-const emailTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key: result.key,
-      channel: 'EMAIL'
-    }
-  }
-});
-
-const emailText = renderTemplate(
-  emailTemplate?.text || result.message,
-  templateData
-);
-    await sendEmailSafe(patient, message);
-    return;
-  }
-
-        await bot.api.sendMessageToUser(
-          Number(patientUser.vk_id),
-          message
-        );
-      }
-
-      else if (channel === 'EMAIL') {
-        console.log('📧 PATIENT EMAIL');
-const emailTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key: result.key,
-      channel: 'EMAIL'
-    }
-  }
-});
-
-const emailText = renderTemplate(
-  emailTemplate?.text || result.message,
-  templateData
-);
-        await sendEmailSafe(patient, message);
-      }
-
-      else {
-        console.log('🚫 NO CHANNEL FOR PATIENT');
-      }
-    }
-  }
-}
 
 if (!key) {
   console.log('❌ NO KEY');
@@ -720,7 +604,6 @@ if (!key) {
 }
 
   if (!message) return ;
-
 
 // ==================================================
 // 📤 РАССЫЛКА
@@ -739,10 +622,6 @@ for (const s of settings) {
 
   const user = s.user;
 
-if (s.user.activeRole === 'PATIENT') {
-  continue;
-}
-
   // 🔥 ОБЩИЙ ФИЛЬТР
   if (s.mode === 'self') {
     if (String(user.mis_id) !== String(doctorId)) continue;
@@ -751,82 +630,125 @@ if (s.user.activeRole === 'PATIENT') {
   // ===============================
   // 👤 ПАЦИЕНТЫ — НОВАЯ ЛОГИКА
   // ===============================
-  if (user.activeRole === 'PATIENT') {
+ if (user.activeRole === 'PATIENT') {
 
-    const patientIdFromEvent =
-  data.patient_id ||
-  data.patientId ||
-  data.patient?.id ||
-  appointment?.patient_id;
+  const patientIdFromEvent =
+    data.patient_id ||
+    data.patientId ||
+    data.patient?.id ||
+    appointment?.patient_id;
 
-    if (String(user.mis_id) !== String(patientIdFromEvent)) {
-      continue;
+  if (String(user.mis_id) !== String(patientIdFromEvent)) {
+    continue;
+  }
+
+  let patient = null;
+
+  try {
+    patient = await getPatientById(patientIdFromEvent);
+  } catch (e) {
+    console.error('❌ LOAD PATIENT ERROR');
+  }
+
+  if (!patient) {
+    console.log('❌ PATIENT NOT FOUND IN MIS');
+    continue;
+  }
+
+  console.log('📊 PATIENT FROM MIS:', {
+    email: patient.email,
+    send_email: patient.send_email,
+    send_email_lab: patient.send_email_lab
+  });
+
+  const channel = resolveChannel(user, patient, key);
+
+  console.log('📡 PATIENT CHANNEL:', channel);
+
+  try {
+
+    // 🔥 добавили единый finalMessage
+// ===== MAX TEMPLATE =====
+let finalMessage = message;
+
+if (maxTemplate?.text?.trim()) {
+  finalMessage = renderTemplate(
+    maxTemplate.text,
+    templateData
+  );
+}
+
+let emailMessage = message;
+
+if (emailTemplate?.text?.trim()) {
+  emailMessage = renderTemplate(
+    emailTemplate.text,
+    templateData
+  );
+}
+
+const maxTemplate = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key,
+      channel: 'MAX'
     }
-
-   let patient = null;
-
-try {
-  patient = await getPatientById(patientIdFromEvent);
-} catch (e) {
-  console.error('❌ LOAD PATIENT ERROR');
-}
-
-if (!patient) {
-  console.log('❌ PATIENT NOT FOUND IN MIS');
-  continue;
-}
-
-console.log('📊 PATIENT FROM MIS:', {
-  email: patient.email,
-  send_email: patient.send_email,
-  send_email_lab: patient.send_email_lab
+  }
 });
 
+finalMessage = renderTemplate(
+  maxTemplate?.text || message,
+  templateData
+);
 
-    const channel = resolveChannel(user, patient, key);
+// ===== EMAIL TEMPLATE =====
+const emailTemplate = await prisma.notificationTemplate.findUnique({
+  where: {
+    key_channel: {
+      key,
+      channel: 'EMAIL'
+    }
+  }
+});
 
-    console.log('📡 PATIENT CHANNEL:', channel);
+const emailMessage = renderTemplate(
+  emailTemplate?.text || message,
+  templateData
+);
 
-    try {
+if (channel === 'MAX') {
+  console.log('📨 SEND TO MAX:', user.vk_id);
 
-      if (channel === 'MAX') {
-        console.log('📨 SEND TO MAX:', user.vk_id);
-if (!user?.vk_id) {
+  if (!user?.vk_id) {
     console.log('❌ NO VK_ID → FALLBACK EMAIL');
 
-    await sendEmailSafe({
-  to: patient.email,
-  subject: emailTemplate?.subject || 'Уведомление',
-  text: emailText
-});
+    await sendEmailSafe(patient, emailMessage);
+
     continue;
   }
-        await bot.api.sendMessageToUser(
-          Number(user.vk_id),
-          message
-        );
-      }
 
-      else if (channel === 'EMAIL') {
-        console.log('📧 SEND EMAIL');
+  await bot.api.sendMessageToUser(
+    Number(user.vk_id),
+    finalMessage
+  );
+}
 
-           await sendEmailSafe({
-  to: patient.email,
-  subject: emailTemplate?.subject || 'Уведомление',
-  text: emailText
-});
-      }
+else if (channel === 'EMAIL') {
+  console.log('📧 SEND EMAIL');
 
-      else {
-        console.log('🚫 NO CHANNEL FOR PATIENT');
-      }
+  await sendEmailSafe(patient, emailMessage);
+}
 
-    } catch (e) {
-      console.error('❌ PATIENT SEND ERROR:', e.message);
+    else {
+      console.log('🚫 NO CHANNEL FOR PATIENT');
     }
 
-    continue;
+  } catch (e) {
+    console.error('❌ PATIENT SEND ERROR:', e.message);
   }
+
+  continue;
+}
 
   // ===============================
   // 👨‍⚕️ СОТРУДНИКИ — СТАРАЯ ЛОГИКА
@@ -845,19 +767,8 @@ if (!user?.vk_id) {
 }
 
 
-  // дальше всё ок
 }
 
-
-function saveBase64File(base64, filename) {
-  const buffer = Buffer.from(base64, 'base64');
-
-  const filePath = path.join('uploads', filename);
-
-  fs.writeFileSync(filePath, buffer);
-
-  return filePath;
-}
 
 function processLabFiles(data) {
   const links = [];
