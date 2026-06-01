@@ -8,14 +8,16 @@ export function getEmailForSend(patient) {
     return process.env.TEST_EMAIL;
   }
 
-  return patient.email;
+  return patient.email || null;
 }
 
 
 
 export function buildEmailMessage(message, patient) {
+  const testMode = process.env.FORCE_TEST_EMAIL === 'true';
+
   return `
-[TEST MODE]
+${testMode ? '[TEST MODE]\n' : ''}
 
 Пациент: ${patient.last_name || ''} ${patient.first_name || ''}
 Email пациента: ${patient.email || 'нет'}
@@ -45,15 +47,25 @@ export function canSendEmail(patient, key) {
 
 
 export async function sendEmailSafe(patient, message) {
-  const email = getEmailForSend(patient);
+  try {
+    const email = getEmailForSend(patient);
 
-  const finalMessage = buildEmailMessage(message, patient);
+    if (!email) {
+      console.log('❌ NO EMAIL');
+      return;
+    }
 
-  console.log('📧 EMAIL SEND:', email);
+    const finalMessage = buildEmailMessage(message, patient);
 
-  await sendEmail(
-    email,
-    'Уведомление клиники',
-    finalMessage
-  );
+    console.log('📧 EMAIL SEND:', email);
+
+    await sendEmail(
+      email,
+      'Уведомление клиники',
+      finalMessage
+    );
+
+  } catch (e) {
+    console.error('❌ EMAIL ERROR:', e.message);
+  }
 }
