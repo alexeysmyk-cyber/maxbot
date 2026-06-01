@@ -2,13 +2,13 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
-
 import { startMaxBot } from './src/max/max.service.js';
 import { handleMisWebhook} from './src/services/mis/misWebhook.service.js';
 import { getBot } from './src/max/max.service.js';
 import path from 'path';
 import { getTemplates, updateTemplate, createTemplate, deleteTemplate } from './src/api/template.controller.js';
 import { renderTemplate } from './src/common/template.util.js';
+import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
 
 
 startMaxBot();
@@ -103,6 +103,16 @@ app.post('/webhook/mis', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
+
+// Чистим uploads
+// запускаем сразу при старте
+cleanupUploads();
+
+// потом раз в сутки
+setInterval(() => {
+  cleanupUploads();
+}, 24 * 60 * 60 * 1000);
+
 
 app.use('/files', express.static(path.resolve('uploads')));
 app.use('/public', express.static('public'));
