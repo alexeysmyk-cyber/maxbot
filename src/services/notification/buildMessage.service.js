@@ -18,9 +18,12 @@ if (event === 'create_appointment' || event === 'visit_create') {
   doctorId = data.doctor_id;
 
   const timeStart = data.time_start;
-  const room = data.room;
-  const doctor = data.doctor;
-  const patientName = data.patient_name;
+  const room =
+  appointment?.room || data.room;
+  const doctor =
+  appointment?.doctor || data.doctor;
+  const patientName =
+  appointment?.patient_name || data.patient_name;
   const patientPhone = data.patient_phone;
   const source = data.source || '';
 
