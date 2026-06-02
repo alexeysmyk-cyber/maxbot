@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getAppointmentWithRetry } from '../mis/misWebhook.service.js';
 
 export async function buildMessage(event, data, appointment) {
   let message = '';
@@ -9,7 +10,7 @@ export async function buildMessage(event, data, appointment) {
 
     console.log('📦 RAW EVENT:', event);
 
- if (event === 'create_appointment') {
+if (event === 'create_appointment' || event === 'visit_create') {
 
   if (data.moved_from) return null;
 

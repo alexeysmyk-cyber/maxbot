@@ -392,30 +392,6 @@ if (!key) {
 // 📤 РАССЫЛКА
 // ==================================================
 
-// 🔥 определяем роль пользователя
-const roleKey = user.activeRole || 'PATIENT';
-
-const dbRole = await prisma.role.findFirst({
-  where: { key: roleKey }
-});
-
-if (!dbRole) {
-  console.log('❌ ROLE NOT FOUND:', roleKey);
-  return;
-}
-
-// 🔥 получаем настройки роли
-const setting = await prisma.roleNotification.findFirst({
-  where: {
-    roleId: dbRole.id,
-    type: {
-      key
-    }
-  }
-});
-
-console.log('📊 ROLE:', roleKey);
-console.log('📊 SETTING:', setting);
 
 // ===== TEMPLATE LOADING =====
 const maxTemplate = await prisma.notificationTemplate.findUnique({
@@ -443,46 +419,56 @@ const users = await prisma.user.findMany();
 
 for (const user of users) {
 
+  // ===============================
+  // 🔍 USER OVERRIDE
+  // ===============================
+  const userSetting = await prisma.userNotification.findFirst({
+    where: {
+      userId: user.id,
+      type: { key }
+    }
+  });
 
-  // 🔍 ищем override
-const users = await prisma.user.findMany();
-
-for (const user of users) {
-
-  // 🔍 ищем override
-  const userSetting = settings.find(
-    s => s.userId === user.id && s.type.key === key
-  );
+  let mode = null;
 
   if (userSetting) {
-
-    if (userSetting.mode === 'none') continue;
-
-    if (userSetting.mode === 'self') {
-      if (String(user.mis_id) !== String(doctorId)) continue;
-    }
-
+    mode = userSetting.mode;
   } else {
+    // ===============================
+    // 🔍 ROLE FALLBACK
+    // ===============================
+    const role = await prisma.role.findFirst({
+      where: { key: user.activeRole }
+    });
 
-    // 👉 fallback на роль
+    if (!role) continue;
+
     const roleSetting = await prisma.roleNotification.findFirst({
       where: {
-        role: user.activeRole,
+        roleId: role.id,
         type: { key }
       }
     });
 
-    if (!roleSetting || roleSetting.defaultMode === 'none') {
-      continue;
-    }
+    if (!roleSetting) continue;
 
-    if (roleSetting.defaultMode === 'self') {
-      if (String(user.mis_id) !== String(doctorId)) continue;
-    }
+    mode = roleSetting.defaultMode;
   }
 
   // ===============================
-  // 👤 ПАЦИЕНТЫ
+  // 🚫 NONE
+  // ===============================
+  if (mode === 'none') continue;
+
+  // ===============================
+  // 👨‍⚕️ SELF
+  // ===============================
+  if (mode === 'self') {
+    if (String(user.mis_id) !== String(doctorId)) continue;
+  }
+
+  // ===============================
+  // 👤 ПАЦИЕНТ
   // ===============================
   if (user.activeRole === 'PATIENT') {
     await handlePatientNotification({
@@ -496,32 +482,15 @@ for (const user of users) {
       emailTemplate,
       bot
     });
-
     continue;
   }
 
   // ===============================
-  // 👨‍⚕️ СОТРУДНИКИ
+  // 👨‍⚕️ СОТРУДНИК
   // ===============================
   try {
-    console.log('📨 SEND TO:', user.vk_id);
-
     if (!user.vk_id) continue;
 
-    await bot.api.sendMessageToUser(
-      Number(user.vk_id),
-      message
-    );
-
-  } catch (e) {
-    console.error('❌ SEND ERROR:', e.message);
-  }
-}
-
-  // ===============================
-  // 👨‍⚕️ СОТРУДНИКИ — СТАРАЯ ЛОГИКА
-  // ===============================
-  try {
     console.log('📨 SEND TO:', user.vk_id);
 
     await bot.api.sendMessageToUser(
@@ -533,6 +502,4 @@ for (const user of users) {
     console.error('❌ SEND ERROR:', e.message);
   }
 }
-
-
 }
