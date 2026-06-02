@@ -94,9 +94,9 @@ app.get('/admin/roles', basicAuth, (req, res) => {
 
 app.get('/api/users',basicAuth, async (req, res) => {
   const users = await prisma.user.findMany({
-    where: {
-      type: 'EMPLOYEE'   // 🔥 ВОТ ЭТО ВАЖНО
-    }
+    //where: {
+    //  type: 'EMPLOYEE'   // 🔥 ВОТ ЭТО ВАЖНО
+   // }
   });
 
   res.json(users);
