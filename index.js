@@ -104,12 +104,8 @@ app.get('/admin/roles', (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
-  const users = await prisma.user.findMany({
-    where: {
-      activeRole: 'EMPLOYEE'
-    }
-  });
-
+  const users = await prisma.user.findMany();
+  console.log('USERS:', users);
   res.json(users);
 });
 
