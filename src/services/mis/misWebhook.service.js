@@ -438,7 +438,43 @@ console.log('👥 USERS COUNT:', users.length);
 
 for (const user of users) {
 
+  // ===============================
+  // 👤 ПАЦИЕНТ (сразу фильтруем)
+  // ===============================
+  if (user.type === 'PATIENT') {
 
+    const patientIdFromEvent =
+      data.patient_id ||
+      data.patientId ||
+      data.patient?.id ||
+      appointment?.patient_id;
+
+    console.log('🔍 CHECK PATIENT:', {
+      db: user.mis_id,
+      event: patientIdFromEvent
+    });
+
+    if (String(user.mis_id) !== String(patientIdFromEvent)) {
+      console.log('❌ SKIP PATIENT (NOT MATCH)');
+      continue;
+    }
+
+    console.log('👤 HANDLE PATIENT:', user.id);
+
+    await handlePatientNotification({
+      user,
+      data,
+      appointment,
+      key,
+      message,
+      templateData,
+      maxTemplate,
+      emailTemplate,
+      bot
+    });
+
+    continue;
+  }
 
   // ===============================
   // 🔍 USER OVERRIDE
@@ -462,14 +498,10 @@ for (const user of users) {
       where: { key: user.activeRole }
     });
 
-if (!role) {
-  console.log('❌ NO ROLE FOR USER:', user.id, user.activeRole);
-  continue;
-}
-
-
-
-    if (!role) continue;
+    if (!role) {
+      console.log('❌ NO ROLE FOR USER:', user.id, user.activeRole);
+      continue;
+    }
 
     const roleSetting = await prisma.roleNotification.findFirst({
       where: {
@@ -495,25 +527,7 @@ if (!role) {
     if (String(user.mis_id) !== String(doctorId)) continue;
   }
 
-  // ===============================
-  // 👤 ПАЦИЕНТ
-  // ===============================
-
-  console.log('🔁 LOOP USER:', user);
-  if (user.type === 'PATIENT') {
-    await handlePatientNotification({
-      user,
-      data,
-      appointment,
-      key,
-      message,
-      templateData,
-      maxTemplate,
-      emailTemplate,
-      bot
-    });
-    continue;
-  }
+  console.log('🔁 LOOP EMPLOYEE:', user.id);
 
   // ===============================
   // 👨‍⚕️ СОТРУДНИК
