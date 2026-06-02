@@ -157,6 +157,16 @@ let patientIdFromEvent =
 
   console.log('🧠 PATIENT ID FROM EVENT:', patientIdFromEvent);
 
+
+console.log('🔍 CHECK PATIENT:', {
+  db: user.mis_id,
+  event: patientIdFromEvent
+});
+
+
+
+
+
   if (String(user.mis_id) !== String(patientIdFromEvent)) {
     return;
   }
