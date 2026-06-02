@@ -27,25 +27,21 @@
 
 <script>
 
-let data = [];
 let users = [];
+let notifications = [];
 
 async function load() {
-  const res = await fetch('/api/notifications');
-  data = await res.json();
 
-  console.log('DATA:', data);
+  // 🔥 грузим ВСЕХ сотрудников
+  const usersRes = await fetch('/api/users');
+  users = await usersRes.json();
 
-  // 🔥 фильтр сотрудников с защитой
-  users = [
-    ...new Map(
-      data
-        .filter(n => n.user && n.user.activeRole === 'EMPLOYEE')
-        .map(n => [n.user.id, n.user])
-    ).values()
-  ];
+  // 🔥 грузим override
+  const notifRes = await fetch('/api/notifications');
+  notifications = await notifRes.json();
 
   console.log('USERS:', users);
+  console.log('NOTIFICATIONS:', notifications);
 
   const select = document.getElementById('userSelect');
   select.innerHTML = '';
@@ -66,21 +62,20 @@ function render() {
 
   table.innerHTML = '';
 
-  data
-    .filter(n => n.userId === selectedUserId)
-    .forEach(n => {
+  // 🔥 берём все типы (через notifications или fallback)
+  const userNotifs = notifications.filter(n => n.userId === selectedUserId);
 
-      const tr = document.createElement('tr');
+  userNotifs.forEach(n => {
+    const tr = document.createElement('tr');
 
-      tr.innerHTML = `
-        <td>${n.type?.key || 'NO TYPE'}</td>
-        <td>
-          <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
-            <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
-            <option value="self" ${n.mode === 'self' ? 'selected' : ''}>SELF</option>
-            <option value="none" ${n.mode === 'none' ? 'selected' : ''}>NONE</option>
-          </select>
-        </td>
+    tr.innerHTML = `
+      <td>${n.type?.key || 'NO TYPE'}</td>
+      <td>
+        <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
+          <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
+          <option value="self" ${n.mode === 'self' ? 'selected' : ''}>SELF</option>
+          <option value="none" ${n.mode === 'none' ? 'selected' : ''}>NONE</option>
+        </select>
       `;
 
       table.appendChild(tr);
