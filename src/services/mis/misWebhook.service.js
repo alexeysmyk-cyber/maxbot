@@ -397,7 +397,8 @@ const settings = await prisma.userNotification.findMany({
     type: { key },
     NOT: { mode: 'none' }
   },
-  include: { user: true }
+  include: {  user: true,
+    type: true}
 });
 console.log('📊 SETTINGS COUNT:', settings.length);
 
@@ -427,11 +428,11 @@ for (const s of settings) {
 
   const user = s.user;
 
-  if (s.key !== key) {
-    continue;
-  }
+  if (s.type.key !== key) {
+  continue;
+}
 
-console.log('SETTING KEY:', s.key, 'EVENT KEY:', key);
+console.log('SETTING KEY:', s.type.key, 'EVENT KEY:', key);
 
   // 🔥 ОБЩИЙ ФИЛЬТР
   if (s.mode === 'self') {

@@ -324,8 +324,7 @@ const userId = String(
   if (!userId) return null;
 
 
-console.log('👉 DEBUG update:', ctx.update);
-console.log('👉 REAL USER ID:', userId);
+
 
 const text =
   inputText ||
