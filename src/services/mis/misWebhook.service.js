@@ -150,7 +150,6 @@ async function handlePatientNotification({
 
 let patientIdFromEvent =
   data.patient_id ||     // 🔥 ГЛАВНОЕ
-  data.id ||             // иногда МИС шлёт id
   data.patientId ||
   data.patient?.id ||
   appointment?.patient_id;
@@ -286,10 +285,14 @@ if (patientId || phoneHash) {
 });
 
   if (!patientUser) {
+
+
+
     patientUser = await prisma.user.create({
       data: {
         mis_id: String(patientId),
         phone_hash: phoneHash,
+        type: 'PATIENT',  
         activeRole: 'PATIENT'
       }
     });
