@@ -343,21 +343,19 @@ const rawStart = data.time_start || appointment?.time_start || '';
 const rawEnd = data.time_end || appointment?.time_end || '';
 
 const templateData = {
-  // ===== ОСНОВНЫЕ =====
-  patient_name: data.patient_name || appointment?.patient_name || '',
-  doctor_name: data.doctor || appointment?.doctor || '',
+  patient_name: appointment?.patient_name || data.patient_name || '',
+  doctor_name: appointment?.doctor || data.doctor || '',
 
   date: formatDateRu(rawStart),
   time_start: formatTime(rawStart),
   time_end: formatTime(rawEnd),
 
-  cabinet: data.room || appointment?.room || '',
-  clinic: data.clinic || appointment?.clinic || '',
+  cabinet: appointment?.room || data.room || '',
+  clinic: appointment?.clinic || data.clinic || '',
 
   phone: data.patient_phone || phone || '',
   email: data.patient_email || '',
-
-  // ===== ПЕРЕНОС =====
+  
   old_date: formatDateRu(data.old_time_start || ''),
   new_date: formatDateRu(rawStart),
 
@@ -365,12 +363,9 @@ const templateData = {
   new_time: formatTime(rawStart),
 
   old_doctor: data.old_doctor || '',
-  new_doctor: data.doctor || '',
+  new_doctor: appointment?.doctor || data.doctor || '',
 
-  // ===== ОТЗЫВ =====
   review_link: data.review_link || '',
-
-  // ===== ДОП =====
   author_name: data.author_name || '',
   status: data.status || ''
 };
