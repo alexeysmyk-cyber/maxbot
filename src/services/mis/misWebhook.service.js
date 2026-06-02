@@ -460,44 +460,48 @@ if (user.type === 'PATIENT') {
   }
 
   // ===============================
-  // 🔍 USER OVERRIDE (приоритет)
+  // 🧪 ТОЛЬКО ДЛЯ АНАЛИЗОВ
   // ===============================
-  const userSetting = await prisma.userNotification.findFirst({
-    where: {
-      userId: user.id,
-      type: { key }
-    }
-  });
+  const isLabEvent =
+    key === 'lab_full' ||
+    key === 'lab_partial';
 
-  if (userSetting) {
-    if (userSetting.mode === 'none') {
-      console.log('🚫 PATIENT BLOCKED BY USER SETTINGS');
-      continue;
-    }
-  } else {
-    // ===============================
-    // 🔍 ROLE FALLBACK
-    // ===============================
-    const role = await prisma.role.findFirst({
-      where: { key: user.activeRole }
-    });
-
-    if (!role) {
-      console.log('❌ NO ROLE FOR PATIENT:', user.id);
-      continue;
-    }
-
-    const roleSetting = await prisma.roleNotification.findFirst({
+  if (isLabEvent) {
+    const userSetting = await prisma.userNotification.findFirst({
       where: {
-        roleId: role.id,
+        userId: user.id,
         type: { key }
       }
     });
 
-    if (!roleSetting || roleSetting.defaultMode === 'none') {
-      console.log('🚫 PATIENT BLOCKED BY ROLE');
+    if (userSetting?.mode === 'none') {
+      console.log('🚫 PATIENT BLOCKED LAB BY USER SETTINGS');
       continue;
     }
+  }
+
+  // ===============================
+  // 🔍 ROLE (для ВСЕХ событий)
+  // ===============================
+  const role = await prisma.role.findFirst({
+    where: { key: user.activeRole }
+  });
+
+  if (!role) {
+    console.log('❌ NO ROLE FOR PATIENT:', user.id);
+    continue;
+  }
+
+  const roleSetting = await prisma.roleNotification.findFirst({
+    where: {
+      roleId: role.id,
+      type: { key }
+    }
+  });
+
+  if (!roleSetting || roleSetting.defaultMode === 'none') {
+    console.log('🚫 PATIENT BLOCKED BY ROLE');
+    continue;
   }
 
   // ===============================
