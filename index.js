@@ -99,6 +99,35 @@ app.get('/api/notifications', async (req, res) => {
   res.json(data);
 });
 
+app.get('/admin/roles', (req, res) => {
+  res.sendFile(path.resolve('public/roles.html'));
+});
+
+app.get('/api/roles', async (req, res) => {
+  const data = await prisma.roleNotification.findMany({
+    include: {
+      type: true
+    }
+  });
+
+  res.json(data);
+});
+
+app.post('/api/roles', async (req, res) => {
+  const { role, typeId, defaultMode } = req.body;
+
+  await prisma.roleNotification.upsert({
+    where: {
+      role_typeId: { role, typeId }
+    },
+    update: { defaultMode },
+    create: { role, typeId, defaultMode }
+  });
+
+  res.json({ success: true });
+});
+
+
 app.post('/api/notifications', async (req, res) => {
   const { userId, typeId, mode } = req.body;
 

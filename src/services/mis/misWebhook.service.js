@@ -424,38 +424,83 @@ const emailTemplate = await prisma.notificationTemplate.findUnique({
 
 
 
-for (const s of settings) {
+const users = await prisma.user.findMany();
 
-  const user = s.user;
+for (const user of users) {
 
-  if (s.type.key !== key) {
-  continue;
-}
 
-console.log('SETTING KEY:', s.type.key, 'EVENT KEY:', key);
+  // 🔍 ищем override
+const users = await prisma.user.findMany();
 
-  // 🔥 ОБЩИЙ ФИЛЬТР
-  if (s.mode === 'self') {
-    if (String(user.mis_id) !== String(doctorId)) continue;
+for (const user of users) {
+
+  // 🔍 ищем override
+  const userSetting = settings.find(
+    s => s.userId === user.id && s.type.key === key
+  );
+
+  if (userSetting) {
+
+    if (userSetting.mode === 'none') continue;
+
+    if (userSetting.mode === 'self') {
+      if (String(user.mis_id) !== String(doctorId)) continue;
+    }
+
+  } else {
+
+    // 👉 fallback на роль
+    const roleSetting = await prisma.roleNotification.findFirst({
+      where: {
+        role: user.activeRole,
+        type: { key }
+      }
+    });
+
+    if (!roleSetting || roleSetting.defaultMode === 'none') {
+      continue;
+    }
+
+    if (roleSetting.defaultMode === 'self') {
+      if (String(user.mis_id) !== String(doctorId)) continue;
+    }
   }
 
   // ===============================
-  // 👤 ПАЦИЕНТЫ — НОВАЯ ЛОГИКА
+  // 👤 ПАЦИЕНТЫ
   // ===============================
-if (user.activeRole === 'PATIENT') {
-  await handlePatientNotification({
-    user,
-    data,
-    appointment,
-    key,
-    message,
-    templateData,
-    maxTemplate,
-    emailTemplate,
-    bot
-  });
+  if (user.activeRole === 'PATIENT') {
+    await handlePatientNotification({
+      user,
+      data,
+      appointment,
+      key,
+      message,
+      templateData,
+      maxTemplate,
+      emailTemplate,
+      bot
+    });
 
-  continue;
+    continue;
+  }
+
+  // ===============================
+  // 👨‍⚕️ СОТРУДНИКИ
+  // ===============================
+  try {
+    console.log('📨 SEND TO:', user.vk_id);
+
+    if (!user.vk_id) continue;
+
+    await bot.api.sendMessageToUser(
+      Number(user.vk_id),
+      message
+    );
+
+  } catch (e) {
+    console.error('❌ SEND ERROR:', e.message);
+  }
 }
 
   // ===============================

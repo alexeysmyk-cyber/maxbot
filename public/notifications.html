@@ -10,10 +10,20 @@
 
 <h2>Notification Settings</h2>
 
+<input 
+type="text" 
+id="search" 
+placeholder="Поиск пользователя..."
+oninput="render()"
+/>
+
+<br><br>
+
 <table border="1" cellpadding="8">
   <thead>
     <tr>
       <th>User</th>
+      <th>Role</th>
       <th>Event</th>
       <th>Mode</th>
     </tr>
@@ -22,29 +32,46 @@
 </table>
 
 <script>
+
+let data = [];
+
 async function load() {
   const res = await fetch('/api/notifications');
-  const data = await res.json();
+  data = await res.json();
+  render();
+}
 
+function render() {
+  const search = document.getElementById('search').value.toLowerCase();
   const table = document.getElementById('table');
 
-  data.forEach(n => {
-    const tr = document.createElement('tr');
+  table.innerHTML = '';
 
-    tr.innerHTML = `
-      <td>${n.user.name || n.user.id}</td>
-      <td>${n.type.key}</td>
-      <td>
-        <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
-          <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
-          <option value="self" ${n.mode === 'self' ? 'selected' : ''}>SELF</option>
-          <option value="none" ${n.mode === 'none' ? 'selected' : ''}>NONE</option>
-        </select>
-      </td>
-    `;
+  data
+    .filter(n => n.user.activeRole === 'EMPLOYEE') // 🔥 только сотрудники
+    .filter(n => {
+      const name = (n.user.name || '').toLowerCase();
+      return name.includes(search);
+    })
+    .forEach(n => {
 
-    table.appendChild(tr);
-  });
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${n.user.name || n.user.id}</td>
+        <td>${n.user.activeRole}</td>
+        <td>${n.type.key}</td>
+        <td>
+          <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
+            <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
+            <option value="self" ${n.mode === 'self' ? 'selected' : ''}>SELF</option>
+            <option value="none" ${n.mode === 'none' ? 'selected' : ''}>NONE</option>
+          </select>
+        </td>
+      `;
+
+      table.appendChild(tr);
+    });
 }
 
 async function update(userId, typeId, mode) {
@@ -58,6 +85,7 @@ async function update(userId, typeId, mode) {
 }
 
 load();
+
 </script>
 
 </body>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Roles</title>
+</head>
+
+<body>
+
+<h2>Role Notification Settings</h2>
+
+<table border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th>Role</th>
+      <th>Event</th>
+      <th>Mode</th>
+    </tr>
+  </thead>
+  <tbody id="table"></tbody>
+</table>
+
+<script>
+
+let data = [];
+
+async function load() {
+  const res = await fetch('/api/roles');
+  data = await res.json();
+  render();
+}
+
+function render() {
+  const table = document.getElementById('table');
+  table.innerHTML = '';
+
+  data.forEach(r => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${r.role}</td>
+      <td>${r.type.key}</td>
+      <td>
+        <select onchange="update('${r.role}', ${r.typeId}, this.value)">
+          <option value="all" ${r.defaultMode === 'all' ? 'selected' : ''}>ALL</option>
+          <option value="self" ${r.defaultMode === 'self' ? 'selected' : ''}>SELF</option>
+          <option value="none" ${r.defaultMode === 'none' ? 'selected' : ''}>NONE</option>
+        </select>
+      </td>
+    `;
+
+    table.appendChild(tr);
+  });
+}
+
+async function update(role, typeId, defaultMode) {
+  await fetch('/api/roles', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ role, typeId, defaultMode })
+  });
+}
+
+load();
+
+</script>
+
+</body>
+</html>
