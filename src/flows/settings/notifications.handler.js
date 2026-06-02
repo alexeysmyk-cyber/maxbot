@@ -236,31 +236,39 @@ export async function setNotificationMode(ctx, user, text) {
   // ===============================
   // 👤 PATIENT — только анализы
   // ===============================
-  if (user.activeRole === 'PATIENT') {
+if (user.activeRole === 'PATIENT') {
 
-    const setting = await prisma.userNotification.findFirst({
-      where: {
-        userId: user.id,
-        typeId: numericTypeId
-      },
-      include: { type: true }
+  let typeKey;
+
+  const setting = await prisma.userNotification.findFirst({
+    where: {
+      userId: user.id,
+      typeId: numericTypeId
+    },
+    include: { type: true }
+  });
+
+  if (setting) {
+    typeKey = setting.type.key;
+  } else {
+    const type = await prisma.notificationType.findFirst({
+      where: { id: numericTypeId }
     });
 
-    if (!setting) {
-      console.log('❌ NO SETTING FOUND');
-      return;
-    }
+    if (!type) return;
 
-    if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
-      return ctx.reply('❌ Недоступно');
-    }
-
-    // только true / false
-    if (!['true', 'false'].includes(mode)) {
-      console.log('❌ INVALID MODE FOR PATIENT:', mode);
-      return;
-    }
+    typeKey = type.key;
   }
+
+  if (!['lab_full', 'lab_partial'].includes(typeKey)) {
+    return ctx.reply('❌ Недоступно');
+  }
+
+  if (!['true', 'false'].includes(mode)) {
+    console.log('❌ INVALID MODE FOR PATIENT:', mode);
+    return;
+  }
+}
 
   // ===============================
   // 💾 СОХРАНЕНИЕ (КРИТИЧНО)
