@@ -484,9 +484,9 @@ if (isLabEvent) {
 
   const mode = userSetting?.mode;
 
-  console.log('🧪 PATIENT LAB MODE:', mode);
+  console.log('🧪 PATIENT MODE:', mode);
 
-  if (mode === 'false') {
+  if (mode === 'none') {
     console.log('🚫 PATIENT BLOCKED LAB');
     continue;
   }

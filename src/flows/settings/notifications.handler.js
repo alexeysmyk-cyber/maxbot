@@ -72,13 +72,12 @@ export async function showNotificationGroup(ctx, user, text) {
 let label;
 
 if (user.activeRole === 'PATIENT') {
-  label = mode === 'true' ? '✅' : '❌';
+  label = mode === 'all' ? '✅' : '❌';
 } else {
   label =
     mode === 'all' ? '🌍' :
     mode === 'self' ? '👤' :
-    mode === 'none' ? '🚫' :
-    '❌';
+    '🚫';
 }
 
     return [
@@ -194,21 +193,19 @@ if (user.activeRole === 'PATIENT') {
 
   if (['lab_full', 'lab_partial'].includes(setting.type.key)) {
     buttons.push(
-      [Keyboard.button.callback('✅ Получать', `set_mode_${typeId}_true`)],
-      [Keyboard.button.callback('❌ Не получать', `set_mode_${typeId}_false`)]
+      [Keyboard.button.callback('✅ Получать', `set_mode_${typeId}_all`)],
+      [Keyboard.button.callback('❌ Не получать', `set_mode_${typeId}_none`)]
     );
   }
 
 } else {
 
-  // 👨‍⚕️ СОТРУДНИКИ — оставляем как есть
-  if (['all', 'self', 'none'].includes(setting.mode)) {
-    buttons.push(
-      [Keyboard.button.callback('🌍 Все', `set_mode_${typeId}_all`)],
-      [Keyboard.button.callback('👤 Только мои', `set_mode_${typeId}_self`)],
-      [Keyboard.button.callback('🚫 Выключить', `set_mode_${typeId}_none`)]
-    );
-  }
+  buttons.push(
+    [Keyboard.button.callback('🌍 Все', `set_mode_${typeId}_all`)],
+    [Keyboard.button.callback('👤 Только мои', `set_mode_${typeId}_self`)],
+    [Keyboard.button.callback('🚫 Выключить', `set_mode_${typeId}_none`)]
+  );
+
 }
 
   buttons.push(
@@ -251,26 +248,24 @@ export async function setNotificationMode(ctx, user, text) {
   // ===============================
   // 👤 PATIENT — только анализы
   // ===============================
-  if (user.activeRole === 'PATIENT') {
+if (user.activeRole === 'PATIENT') {
 
-    const type = await prisma.notificationType.findFirst({
-      where: { id: numericTypeId }
-    });
+  const type = await prisma.notificationType.findFirst({
+    where: { id: numericTypeId }
+  });
 
-    if (!type) {
-      console.log('❌ TYPE NOT FOUND');
-      return;
-    }
+  if (!type) return;
 
-    if (!['lab_full', 'lab_partial'].includes(type.key)) {
-      return ctx.reply('❌ Недоступно');
-    }
-
-    if (!['true', 'false'].includes(mode)) {
-      console.log('❌ INVALID MODE');
-      return;
-    }
+  if (!['lab_full', 'lab_partial'].includes(type.key)) {
+    return ctx.reply('❌ Недоступно');
   }
+
+  // 🔥 только all / none
+  if (!['all', 'none'].includes(mode)) {
+    console.log('❌ INVALID MODE FOR PATIENT:', mode);
+    return;
+  }
+}
 
   // ===============================
   // 💾 СОХРАНЕНИЕ
