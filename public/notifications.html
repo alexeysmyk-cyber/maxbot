@@ -34,16 +34,21 @@ async function load() {
   const res = await fetch('/api/notifications');
   data = await res.json();
 
-  // 🔥 собираем только сотрудников
+  console.log('DATA:', data);
+
+  // 🔥 фильтр сотрудников с защитой
   users = [
     ...new Map(
       data
-        .filter(n => n.user.activeRole === 'EMPLOYEE')
+        .filter(n => n.user && n.user.activeRole === 'EMPLOYEE')
         .map(n => [n.user.id, n.user])
     ).values()
   ];
 
+  console.log('USERS:', users);
+
   const select = document.getElementById('userSelect');
+  select.innerHTML = '';
 
   users.forEach(user => {
     const option = document.createElement('option');
@@ -68,7 +73,7 @@ function render() {
       const tr = document.createElement('tr');
 
       tr.innerHTML = `
-        <td>${n.type.key}</td>
+        <td>${n.type?.key || 'NO TYPE'}</td>
         <td>
           <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
             <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
