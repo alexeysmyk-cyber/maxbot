@@ -81,7 +81,7 @@ app.get('/admin', (req, res) => {
 });
 
 app.get('/admin/templates', (req, res) => {
-  res.sendFile(path.resolve('public/template.html'));
+  res.sendFile(path.resolve('public/templates.html'));
 });
 
 app.get('/admin/notifications', (req, res) => {
