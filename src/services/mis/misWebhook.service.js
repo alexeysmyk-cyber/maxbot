@@ -427,6 +427,12 @@ for (const s of settings) {
 
   const user = s.user;
 
+  if (s.key !== key) {
+    continue;
+  }
+
+console.log('SETTING KEY:', s.key, 'EVENT KEY:', key);
+
   // 🔥 ОБЩИЙ ФИЛЬТР
   if (s.mode === 'self') {
     if (String(user.mis_id) !== String(doctorId)) continue;
