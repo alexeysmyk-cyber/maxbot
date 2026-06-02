@@ -163,6 +163,7 @@ app.get('/admin', basicAuth, (req, res) => {
 });
 
 app.post('/webhook/mis', async (req, res) => {
+   const secret = req.query.secret; // 🔥 ВОТ ЭТО ДОБАВИТЬ
   if (secret !== process.env.MIS_WEBHOOK_SECRET) {
   return res.status(403).send('Forbidden');
 }
