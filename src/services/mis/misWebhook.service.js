@@ -148,11 +148,14 @@ async function handlePatientNotification({
   bot
 }) {
 
-  const patientIdFromEvent =
-    data.patient_id ||
-    data.patientId ||
-    data.patient?.id ||
-    appointment?.patient_id;
+let patientIdFromEvent =
+  data.patient_id ||     // 🔥 ГЛАВНОЕ
+  data.id ||             // иногда МИС шлёт id
+  data.patientId ||
+  data.patient?.id ||
+  appointment?.patient_id;
+
+  console.log('🧠 PATIENT ID FROM EVENT:', patientIdFromEvent);
 
   if (String(user.mis_id) !== String(patientIdFromEvent)) {
     return;
