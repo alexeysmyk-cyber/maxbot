@@ -26,8 +26,6 @@ const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PORT = process.env.PORT || 3000;
 
-
-
 // ===== AUTH =====
 function basicAuth(req, res, next) {
   const auth = req.headers.authorization;
@@ -50,18 +48,13 @@ function basicAuth(req, res, next) {
 return res.status(401).send('Auth required');
 }
 
-// ===== TEST =====
-app.get('/', (req, res) => {
-  res.send('OK WORKS');
-});
-
 // ===== API =====
 app.get('/api/templates',basicAuth, getTemplates);
 app.post('/api/templates/update',basicAuth, updateTemplate);
 app.post('/api/templates/create',basicAuth, createTemplate);
 app.post('/api/templates/delete', basicAuth, deleteTemplate);
 
-app.post('/api/templates/preview', (req, res) => {
+app.post('/api/templates/preview', basicAuth, (req, res) => {
   const { text } = req.body;
 
   const fakeData = {
@@ -76,19 +69,15 @@ app.post('/api/templates/preview', (req, res) => {
   res.send(result);
 });
 
-app.get('/admin', (req, res) => {
-  res.sendFile(path.resolve('public/admin.html'));
-});
-
-app.get('/admin/templates', (req, res) => {
+app.get('/admin/templates', basicAuth, (req, res) => {
   res.sendFile(path.resolve('public/templates.html'));
 });
 
-app.get('/admin/notifications', (req, res) => {
+app.get('/admin/notifications', basicAuth, (req, res) => {
   res.sendFile(path.resolve('public/notifications.html'));
 });
 
-app.get('/api/notifications', async (req, res) => {
+app.get('/api/notifications', basicAuth, async (req, res) => {
   const data = await prisma.userNotification.findMany({
     include: {
       user: true,
@@ -99,22 +88,26 @@ app.get('/api/notifications', async (req, res) => {
   res.json(data);
 });
 
-app.get('/admin/roles', (req, res) => {
+app.get('/admin/roles', basicAuth, (req, res) => {
   res.sendFile(path.resolve('public/roles.html'));
 });
 
-app.get('/api/users', async (req, res) => {
-  const users = await prisma.user.findMany();
-  console.log('USERS:', users);
+app.get('/api/users',basicAuth, async (req, res) => {
+  const users = await prisma.user.findMany({
+    where: {
+      type: 'EMPLOYEE'   // 🔥 ВОТ ЭТО ВАЖНО
+    }
+  });
+
   res.json(users);
 });
 
-app.get('/api/types', async (req, res) => {
+app.get('/api/types',basicAuth, async (req, res) => {
   const types = await prisma.notificationType.findMany();
   res.json(types);
 });
 
-app.get('/api/roles', async (req, res) => {
+app.get('/api/roles', basicAuth,async (req, res) => {
   const data = await prisma.roleNotification.findMany({
     include: {
       type: true,
@@ -125,7 +118,7 @@ app.get('/api/roles', async (req, res) => {
   res.json(data);
 });
 
-app.post('/api/roles', async (req, res) => {
+app.post('/api/roles', basicAuth,async (req, res) => {
   const { role, typeId, defaultMode } = req.body;
 
   const roleRecord = await prisma.role.findFirst({
@@ -150,8 +143,7 @@ app.post('/api/roles', async (req, res) => {
   res.json({ success: true });
 });
 
-
-app.post('/api/notifications', async (req, res) => {
+app.post('/api/notifications',basicAuth, async (req, res) => {
   const { userId, typeId, mode } = req.body;
 
   await prisma.userNotification.upsert({
@@ -165,13 +157,15 @@ app.post('/api/notifications', async (req, res) => {
   res.json({ success: true });
 });
 
-
 // ===== ADMIN =====
 app.get('/admin', basicAuth, (req, res) => {
-  res.sendFile(path.resolve('public/templates.html'));
+  res.sendFile(path.resolve('public/admin.html'));
 });
 
 app.post('/webhook/mis', async (req, res) => {
+  if (secret !== process.env.MIS_WEBHOOK_SECRET) {
+  return res.status(403).send('Forbidden');
+}
   res.send('OK');
   console.log('🔥 WEBHOOK HIT');
 
@@ -188,6 +182,8 @@ app.post('/webhook/mis', async (req, res) => {
     console.error('❌ WEBHOOK ERROR:', e);
   }
 });
+
+
 // ===== START =====
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
