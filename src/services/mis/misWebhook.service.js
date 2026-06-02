@@ -12,7 +12,7 @@ import { buildMessage } from '../notification/buildMessage.service.js';
 
 
 
-async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
+export async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
   for (let i = 0; i < tries; i++) {
     try {
       const res = await getAppointmentById(id);
