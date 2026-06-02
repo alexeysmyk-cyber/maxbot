@@ -10,20 +10,14 @@
 
 <h2>Notification Settings</h2>
 
-<input 
-type="text" 
-id="search" 
-placeholder="Поиск пользователя..."
-oninput="render()"
-/>
+<select id="userSelect" onchange="render()">
+</select>
 
 <br><br>
 
 <table border="1" cellpadding="8">
   <thead>
     <tr>
-      <th>User</th>
-      <th>Role</th>
       <th>Event</th>
       <th>Mode</th>
     </tr>
@@ -34,32 +28,46 @@ oninput="render()"
 <script>
 
 let data = [];
+let users = [];
 
 async function load() {
   const res = await fetch('/api/notifications');
   data = await res.json();
+
+  // 🔥 собираем только сотрудников
+  users = [
+    ...new Map(
+      data
+        .filter(n => n.user.activeRole === 'EMPLOYEE')
+        .map(n => [n.user.id, n.user])
+    ).values()
+  ];
+
+  const select = document.getElementById('userSelect');
+
+  users.forEach(user => {
+    const option = document.createElement('option');
+    option.value = user.id;
+    option.textContent = user.name || `User ${user.id}`;
+    select.appendChild(option);
+  });
+
   render();
 }
 
 function render() {
-  const search = document.getElementById('search').value.toLowerCase();
+  const selectedUserId = Number(document.getElementById('userSelect').value);
   const table = document.getElementById('table');
 
   table.innerHTML = '';
 
   data
-    .filter(n => n.user.activeRole === 'EMPLOYEE') // 🔥 только сотрудники
-    .filter(n => {
-      const name = (n.user.name || '').toLowerCase();
-      return name.includes(search);
-    })
+    .filter(n => n.userId === selectedUserId)
     .forEach(n => {
 
       const tr = document.createElement('tr');
 
       tr.innerHTML = `
-        <td>${n.user.name || n.user.id}</td>
-        <td>${n.user.activeRole}</td>
         <td>${n.type.key}</td>
         <td>
           <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
