@@ -434,7 +434,11 @@ const emailTemplate = await prisma.notificationTemplate.findUnique({
 
 const users = await prisma.user.findMany();
 
+console.log('👥 USERS COUNT:', users.length);
+
 for (const user of users) {
+
+
 
   // ===============================
   // 🔍 USER OVERRIDE
@@ -494,6 +498,8 @@ if (!role) {
   // ===============================
   // 👤 ПАЦИЕНТ
   // ===============================
+
+  console.log('🔁 LOOP USER:', user);
   if (user.type === 'PATIENT') {
     await handlePatientNotification({
       user,
