@@ -474,7 +474,7 @@ for (const user of users) {
   // ===============================
   // 👤 ПАЦИЕНТ
   // ===============================
-  if (user.activeRole === 'PATIENT') {
+  if (user.type === 'PATIENT') {
     await handlePatientNotification({
       user,
       data,
