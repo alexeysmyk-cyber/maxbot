@@ -219,7 +219,12 @@ let data = req.body.data || {};
 for (const key in req.body) {
   const match = key.match(/^data\[(.+)\]$/);
   if (match) {
-    data[match[1]] = req.body[key];
+    const field = match[1];
+
+    // 🔥 НЕ ПЕРЕТИРАЕМ уже существующие нормальные данные
+    if (!data[field] || data[field].length < req.body[key].length) {
+      data[field] = req.body[key];
+    }
   }
 }
 
