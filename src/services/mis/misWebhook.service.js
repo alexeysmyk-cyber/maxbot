@@ -458,6 +458,13 @@ for (const user of users) {
       where: { key: user.activeRole }
     });
 
+if (!role) {
+  console.log('❌ NO ROLE FOR USER:', user.id, user.activeRole);
+  continue;
+}
+
+
+
     if (!role) continue;
 
     const roleSetting = await prisma.roleNotification.findFirst({
