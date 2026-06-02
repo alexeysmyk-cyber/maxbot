@@ -392,21 +392,32 @@ if (!key) {
 // 📤 РАССЫЛКА
 // ==================================================
 
+// 🔥 определяем роль пользователя
+const roleKey = user.activeRole || 'PATIENT';
+
 const dbRole = await prisma.role.findFirst({
-  where: { key: 'PATIENT' }
+  where: { key: roleKey }
 });
 
+if (!dbRole) {
+  console.log('❌ ROLE NOT FOUND:', roleKey);
+  return;
+}
+
+// 🔥 получаем настройки роли
 const setting = await prisma.roleNotification.findFirst({
   where: {
     roleId: dbRole.id,
     type: {
-      key: 'visit_create'
+      key
     }
   }
 });
-console.log('📊 SETTINGS COUNT:', settings.length);
 
-// ===== TEMPLATE LOADING (GLOBAL) =====
+console.log('📊 ROLE:', roleKey);
+console.log('📊 SETTING:', setting);
+
+// ===== TEMPLATE LOADING =====
 const maxTemplate = await prisma.notificationTemplate.findUnique({
   where: {
     key_channel: {
