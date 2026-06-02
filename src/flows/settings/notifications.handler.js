@@ -225,9 +225,7 @@ return smartReply(
 );
 }
 
-export async function setNotificationMode(ctx, user) {
-
-  const text = ctx.message?.text;
+export async function setNotificationMode(ctx, user, text) {
 
   console.log('🧪 TEXT:', text);
 
@@ -264,20 +262,18 @@ export async function setNotificationMode(ctx, user) {
       return;
     }
 
-    // разрешаем только анализы
     if (!['lab_full', 'lab_partial'].includes(type.key)) {
       return ctx.reply('❌ Недоступно');
     }
 
-    // разрешаем только true / false
     if (!['true', 'false'].includes(mode)) {
-      console.log('❌ INVALID MODE FOR PATIENT:', mode);
+      console.log('❌ INVALID MODE');
       return;
     }
   }
 
   // ===============================
-  // 💾 СОХРАНЕНИЕ (КЛЮЧЕВОЕ)
+  // 💾 СОХРАНЕНИЕ
   // ===============================
   console.log('🔥 SAVE TRY:', {
     userId: user.id,
@@ -304,8 +300,5 @@ export async function setNotificationMode(ctx, user) {
 
   console.log('💾 SAVED');
 
-  // ===============================
-  // 🔄 ОБНОВЛЯЕМ UI
-  // ===============================
   return showNotifications(ctx, user);
 }
