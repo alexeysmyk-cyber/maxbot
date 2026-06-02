@@ -28,20 +28,23 @@
 <script>
 
 let users = [];
-let notifications = [];
+let types = [];
+let overrides = [];
 
 async function load() {
 
-  // 🔥 грузим ВСЕХ сотрудников
   const usersRes = await fetch('/api/users');
   users = await usersRes.json();
 
-  // 🔥 грузим override
-  const notifRes = await fetch('/api/notifications');
-  notifications = await notifRes.json();
+  const typesRes = await fetch('/api/types');
+  types = await typesRes.json();
+
+  const overridesRes = await fetch('/api/notifications');
+  overrides = await overridesRes.json();
 
   console.log('USERS:', users);
-  console.log('NOTIFICATIONS:', notifications);
+  console.log('TYPES:', types);
+  console.log('OVERRIDES:', overrides);
 
   const select = document.getElementById('userSelect');
   select.innerHTML = '';
@@ -57,29 +60,35 @@ async function load() {
 }
 
 function render() {
-  const selectedUserId = Number(document.getElementById('userSelect').value);
+  const userId = Number(document.getElementById('userSelect').value);
   const table = document.getElementById('table');
 
   table.innerHTML = '';
 
-  // 🔥 берём все типы (через notifications или fallback)
-  const userNotifs = notifications.filter(n => n.userId === selectedUserId);
+  types.forEach(type => {
 
-  userNotifs.forEach(n => {
+    // 🔍 ищем override
+    const override = overrides.find(
+      o => o.userId === userId && o.typeId === type.id
+    );
+
+    const mode = override ? override.mode : 'inherited';
+
     const tr = document.createElement('tr');
 
     tr.innerHTML = `
-      <td>${n.type?.key || 'NO TYPE'}</td>
+      <td>${type.key}</td>
       <td>
-        <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
-          <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
-          <option value="self" ${n.mode === 'self' ? 'selected' : ''}>SELF</option>
-          <option value="none" ${n.mode === 'none' ? 'selected' : ''}>NONE</option>
+        <select onchange="update(${userId}, ${type.id}, this.value)">
+          <option value="all" ${mode === 'all' ? 'selected' : ''}>ALL</option>
+          <option value="self" ${mode === 'self' ? 'selected' : ''}>SELF</option>
+          <option value="none" ${mode === 'none' ? 'selected' : ''}>NONE</option>
         </select>
-      `;
+      </td>
+    `;
 
-      table.appendChild(tr);
-    });
+    table.appendChild(tr);
+  });
 }
 
 async function update(userId, typeId, mode) {

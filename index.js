@@ -113,6 +113,11 @@ app.get('/api/users', async (req, res) => {
   res.json(users);
 });
 
+app.get('/api/types', async (req, res) => {
+  const types = await prisma.notificationType.findMany();
+  res.json(types);
+});
+
 app.get('/api/roles', async (req, res) => {
   const data = await prisma.roleNotification.findMany({
     include: {
