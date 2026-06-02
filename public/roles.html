@@ -10,10 +10,14 @@
 
 <h2>Role Notification Settings</h2>
 
+<select id="roleSelect" onchange="render()">
+</select>
+
+<br><br>
+
 <table border="1" cellpadding="8">
   <thead>
     <tr>
-      <th>Role</th>
       <th>Event</th>
       <th>Mode</th>
     </tr>
@@ -24,34 +28,52 @@
 <script>
 
 let data = [];
+let roles = [];
 
 async function load() {
   const res = await fetch('/api/roles');
   data = await res.json();
+
+  // 🔥 собираем уникальные роли
+  roles = [...new Set(data.map(r => r.role.key))];
+
+  const select = document.getElementById('roleSelect');
+
+  roles.forEach(role => {
+    const option = document.createElement('option');
+    option.value = role;
+    option.textContent = role;
+    select.appendChild(option);
+  });
+
   render();
 }
 
 function render() {
+  const selectedRole = document.getElementById('roleSelect').value;
   const table = document.getElementById('table');
+
   table.innerHTML = '';
 
-  data.forEach(r => {
-    const tr = document.createElement('tr');
+  data
+    .filter(r => r.role.key === selectedRole)
+    .forEach(r => {
 
-    tr.innerHTML = `
-      <td>${r.role}</td>
-      <td>${r.type.key}</td>
-      <td>
-        <select onchange="update('${r.role}', ${r.typeId}, this.value)">
-          <option value="all" ${r.defaultMode === 'all' ? 'selected' : ''}>ALL</option>
-          <option value="self" ${r.defaultMode === 'self' ? 'selected' : ''}>SELF</option>
-          <option value="none" ${r.defaultMode === 'none' ? 'selected' : ''}>NONE</option>
-        </select>
-      </td>
-    `;
+      const tr = document.createElement('tr');
 
-    table.appendChild(tr);
-  });
+      tr.innerHTML = `
+        <td>${r.type.key}</td>
+        <td>
+          <select onchange="update('${r.role.key}', ${r.typeId}, this.value)">
+            <option value="all" ${r.defaultMode === 'all' ? 'selected' : ''}>ALL</option>
+            <option value="self" ${r.defaultMode === 'self' ? 'selected' : ''}>SELF</option>
+            <option value="none" ${r.defaultMode === 'none' ? 'selected' : ''}>NONE</option>
+          </select>
+        </td>
+      `;
+
+      table.appendChild(tr);
+    });
 }
 
 async function update(role, typeId, defaultMode) {

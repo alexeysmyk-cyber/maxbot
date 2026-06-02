@@ -106,7 +106,8 @@ app.get('/admin/roles', (req, res) => {
 app.get('/api/roles', async (req, res) => {
   const data = await prisma.roleNotification.findMany({
     include: {
-      type: true
+      type: true,
+      role: true   // 🔥 ОБЯЗАТЕЛЬНО
     }
   });
 
@@ -114,15 +115,24 @@ app.get('/api/roles', async (req, res) => {
 });
 
 app.post('/api/roles', async (req, res) => {
-  const { role, typeId, defaultMode } = req.body;
+  const roleRecord = await prisma.role.findFirst({
+  where: { key: role }
+});
 
-  await prisma.roleNotification.upsert({
-    where: {
-      role_typeId: { role, typeId }
-    },
-    update: { defaultMode },
-    create: { role, typeId, defaultMode }
-  });
+await prisma.roleNotification.upsert({
+  where: {
+    roleId_typeId: {
+      roleId: roleRecord.id,
+      typeId
+    }
+  },
+  update: { defaultMode },
+  create: {
+    roleId: roleRecord.id,
+    typeId,
+    defaultMode
+  }
+});
 
   res.json({ success: true });
 });
