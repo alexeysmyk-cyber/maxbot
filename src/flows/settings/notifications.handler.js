@@ -225,54 +225,50 @@ return smartReply(
 );
 }
 
-export async function setNotificationMode(ctx, user, text) {
+export async function setNotificationMode(ctx, user) {
 
-  if (!text.startsWith('set_mode_')) return;
+  const payload = ctx.messagePayload || ctx.payload;
 
-  const [, , typeId, mode] = text.split('_');
+  console.log('🧪 PAYLOAD:', payload);
 
+  if (!payload || !payload.startsWith('set_mode_')) {
+    console.log('❌ INVALID PAYLOAD');
+    return;
+  }
+
+  const [, , typeId, mode] = payload.split('_');
   const numericTypeId = Number(typeId);
 
   // ===============================
   // 👤 PATIENT — только анализы
   // ===============================
-if (user.activeRole === 'PATIENT') {
+  if (user.activeRole === 'PATIENT') {
 
-  let typeKey;
-
-  const setting = await prisma.userNotification.findFirst({
-    where: {
-      userId: user.id,
-      typeId: numericTypeId
-    },
-    include: { type: true }
-  });
-
-  if (setting) {
-    typeKey = setting.type.key;
-  } else {
     const type = await prisma.notificationType.findFirst({
       where: { id: numericTypeId }
     });
 
-    if (!type) return;
+    if (!type) {
+      console.log('❌ TYPE NOT FOUND');
+      return;
+    }
 
-    typeKey = type.key;
+    if (!['lab_full', 'lab_partial'].includes(type.key)) {
+      return ctx.reply('❌ Недоступно');
+    }
+
+    if (!['true', 'false'].includes(mode)) {
+      console.log('❌ INVALID MODE');
+      return;
+    }
   }
 
-  if (!['lab_full', 'lab_partial'].includes(typeKey)) {
-    return ctx.reply('❌ Недоступно');
-  }
+  console.log('🔥 SAVE TRY:', {
+    userId: user.id,
+    typeId: numericTypeId,
+    mode
+  });
 
-  if (!['true', 'false'].includes(mode)) {
-    console.log('❌ INVALID MODE FOR PATIENT:', mode);
-    return;
-  }
-}
-
-  // ===============================
-  // 💾 СОХРАНЕНИЕ (КРИТИЧНО)
-  // ===============================
   await prisma.userNotification.upsert({
     where: {
       userId_typeId: {
@@ -290,11 +286,7 @@ if (user.activeRole === 'PATIENT') {
     }
   });
 
-  console.log('💾 SAVED MODE:', {
-    userId: user.id,
-    typeId: numericTypeId,
-    mode
-  });
+  console.log('💾 SAVED');
 
   return showNotifications(ctx, user);
 }
