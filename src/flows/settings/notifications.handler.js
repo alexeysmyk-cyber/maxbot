@@ -227,17 +227,28 @@ return smartReply(
 
 export async function setNotificationMode(ctx, user) {
 
-  const payload = ctx.messagePayload || ctx.payload;
+  const text = ctx.message?.text;
 
-  console.log('🧪 PAYLOAD:', payload);
+  console.log('🧪 TEXT:', text);
 
-  if (!payload || !payload.startsWith('set_mode_')) {
-    console.log('❌ INVALID PAYLOAD');
+  // ===============================
+  // ❌ НЕ НАША КОМАНДА
+  // ===============================
+  if (!text || !text.startsWith('set_mode_')) {
+    console.log('❌ INVALID TEXT');
     return;
   }
 
-  const [, , typeId, mode] = payload.split('_');
+  // ===============================
+  // 📦 ПАРСИНГ
+  // ===============================
+  const [, , typeId, mode] = text.split('_');
   const numericTypeId = Number(typeId);
+
+  if (!numericTypeId) {
+    console.log('❌ INVALID TYPE ID');
+    return;
+  }
 
   // ===============================
   // 👤 PATIENT — только анализы
@@ -253,16 +264,21 @@ export async function setNotificationMode(ctx, user) {
       return;
     }
 
+    // разрешаем только анализы
     if (!['lab_full', 'lab_partial'].includes(type.key)) {
       return ctx.reply('❌ Недоступно');
     }
 
+    // разрешаем только true / false
     if (!['true', 'false'].includes(mode)) {
-      console.log('❌ INVALID MODE');
+      console.log('❌ INVALID MODE FOR PATIENT:', mode);
       return;
     }
   }
 
+  // ===============================
+  // 💾 СОХРАНЕНИЕ (КЛЮЧЕВОЕ)
+  // ===============================
   console.log('🔥 SAVE TRY:', {
     userId: user.id,
     typeId: numericTypeId,
@@ -288,5 +304,8 @@ export async function setNotificationMode(ctx, user) {
 
   console.log('💾 SAVED');
 
+  // ===============================
+  // 🔄 ОБНОВЛЯЕМ UI
+  // ===============================
   return showNotifications(ctx, user);
 }
