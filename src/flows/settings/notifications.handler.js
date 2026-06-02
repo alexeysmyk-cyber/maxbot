@@ -187,17 +187,6 @@ export async function openNotificationSettings(ctx, user, text) {
   const buttons = [];
 
   // 👤 PATIENT → только boolean для анализов
-if (user.activeRole === 'PATIENT') {
-
-  if (['lab_full', 'lab_partial'].includes(setting.type.key)) {
-    buttons.push(
-      [Keyboard.button.callback('✅ Включить', `set_mode_${typeId}_true`)],
-      [Keyboard.button.callback('❌ Выключить', `set_mode_${typeId}_false`)]
-    );
-  }
-
-}
-
 
   // TRIPLE
 // 👤 PATIENT → только анализы (boolean)
