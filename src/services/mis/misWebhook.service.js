@@ -303,6 +303,7 @@ if (data.appointment_id) {
   appointment = await getAppointmentWithRetry(data.appointment_id);
 }
 
+console.log('DATA NAME RAW:', data.patient_name);
 const result = await buildMessage(event, data, appointment);
 
 
