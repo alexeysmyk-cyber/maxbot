@@ -392,13 +392,17 @@ if (!key) {
 // 📤 РАССЫЛКА
 // ==================================================
 
-const settings = await prisma.userNotification.findMany({
+const dbRole = await prisma.role.findFirst({
+  where: { key: 'PATIENT' }
+});
+
+const setting = await prisma.roleNotification.findFirst({
   where: {
-    type: { key },
-    NOT: { mode: 'none' }
-  },
-  include: {  user: true,
-    type: true}
+    roleId: dbRole.id,
+    type: {
+      key: 'visit_create'
+    }
+  }
 });
 console.log('📊 SETTINGS COUNT:', settings.length);
 
