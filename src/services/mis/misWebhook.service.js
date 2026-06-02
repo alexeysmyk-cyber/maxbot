@@ -441,40 +441,84 @@ for (const user of users) {
   // ===============================
   // 👤 ПАЦИЕНТ (сразу фильтруем)
   // ===============================
-  if (user.type === 'PATIENT') {
+if (user.type === 'PATIENT') {
 
-    const patientIdFromEvent =
-      data.patient_id ||
-      data.patientId ||
-      data.patient?.id ||
-      appointment?.patient_id;
+  const patientIdFromEvent =
+    data.patient_id ||
+    data.patientId ||
+    data.patient?.id ||
+    appointment?.patient_id;
 
-    console.log('🔍 CHECK PATIENT:', {
-      db: user.mis_id,
-      event: patientIdFromEvent
+  console.log('🔍 CHECK PATIENT:', {
+    db: user.mis_id,
+    event: patientIdFromEvent
+  });
+
+  if (String(user.mis_id) !== String(patientIdFromEvent)) {
+    console.log('❌ SKIP PATIENT (NOT MATCH)');
+    continue;
+  }
+
+  // ===============================
+  // 🔍 USER OVERRIDE (приоритет)
+  // ===============================
+  const userSetting = await prisma.userNotification.findFirst({
+    where: {
+      userId: user.id,
+      type: { key }
+    }
+  });
+
+  if (userSetting) {
+    if (userSetting.mode === 'none') {
+      console.log('🚫 PATIENT BLOCKED BY USER SETTINGS');
+      continue;
+    }
+  } else {
+    // ===============================
+    // 🔍 ROLE FALLBACK
+    // ===============================
+    const role = await prisma.role.findFirst({
+      where: { key: user.activeRole }
     });
 
-    if (String(user.mis_id) !== String(patientIdFromEvent)) {
-      console.log('❌ SKIP PATIENT (NOT MATCH)');
+    if (!role) {
+      console.log('❌ NO ROLE FOR PATIENT:', user.id);
       continue;
     }
 
-    console.log('👤 HANDLE PATIENT:', user.id);
-
-    await handlePatientNotification({
-      user,
-      data,
-      appointment,
-      key,
-      message,
-      templateData,
-      maxTemplate,
-      emailTemplate,
-      bot
+    const roleSetting = await prisma.roleNotification.findFirst({
+      where: {
+        roleId: role.id,
+        type: { key }
+      }
     });
 
-    continue;
+    if (!roleSetting || roleSetting.defaultMode === 'none') {
+      console.log('🚫 PATIENT BLOCKED BY ROLE');
+      continue;
+    }
   }
+
+  // ===============================
+  // ✅ ОТПРАВКА
+  // ===============================
+  console.log('👤 HANDLE PATIENT:', user.id);
+
+  await handlePatientNotification({
+    user,
+    data,
+    appointment,
+    key,
+    message,
+    templateData,
+    maxTemplate,
+    emailTemplate,
+    bot
+  });
+
+  continue;
+}
 
   // ===============================
   // 🔍 USER OVERRIDE
