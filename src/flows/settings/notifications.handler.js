@@ -69,12 +69,17 @@ export async function showNotificationGroup(ctx, user, text) {
   const buttons = filtered.map(s => {
     const mode = s.mode;
 
-    const label =
-      mode === 'all' ? '🌍' :
-      mode === 'self' ? '👤' :
-      mode === 'true' ? '✅' :
-      mode === 'false' ? '❌' :
-      '🚫';
+let label;
+
+if (user.activeRole === 'PATIENT') {
+  label = mode === 'true' ? '✅' : '❌';
+} else {
+  label =
+    mode === 'all' ? '🌍' :
+    mode === 'self' ? '👤' :
+    mode === 'none' ? '🚫' :
+    '❌';
+}
 
     return [
       Keyboard.button.callback(
@@ -181,7 +186,33 @@ export async function openNotificationSettings(ctx, user, text) {
 
   const buttons = [];
 
+  // 👤 PATIENT → только boolean для анализов
+if (user.activeRole === 'PATIENT') {
+
+  if (['lab_full', 'lab_partial'].includes(setting.type.key)) {
+    buttons.push(
+      [Keyboard.button.callback('✅ Включить', `set_mode_${typeId}_true`)],
+      [Keyboard.button.callback('❌ Выключить', `set_mode_${typeId}_false`)]
+    );
+  }
+
+}
+
+
   // TRIPLE
+// 👤 PATIENT → только анализы (boolean)
+if (user.activeRole === 'PATIENT') {
+
+  if (['lab_full', 'lab_partial'].includes(setting.type.key)) {
+    buttons.push(
+      [Keyboard.button.callback('✅ Получать', `set_mode_${typeId}_true`)],
+      [Keyboard.button.callback('❌ Не получать', `set_mode_${typeId}_false`)]
+    );
+  }
+
+} else {
+
+  // 👨‍⚕️ СОТРУДНИКИ — оставляем как есть
   if (['all', 'self', 'none'].includes(setting.mode)) {
     buttons.push(
       [Keyboard.button.callback('🌍 Все', `set_mode_${typeId}_all`)],
@@ -189,14 +220,7 @@ export async function openNotificationSettings(ctx, user, text) {
       [Keyboard.button.callback('🚫 Выключить', `set_mode_${typeId}_none`)]
     );
   }
-
-  // BOOLEAN
-  if (['true', 'false'].includes(setting.mode)) {
-    buttons.push(
-      [Keyboard.button.callback('✅ Включить', `set_mode_${typeId}_true`)],
-      [Keyboard.button.callback('❌ Выключить', `set_mode_${typeId}_false`)]
-    );
-  }
+}
 
   buttons.push(
      [
@@ -214,35 +238,65 @@ return smartReply(
 
 export async function setNotificationMode(ctx, user, text) {
 
- if (user.activeRole === 'PATIENT') {
-
-  const [, , typeId] = text.split('_');
-
-  const setting = await prisma.userNotification.findFirst({
-    where: {
-      userId: user.id,
-      typeId: Number(typeId)
-    },
-    include: { type: true }
-  });
-
-  if (!setting) return;
-
-  if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
-    return ctx.reply('❌ Недоступно');
-  }
-}
-
   if (!text.startsWith('set_mode_')) return;
 
   const [, , typeId, mode] = text.split('_');
 
-  await prisma.userNotification.updateMany({
+  const numericTypeId = Number(typeId);
+
+  // ===============================
+  // 👤 PATIENT — только анализы
+  // ===============================
+  if (user.activeRole === 'PATIENT') {
+
+    const setting = await prisma.userNotification.findFirst({
+      where: {
+        userId: user.id,
+        typeId: numericTypeId
+      },
+      include: { type: true }
+    });
+
+    if (!setting) {
+      console.log('❌ NO SETTING FOUND');
+      return;
+    }
+
+    if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
+      return ctx.reply('❌ Недоступно');
+    }
+
+    // только true / false
+    if (!['true', 'false'].includes(mode)) {
+      console.log('❌ INVALID MODE FOR PATIENT:', mode);
+      return;
+    }
+  }
+
+  // ===============================
+  // 💾 СОХРАНЕНИЕ (КРИТИЧНО)
+  // ===============================
+  await prisma.userNotification.upsert({
     where: {
-      userId: user.id,
-      typeId: Number(typeId)
+      userId_typeId: {
+        userId: user.id,
+        typeId: numericTypeId
+      }
     },
-    data: { mode }
+    update: {
+      mode
+    },
+    create: {
+      userId: user.id,
+      typeId: numericTypeId,
+      mode
+    }
+  });
+
+  console.log('💾 SAVED MODE:', {
+    userId: user.id,
+    typeId: numericTypeId,
+    mode
   });
 
   return showNotifications(ctx, user);

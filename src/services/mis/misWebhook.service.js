@@ -480,9 +480,16 @@ const userSetting = await prisma.userNotification.findFirst({
   }
 });
 
-if (isLabEvent && userSetting?.mode?.toLowerCase() === 'none') {
-  console.log('🚫 PATIENT BLOCKED LAB BY USER SETTINGS');
-  continue;
+if (isLabEvent) {
+
+  const mode = userSetting?.mode;
+
+  console.log('🧪 PATIENT LAB MODE:', mode);
+
+  if (mode === 'false') {
+    console.log('🚫 PATIENT BLOCKED LAB');
+    continue;
+  }
 }
   }
 
