@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications</title>
+</head>
+
+<body>
+
+<h2>Notification Settings</h2>
+
+<table border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Event</th>
+      <th>Mode</th>
+    </tr>
+  </thead>
+  <tbody id="table"></tbody>
+</table>
+
+<script>
+async function load() {
+  const res = await fetch('/api/notifications');
+  const data = await res.json();
+
+  const table = document.getElementById('table');
+
+  data.forEach(n => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${n.user.name || n.user.id}</td>
+      <td>${n.type.key}</td>
+      <td>
+        <select onchange="update(${n.userId}, ${n.typeId}, this.value)">
+          <option value="all" ${n.mode === 'all' ? 'selected' : ''}>ALL</option>
+          <option value="self" ${n.mode === 'self' ? 'selected' : ''}>SELF</option>
+          <option value="none" ${n.mode === 'none' ? 'selected' : ''}>NONE</option>
+        </select>
+      </td>
+    `;
+
+    table.appendChild(tr);
+  });
+}
+
+async function update(userId, typeId, mode) {
+  await fetch('/api/notifications', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ userId, typeId, mode })
+  });
+}
+
+load();
+</script>
+
+</body>
+</html>

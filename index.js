@@ -76,6 +76,43 @@ app.post('/api/templates/preview', (req, res) => {
   res.send(result);
 });
 
+app.get('/admin', (req, res) => {
+  res.sendFile(path.resolve('public/admin.html'));
+});
+
+app.get('/admin/templates', (req, res) => {
+  res.sendFile(path.resolve('public/template.html'));
+});
+
+app.get('/admin/notifications', (req, res) => {
+  res.sendFile(path.resolve('public/notifications.html'));
+});
+
+app.get('/api/notifications', async (req, res) => {
+  const data = await prisma.userNotification.findMany({
+    include: {
+      user: true,
+      type: true
+    }
+  });
+
+  res.json(data);
+});
+
+app.post('/api/notifications', async (req, res) => {
+  const { userId, typeId, mode } = req.body;
+
+  await prisma.userNotification.upsert({
+    where: {
+      userId_typeId: { userId, typeId }
+    },
+    update: { mode },
+    create: { userId, typeId, mode }
+  });
+
+  res.json({ success: true });
+});
+
 
 // ===== ADMIN =====
 app.get('/admin', basicAuth, (req, res) => {
