@@ -467,17 +467,23 @@ if (user.type === 'PATIENT') {
     key === 'lab_partial';
 
   if (isLabEvent) {
-    const userSetting = await prisma.userNotification.findFirst({
-      where: {
-        userId: user.id,
-        type: { key }
-      }
-    });
 
-    if (userSetting?.mode === 'none') {
-      console.log('🚫 PATIENT BLOCKED LAB BY USER SETTINGS');
-      continue;
-    }
+
+   const typeRecord = await prisma.notificationType.findFirst({
+  where: { key }
+});
+
+const userSetting = await prisma.userNotification.findFirst({
+  where: {
+    userId: user.id,
+    typeId: typeRecord?.id
+  }
+});
+
+if (isLabEvent && userSetting?.mode?.toLowerCase() === 'none') {
+  console.log('🚫 PATIENT BLOCKED LAB BY USER SETTINGS');
+  continue;
+}
   }
 
   // ===============================
