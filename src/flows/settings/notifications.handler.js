@@ -87,7 +87,7 @@ if (user.activeRole === 'PATIENT') {
       })
     : [];
 
- filtered = roleSettings
+filtered = roleSettings
   .filter(r => keys.includes(r.type.key))
   .map(r => {
 
@@ -95,11 +95,10 @@ if (user.activeRole === 'PATIENT') {
       s => String(s.typeId) === String(r.typeId)
     );
 
-    const validModes = ['all', 'self', 'none'];
-
-    const mode = validModes.includes(userOverride?.mode)
-      ? userOverride.mode
-      : r.defaultMode;
+    const mode =
+      userOverride && userOverride.mode != null
+        ? userOverride.mode
+        : r.defaultMode;
 
     return {
       ...r,
