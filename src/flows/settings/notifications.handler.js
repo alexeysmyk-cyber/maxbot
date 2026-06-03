@@ -87,20 +87,26 @@ if (user.activeRole === 'PATIENT') {
       })
     : [];
 
-  filtered = roleSettings
-    .filter(r => keys.includes(r.type.key))
-    .map(r => {
+ filtered = roleSettings
+  .filter(r => keys.includes(r.type.key))
+  .map(r => {
 
-     const userOverride = settings.find(
-  s => String(s.typeId) === String(r.typeId)
-);
+    const userOverride = settings.find(
+      s => String(s.typeId) === String(r.typeId)
+    );
 
-      return {
-        ...r,
-        mode: userOverride?.mode ?? r.defaultMode,
-        type: r.type
-      };
-    });
+    const validModes = ['all', 'self', 'none'];
+
+    const mode = validModes.includes(userOverride?.mode)
+      ? userOverride.mode
+      : r.defaultMode;
+
+    return {
+      ...r,
+      mode,
+      type: r.type
+    };
+  });
 }
 
 
