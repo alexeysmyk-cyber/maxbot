@@ -399,15 +399,6 @@ console.log('TEMPLATE DATA:', templateData);
 
 const { message, doctorId, key } = result;
 
-// ===============================
-// 👤 ПРЯМАЯ ОТПРАВКА ПАЦИЕНТУ
-// ===============================
-
-
-if (!key) {
-  console.log('❌ NO KEY');
-  return ;
-}
 
   if (!message) return ;
 
@@ -434,7 +425,7 @@ const emailTemplate = await prisma.notificationTemplate.findUnique({
     key_channel: {
       key,
       channel: 'EMAIL'
-    }
+    } 
   }
 });
 
@@ -459,7 +450,6 @@ if (patientUser) {
 const users = await prisma.user.findMany();
 
 console.log('👥 USERS COUNT:', users.length);
-
 
 
 
@@ -520,7 +510,7 @@ if (user.type === 'PATIENT') continue;
     if (String(user.mis_id) !== String(doctorId)) continue;
   }
 
-  console.log('🔁 LOOP EMPLOYEE:', user.id);
+ // console.log('🔁 LOOP EMPLOYEE:', user.id);
 
   // ===============================
   // 👨‍⚕️ СОТРУДНИК
