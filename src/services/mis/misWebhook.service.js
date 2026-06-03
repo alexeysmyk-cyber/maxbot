@@ -399,6 +399,10 @@ console.log('TEMPLATE DATA:', templateData);
 
 const { message, doctorId, key } = result;
 
+// ===============================
+// 👤 ПРЯМАЯ ОТПРАВКА ПАЦИЕНТУ
+// ===============================
+
 
 if (!key) {
   console.log('❌ NO KEY');
@@ -410,7 +414,10 @@ if (!key) {
 // ==================================================
 // 📤 РАССЫЛКА
 // ==================================================
-
+if (!key || !message) {
+  console.log('❌ NO KEY OR MESSAGE');
+  return;
+}
 
 // ===== TEMPLATE LOADING =====
 const maxTemplate = await prisma.notificationTemplate.findUnique({
@@ -431,153 +438,12 @@ const emailTemplate = await prisma.notificationTemplate.findUnique({
   }
 });
 
+if (patientUser) {
 
-
-
-const users = await prisma.user.findMany();
-
-console.log('👥 USERS COUNT:', users.length);
-
-for (const user of users) {
-
-  // ===============================
-  // 👤 ПАЦИЕНТ (сразу фильтруем)
-  // ===============================
-if (user.type === 'PATIENT') {
-
-  const patientIdFromEvent =
-    data.patient_id ||
-    data.patientId ||
-    data.patient?.id ||
-    appointment?.patient_id;
-
-  console.log('🔍 CHECK PATIENT:', {
-    db: user.mis_id,
-    event: patientIdFromEvent
-  });
-
-  const eventPatientId = String(patientIdFromEvent);
-
-const phone = normalizePhone(data.patient_phone);
-const phoneHash = phone ? hashPhone(phone) : null;
-
-const matchByMisId =
-  String(user.mis_id) === eventPatientId;
-
-const matchByPhone = phoneHash && user.phone_hash === phoneHash;
-
-console.log('📱 HASH COMPARE:', {
-  db: user.phone_hash,
-  event: phoneHash,
-  raw: data.patient_phone
-});
-
-
-
-console.log('🔍 CHECK PATIENT:', {
-  db: user.mis_id,
-  event: eventPatientId,
-  matchByMisId,
-  matchByPhone
-});
-
-// ❌ не совпало вообще
-const matchByUserId =
-  patientUser && user.id === patientUser.id;
-
-if (!matchByMisId && !matchByPhone && !matchByUserId) {
-  console.log('❌ SKIP PATIENT');
-  continue;
-}
-
-if (matchByUserId && phoneHash) {
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      phone_hash: phoneHash
-    }
-  });
-
-  console.log('♻️ SYNC PHONE HASH');
-}
-
-// 🔥 синхронизация mis_id (ВАЖНО)
-if (!matchByMisId && matchByPhone) {
-  console.log('♻️ SYNC MIS ID FROM WEBHOOK');
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      mis_id: eventPatientId
-    }
-  });
-}
-
-  // ===============================
-  // 🧪 ТОЛЬКО ДЛЯ АНАЛИЗОВ
-  // ===============================
-  const isLabEvent =
-    key === 'lab_full' ||
-    key === 'lab_partial';
-
-  if (isLabEvent) {
-
-
-   const typeRecord = await prisma.notificationType.findFirst({
-  where: { key }
-});
-
-const userSetting = await prisma.userNotification.findFirst({
-  where: {
-    userId: user.id,
-    typeId: typeRecord?.id
-  }
-});
-
-if (isLabEvent) {
-
-  const mode = userSetting?.mode;
-
-  console.log('🧪 PATIENT MODE:', mode);
-
-  if (mode === 'none') {
-    console.log('🚫 PATIENT BLOCKED LAB');
-    continue;
-  }
-}
-  }
-
-  // ===============================
-  // 🔍 ROLE (для ВСЕХ событий)
-  // ===============================
-  const role = await prisma.role.findFirst({
-    where: { key: user.activeRole }
-  });
-
-  if (!role) {
-    console.log('❌ NO ROLE FOR PATIENT:', user.id);
-    continue;
-  }
-
-  const roleSetting = await prisma.roleNotification.findFirst({
-    where: {
-      roleId: role.id,
-      type: { key }
-    }
-  });
-
-  if (!roleSetting || roleSetting.defaultMode === 'none') {
-    console.log('🚫 PATIENT BLOCKED BY ROLE');
-    continue;
-  }
-
-  // ===============================
-  // ✅ ОТПРАВКА
-  // ===============================
-  console.log('👤 HANDLE PATIENT:', user.id);
+  console.log('👤 DIRECT PATIENT:', patientUser.id);
 
   await handlePatientNotification({
-    user,
+    user: patientUser,
     data,
     appointment,
     key,
@@ -587,10 +453,22 @@ if (isLabEvent) {
     emailTemplate,
     bot
   });
-
-  continue;
 }
 
+
+const users = await prisma.user.findMany();
+
+console.log('👥 USERS COUNT:', users.length);
+
+
+
+
+for (const user of users) {
+
+  // ===============================
+  // 👤 ПАЦИЕНТ (сразу фильтруем)
+  // ===============================
+if (user.type === 'PATIENT') continue;
   // ===============================
   // 🔍 USER OVERRIDE
   // ===============================
