@@ -91,8 +91,8 @@ filtered = roleSettings
   .filter(r => keys.includes(r.type.key))
   .map(r => {
 
-    const userOverride = settings.find(
-  s => String(s.typeId) === String(r.typeId)
+const userOverride = settings.find(
+  s => s.type.key === r.type.key
 );
 
 const mode = (
