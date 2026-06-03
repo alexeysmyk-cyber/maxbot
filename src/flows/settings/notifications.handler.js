@@ -95,7 +95,11 @@ filtered = roleSettings
   s => String(s.typeId) === String(r.typeId)
 );
 
-const mode = userOverride?.mode ?? r.defaultMode;
+const mode = (
+  userOverride?.mode ??
+  r.defaultMode ??
+  'none'
+).toLowerCase();
 
     return {
       ...r,
