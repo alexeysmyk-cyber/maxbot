@@ -91,9 +91,9 @@ if (user.activeRole === 'PATIENT') {
     .filter(r => keys.includes(r.type.key))
     .map(r => {
 
-      const userOverride = settings.find(
-        s => s.typeId === r.typeId
-      );
+     const userOverride = settings.find(
+  s => String(s.typeId) === String(r.typeId)
+);
 
       return {
         ...r,
@@ -132,8 +132,7 @@ if (user.activeRole === 'PATIENT') {
      [
         Keyboard.button.callback('⬅️ Назад', 'settings'),
         Keyboard.button.callback('🏠 Домой', 'back_to_menu')
-      
-  ]);
+      ]);
 
   return smartReply(
     ctx,
