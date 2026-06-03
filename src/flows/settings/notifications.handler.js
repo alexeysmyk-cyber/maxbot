@@ -51,7 +51,7 @@ let settings = await prisma.userNotification.findMany({
   include: { type: true }
 });
 
-if (!settings.length) {
+if (!settings.length && user.activeRole === 'PATIENT') {
   await initUserNotifications(user.id, user.activeRole);
 
   settings = await prisma.userNotification.findMany({
