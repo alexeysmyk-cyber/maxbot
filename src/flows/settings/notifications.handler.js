@@ -46,22 +46,22 @@ export async function showNotificationGroup(ctx, user, text) {
   const keys = GROUP_KEYS[groupKey] || [];
 
   // 1. получаем
-  let settings = await prisma.userNotification.findMany({
+let settings = await prisma.userNotification.findMany({
+  where: { userId: user.id },
+  include: { type: true }
+});
+
+if (!settings.length) {
+  await initUserNotifications(user.id, user.activeRole);
+
+  settings = await prisma.userNotification.findMany({
     where: { userId: user.id },
     include: { type: true }
   });
+}
 
   // 2. если пусто → инициализируем
-  if (!settings.length && user.activeRole === 'PATIENT') {
-  await initUserNotifications(user.id, user.activeRole);
-
-
-    // 3. перечитываем
-    settings = await prisma.userNotification.findMany({
-      where: { userId: user.id },
-      include: { type: true }
-    });
-  }
+ 
 
   let filtered = [];
 
@@ -92,13 +92,10 @@ filtered = roleSettings
   .map(r => {
 
     const userOverride = settings.find(
-      s => String(s.typeId) === String(r.typeId)
-    );
+  s => String(s.typeId) === String(r.typeId)
+);
 
-   const mode =
-  userOverride && userOverride.mode && userOverride.mode !== 'none'
-    ? userOverride.mode
-    : r.defaultMode;
+const mode = userOverride?.mode ?? r.defaultMode;
 
     return {
       ...r,
