@@ -308,12 +308,12 @@ if (patientId || phoneHash) {
     console.log('🆕 PATIENT USER CREATED');
   } else {
     await prisma.user.update({
-      where: { id: patientUser.id },
-      data: {
-        mis_id: String(patientId),
-        phone_hash: phoneHash
-      }
-    });
+  where: { id: patientUser.id },
+  data: {
+    mis_id: String(patientId),
+    ...(phoneHash ? { phone_hash: phoneHash } : {})
+  }
+});
 
     console.log('♻️ PATIENT USER UPDATED');
   }
@@ -471,7 +471,14 @@ const matchByMisId =
   String(user.mis_id) === eventPatientId;
 
 const matchByPhone =
-  phoneHash && user.phone_hash === phoneHash;
+
+console.log('📱 HASH COMPARE:', {
+  db: user.phone_hash,
+  event: phoneHash,
+  raw: data.patient_phone
+});
+
+phoneHash && user.phone_hash === phoneHash;
 
 console.log('🔍 CHECK PATIENT:', {
   db: user.mis_id,
