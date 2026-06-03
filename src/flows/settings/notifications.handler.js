@@ -95,11 +95,12 @@ const userOverride = settings.find(
   s => s.type.key === r.type.key
 );
 
-const mode = (
-  userOverride?.mode ??
-  r.defaultMode ??
-  'none'
-)
+let rawMode = userOverride?.mode ?? r.defaultMode;
+
+if (rawMode === true || rawMode === 'true') rawMode = 'all';
+if (rawMode === false || rawMode === 'false') rawMode = 'none';
+
+const mode = (rawMode || 'none')
   .toString()
   .trim()
   .toLowerCase();
