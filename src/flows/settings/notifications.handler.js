@@ -99,7 +99,16 @@ const mode = (
   userOverride?.mode ??
   r.defaultMode ??
   'none'
-).toLowerCase();
+)
+  .toString()
+  .trim()
+  .toLowerCase();
+
+  console.log('MODE RAW:', {
+  key: r.type.key,
+  user: userOverride?.mode,
+  role: r.defaultMode
+});
 
     return {
       ...r,
