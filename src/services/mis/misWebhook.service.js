@@ -164,12 +164,6 @@ console.log('🔍 CHECK PATIENT:', {
 
 
 
-
-
-  if (String(user.mis_id) !== String(patientIdFromEvent)) {
-    return;
-  }
-
   let patient = null;
 
   try {
@@ -470,7 +464,7 @@ const phoneHash = phone ? hashPhone(phone) : null;
 const matchByMisId =
   String(user.mis_id) === eventPatientId;
 
-const matchByPhone =
+const matchByPhone = phoneHash && user.phone_hash === phoneHash;
 
 console.log('📱 HASH COMPARE:', {
   db: user.phone_hash,
@@ -478,7 +472,7 @@ console.log('📱 HASH COMPARE:', {
   raw: data.patient_phone
 });
 
-phoneHash && user.phone_hash === phoneHash;
+
 
 console.log('🔍 CHECK PATIENT:', {
   db: user.mis_id,
@@ -488,9 +482,23 @@ console.log('🔍 CHECK PATIENT:', {
 });
 
 // ❌ не совпало вообще
-if (!matchByMisId && !matchByPhone) {
+const matchByUserId =
+  patientUser && user.id === patientUser.id;
+
+if (!matchByMisId && !matchByPhone && !matchByUserId) {
   console.log('❌ SKIP PATIENT');
   continue;
+}
+
+if (matchByUserId && phoneHash) {
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      phone_hash: phoneHash
+    }
+  });
+
+  console.log('♻️ SYNC PHONE HASH');
 }
 
 // 🔥 синхронизация mis_id (ВАЖНО)
