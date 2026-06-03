@@ -52,8 +52,9 @@ export async function showNotificationGroup(ctx, user, text) {
   });
 
   // 2. если пусто → инициализируем
-  if (!settings.length) {
-    await initUserNotifications(user.id, user.activeRole);
+  if (!settings.length && user.activeRole === 'PATIENT') {
+  await initUserNotifications(user.id, user.activeRole);
+
 
     // 3. перечитываем
     settings = await prisma.userNotification.findMany({
@@ -62,9 +63,48 @@ export async function showNotificationGroup(ctx, user, text) {
     });
   }
 
-  const filtered = settings.filter(s =>
+  let filtered = [];
+
+if (user.activeRole === 'PATIENT') {
+
+  // как было
+  filtered = settings.filter(s =>
     keys.includes(s.type.key)
   );
+
+} else {
+
+  // 🔥 СОТРУДНИК — новая логика
+
+  const role = await prisma.role.findFirst({
+    where: { key: user.activeRole }
+  });
+
+  const roleSettings = role
+    ? await prisma.roleNotification.findMany({
+        where: { roleId: role.id },
+        include: { type: true }
+      })
+    : [];
+
+  filtered = roleSettings
+    .filter(r => keys.includes(r.type.key))
+    .map(r => {
+
+      const userOverride = settings.find(
+        s => s.typeId === r.typeId
+      );
+
+      return {
+        ...r,
+        mode: userOverride?.mode ?? r.defaultMode,
+        type: r.type
+      };
+    });
+}
+
+
+
 
   const buttons = filtered.map(s => {
     const mode = s.mode;
