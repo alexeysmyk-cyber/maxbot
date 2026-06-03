@@ -118,6 +118,8 @@ const mode = (rawMode || 'none')
   .toString()
   .trim()
   .toLowerCase();
+
+  
   console.log('MODE RAW:', {
   key: r.type.key,
   user: userOverride?.mode,
