@@ -200,6 +200,14 @@ console.log('🔍 CHECK PATIENT:', {
     emailTemplate
   });
 
+
+  console.log('📧 EMAIL CHECK:', {
+  email: patient.email,
+  send_email: patient.send_email
+});
+
+console.log('📡 RESOLVED CHANNEL:', channel);
+
   await sendNotification({
     channel,
     user,
@@ -454,10 +462,41 @@ if (user.type === 'PATIENT') {
     event: patientIdFromEvent
   });
 
-  if (String(user.mis_id) !== String(patientIdFromEvent)) {
-    console.log('❌ SKIP PATIENT (NOT MATCH)');
-    continue;
-  }
+  const eventPatientId = String(patientIdFromEvent);
+
+const phone = normalizePhone(data.patient_phone);
+const phoneHash = phone ? hashPhone(phone) : null;
+
+const matchByMisId =
+  String(user.mis_id) === eventPatientId;
+
+const matchByPhone =
+  phoneHash && user.phone_hash === phoneHash;
+
+console.log('🔍 CHECK PATIENT:', {
+  db: user.mis_id,
+  event: eventPatientId,
+  matchByMisId,
+  matchByPhone
+});
+
+// ❌ не совпало вообще
+if (!matchByMisId && !matchByPhone) {
+  console.log('❌ SKIP PATIENT');
+  continue;
+}
+
+// 🔥 синхронизация mis_id (ВАЖНО)
+if (!matchByMisId && matchByPhone) {
+  console.log('♻️ SYNC MIS ID FROM WEBHOOK');
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      mis_id: eventPatientId
+    }
+  });
+}
 
   // ===============================
   // 🧪 ТОЛЬКО ДЛЯ АНАЛИЗОВ

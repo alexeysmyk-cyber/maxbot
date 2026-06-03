@@ -70,7 +70,7 @@ export async function confirmAuth({ vk_id, type, data }) {
   let existingByPhone = null;
 
   if (phoneHash) {
-    existingByPhone = await prisma.user.findUnique({
+    existingByPhone = await prisma.user.findFirst({
       where: { phone_hash: phoneHash }
     });
   }
@@ -152,55 +152,32 @@ export async function confirmAuth({ vk_id, type, data }) {
 }
 
   // ===== PATIENT =====
-  if (type === 'PATIENT') {
-    const patient = data;
+ if (type === 'PATIENT') {
+  const patient = data;
 
-      const phone = normalizePhone(
+  const phone = normalizePhone(
     patient.phone || patient.mobile
   );
 
   const phoneHash = phone ? hashPhone(phone) : null;
 
-  let existingByPhone = null;
-
-if (phoneHash) {
-  existingByPhone = await prisma.user.findUnique({
-    where: { phone_hash: phoneHash }
-  });
-}
-
-if (existingByPhone && existingByPhone.vk_id !== vk_id) {
-  console.log('🔗 MERGE PATIENT USERS');
-
-  user = await prisma.user.update({
-    where: { id: existingByPhone.id },
-    data: {
-      vk_id,
-      email: patient.email,
-      mis_id: String(patient.patient_id),
-      type: 'PATIENT',
-      name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim()
-    }
+  // 🔥 ищем по VK (основной пользователь)
+  let user = await prisma.user.findFirst({
+    where: { vk_id }
   });
 
-  await prisma.user.deleteMany({
-    where: {
-      vk_id,
-      NOT: { id: existingByPhone.id }
-    }
-  });
-}
-else {
-    user = await prisma.user.upsert({
-      where: { vk_id },
-      update: {
-        email: patient.email,
-        mis_id: String(patient.patient_id),
-        type: 'PATIENT',
-        name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
-       phone_hash: phoneHash ?? undefined  
-      },
-      create: {
+  // 🔥 если нет → ищем по телефону
+  if (!user && phoneHash) {
+    user = await prisma.user.findFirst({
+      where: { phone_hash: phoneHash }
+    });
+  }
+
+  // 🔥 если нашли → обновляем
+  if (user) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
         vk_id,
         email: patient.email,
         mis_id: String(patient.patient_id),
@@ -209,35 +186,26 @@ else {
         phone_hash: phoneHash ?? undefined
       }
     });
+
+    console.log('♻️ UPDATED PATIENT:', user.id);
   }
 
+  // 🔥 если нет → создаём
+  else {
+    user = await prisma.user.create({
+      data: {
+        vk_id,
+        email: patient.email,
+        mis_id: String(patient.patient_id),
+        type: 'PATIENT',
+        name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
+        phone_hash: phoneHash ?? undefined
+      }
+    });
 
-
-    // пациенту можно назначить роль PATIENT (если хочешь)
-const role = await prisma.role.upsert({
-  where: { key: 'PATIENT' },
-  update: {
-    name: 'Пациент'
-  },
-  create: {
-    key: 'PATIENT',
-    name: 'Пациент'
+    console.log('🆕 CREATED PATIENT');
   }
-});
-
-    if (role) {
-      await prisma.userRole.deleteMany({
-        where: { userId: user.id }
-      });
-
-      await prisma.userRole.create({
-        data: {
-          userId: user.id,
-          roleId: role.id,
-        }
-      });
-    }
-  }
+}
 
   // ===== вернуть пользователя с ролями =====
   const fullUser = await prisma.user.findUnique({
@@ -251,12 +219,6 @@ const role = await prisma.role.upsert({
     }
   });
   return fullUser;
-
-
-
-
-
-
 
 
 }
