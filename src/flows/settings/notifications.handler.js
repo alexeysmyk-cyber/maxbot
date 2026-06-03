@@ -95,16 +95,29 @@ const userOverride = settings.find(
   s => s.type.key === r.type.key
 );
 
-let rawMode = userOverride?.mode ?? r.defaultMode;
+let rawMode = userOverride?.mode;
 
+// 🔥 нормализуем boolean-старьё
 if (rawMode === true || rawMode === 'true') rawMode = 'all';
 if (rawMode === false || rawMode === 'false') rawMode = 'none';
 
+// 🔥 если userMode невалидный — игнорируем его
+const validModes = ['all', 'self', 'none'];
+
+if (!validModes.includes((rawMode || '').toLowerCase())) {
+  rawMode = null;
+}
+
+// 🔥 если user не задал — берём роль
+if (!rawMode) {
+  rawMode = r.defaultMode;
+}
+
+// 🔥 финальная нормализация
 const mode = (rawMode || 'none')
   .toString()
   .trim()
   .toLowerCase();
-
   console.log('MODE RAW:', {
   key: r.type.key,
   user: userOverride?.mode,
