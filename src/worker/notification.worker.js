@@ -7,6 +7,7 @@ import { getBot } from '../max/max.service.js';
 
 export async function processNotifications() {
 
+    console.log('👷 WORKER TICK');
   let bot;
 
 try {
@@ -72,6 +73,8 @@ try {
       // =========================
       // 5. отправка
       // =========================
+      
+      console.log('🚀 PROCESS:', n.id, n.channel);
       await sendNotification({
         channel: n.channel,
         user,
