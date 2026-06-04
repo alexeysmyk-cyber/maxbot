@@ -48,7 +48,12 @@ if (!GROUP_KEYS[groupKey]) {
   return;
 }
 
-const keys = GROUP_KEYS[groupKey];
+let keys = GROUP_KEYS[groupKey];
+
+// 🔥 убираем завершение визита для пациента
+if (user.activeRole === 'PATIENT') {
+  keys = keys.filter(k => k !== 'visit_finish');
+}
 
   // 1. получаем
 let settings = await prisma.userNotification.findMany({
