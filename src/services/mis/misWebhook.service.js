@@ -126,52 +126,56 @@ const patientId =
  // ===============================
 // 👤 FIND OR CREATE PATIENT USER
 // ===============================
+// ===============================
+// 👤 FIND OR CREATE PATIENT USER
+// ===============================
+
 let patientUser = null;
 
+// 1. ищем по ID (главное)
 if (patientId) {
   patientUser = await prisma.user.findFirst({
     where: { mis_id: String(patientId) }
   });
 }
 
+// 2. fallback по телефону
 if (!patientUser && !patientId && phoneHash) {
   patientUser = await prisma.user.findFirst({
     where: { phone_hash: phoneHash }
   });
 }
 
+// 3. проверка mismatch
 if (patientUser && patientUser.mis_id && patientId) {
   if (String(patientUser.mis_id) !== String(patientId)) {
     console.log('⛔ ID MISMATCH — SKIP USER');
     return;
   }
 }
-  if (!patientUser) {
 
+// 4. create / update
+if (!patientUser) {
+  patientUser = await prisma.user.create({
+    data: {
+      mis_id: String(patientId),
+      phone_hash: phoneHash,
+      type: 'PATIENT',
+      activeRole: 'PATIENT'
+    }
+  });
 
+  console.log('🆕 PATIENT USER CREATED');
+} else {
+  await prisma.user.update({
+    where: { id: patientUser.id },
+    data: {
+      ...(phoneHash ? { phone_hash: phoneHash } : {})
+    }
+  });
 
-    patientUser = await prisma.user.create({
-      data: {
-        mis_id: String(patientId),
-        phone_hash: phoneHash,
-        type: 'PATIENT',  
-        activeRole: 'PATIENT'
-      }
-    });
-
-    console.log('🆕 PATIENT USER CREATED');
-  } else {
-    await prisma.user.update({
-  where: { id: patientUser.id },
-  data: {
-     ...(phoneHash ? { phone_hash: phoneHash } : {})
-  }
-});
-
-    console.log('♻️ PATIENT USER UPDATED');
-  }
-} 
-
+  console.log('♻️ PATIENT USER UPDATED');
+}
 // ===============================
 // 🚀 FIRST CONTACT (ПОКА ЛОГ)
 // ===============================
