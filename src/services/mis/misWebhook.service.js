@@ -44,6 +44,21 @@ export async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
 
+function normalizeEvent(event) {
+  switch (event) {
+    case 'cancel_appointment':
+      return 'visit_cancel';
+
+    case 'create_appointment':
+      return 'visit_create';
+
+    case 'move_appointment':
+      return 'visit_move';
+
+    default:
+      return event;
+  }
+}
 
 function isDuplicate(event, data) {
   const key = JSON.stringify({ event, data });
@@ -190,7 +205,13 @@ if (data.appointment_id) {
 }
 
 console.log('DATA NAME RAW:', data.patient_name);
-const result = await buildMessage(event, data, appointment);
+const normalizedEvent = normalizeEvent(event);
+
+const result = await buildMessage(
+  normalizedEvent,
+  data,
+  appointment
+);
 
 
 if (!result) return ;
