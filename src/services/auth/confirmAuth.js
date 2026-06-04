@@ -152,7 +152,7 @@ export async function confirmAuth({ vk_id, type, data }) {
 }
 
   // ===== PATIENT =====
- if (type === 'PATIENT') {
+if (type === 'PATIENT') {
   const patient = data;
 
   const phone = normalizePhone(
@@ -161,19 +161,17 @@ export async function confirmAuth({ vk_id, type, data }) {
 
   const phoneHash = phone ? hashPhone(phone) : null;
 
-  // 🔥 ищем по VK (основной пользователь)
-  let user = await prisma.user.findFirst({
+  // 🔥 НЕ let
+  user = await prisma.user.findFirst({
     where: { vk_id }
   });
 
-  // 🔥 если нет → ищем по телефону
   if (!user && phoneHash) {
     user = await prisma.user.findFirst({
       where: { phone_hash: phoneHash }
     });
   }
 
-  // 🔥 если нашли → обновляем
   if (user) {
     user = await prisma.user.update({
       where: { id: user.id },
@@ -182,32 +180,67 @@ export async function confirmAuth({ vk_id, type, data }) {
         email: patient.email,
         mis_id: String(patient.patient_id),
         type: 'PATIENT',
+        activeRole: 'PATIENT', // 🔥 ДОБАВЬ ЭТО
         name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
         phone_hash: phoneHash ?? undefined
       }
     });
-
-    console.log('♻️ UPDATED PATIENT:', user.id);
-  }
-
-  // 🔥 если нет → создаём
-  else {
+  } else {
     user = await prisma.user.create({
       data: {
         vk_id,
         email: patient.email,
         mis_id: String(patient.patient_id),
         type: 'PATIENT',
+        activeRole: 'PATIENT', // 🔥 ДОБАВЬ ЭТО
         name: `${patient.last_name || ''} ${patient.first_name || ''}`.trim(),
         phone_hash: phoneHash ?? undefined
       }
     });
-
-    console.log('🆕 CREATED PATIENT');
   }
+  // 🔥 гарантируем роль PATIENT
+let role = await prisma.role.findUnique({
+  where: { key: 'PATIENT' }
+});
+
+if (!role) {
+  role = await prisma.role.create({
+    data: {
+      key: 'PATIENT',
+      name: ROLE_NAME_MAP['PATIENT']
+    }
+  });
+}
+
+// 🔥 проверяем есть ли уже связь
+const existing = await prisma.userRole.findUnique({
+  where: {
+    userId_roleId: {
+      userId: user.id,
+      roleId: role.id
+    }
+  }
+});
+
+if (!existing) {
+  await prisma.userRole.create({
+    data: {
+      userId: user.id,
+      roleId: role.id
+    }
+  });
+}
 }
 
   // ===== вернуть пользователя с ролями =====
+
+  if (!user) {
+  console.log('❌ USER NOT RESOLVED');
+  throw new Error('USER_NOT_FOUND_AFTER_AUTH');
+}
+
+
+
   const fullUser = await prisma.user.findUnique({
     where: { id: user.id },
     include: {
