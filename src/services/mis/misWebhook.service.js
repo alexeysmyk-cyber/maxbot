@@ -1,13 +1,8 @@
 import { prisma } from '../../db/prisma.js';
-import { getAppointmentById } from './mis.service.js';
 import { normalizePhone } from '../../common/phone.util.js';
 import { hashPhone } from '../../common/hash.util.js';
-import { getPatientById } from './mis.service.js';
 //import fs from 'fs';
 //import path from 'path';
-import { renderTemplate } from '../../common/template.util.js';
-import { buildMessage } from '../notification/buildMessage.service.js';
-import { resolveMode } from '../../common/notificationMode.util.js';
 import { createNotificationsForUser } from '../notification/createNotificationsForUser.js';
 
 
@@ -198,11 +193,7 @@ if (patientUser && !patientUser.vk_id) {
   console.log('📱 NEED FIRST CONTACT:', phoneHash);
 }
 
-let appointment = null;
-
-if (data.appointment_id) {
-  appointment = await getAppointmentWithRetry(data.appointment_id);
-}
+const appointment = null;
 
 console.log('DATA NAME RAW:', data.patient_name);
 const normalizedEvent = normalizeEvent(event);
@@ -219,69 +210,11 @@ if (!result) return ;
 console.log('📦 EVENT:', event);
 console.log('🧠 BUILD RESULT:', result);
 
-function formatDateRu(dateTime) {
-  if (!dateTime) return '';
 
-  const [datePart] = dateTime.split(' ');
-  const [day, month, year] = datePart.split('.');
-
-  const dateObj = new Date(`${year}-${month}-${day}`);
-
-  const weekdays = [
-    'воскресенье','понедельник','вторник',
-    'среда','четверг','пятница','суббота'
-  ];
-
-  const months = [
-    'января','февраля','марта','апреля','мая','июня',
-    'июля','августа','сентября','октября','ноября','декабря'
-  ];
-
-  return ` ${day} ${months[month - 1]} ${year}, ${weekdays[dateObj.getDay()]},`;
-}
-
-function formatTime(dateTime) {
-  if (!dateTime) return '';
-
-  const parts = dateTime.split(' ');
-  return parts[1] || '';
-}
-
-const rawStart = data.time_start || appointment?.time_start || '';
-const rawEnd = data.time_end || appointment?.time_end || '';
-
-const templateData = {
-  patient_name: appointment?.patient_name || data.patient_name || '',
-  doctor_name: appointment?.doctor || data.doctor || '',
-
-  date: formatDateRu(rawStart),
-  time_start: formatTime(rawStart),
-  time_end: formatTime(rawEnd),
-
-  cabinet: appointment?.room || data.room || '',
-  clinic: appointment?.clinic || data.clinic || '',
-
-  phone: data.patient_phone || phone || '',
-  email: data.patient_email || '',
-  
-  old_date: formatDateRu(data.old_time_start || ''),
-  new_date: formatDateRu(rawStart),
-
-  old_time: formatTime(data.old_time_start || ''),
-  new_time: formatTime(rawStart),
-
-  old_doctor: data.old_doctor || '',
-  new_doctor: appointment?.doctor || data.doctor || '',
-
-  review_link: data.review_link || '',
-  author_name: data.author_name || '',
-  status: data.status || ''
-};
-
-console.log('TEMPLATE DATA:', templateData);
+const { key } = result;
 
 
-const { message, doctorId, key } = result;
+console.log('🚨 TRY CREATE NOTIFICATIONS');
 
 let patient = null;
 
@@ -291,144 +224,21 @@ try {
   console.error('❌ LOAD PATIENT ERROR');
 }
 
-console.log('🚨 TRY CREATE NOTIFICATIONS');
+
+
+
+
 
 await createNotificationsForUser({
   user: patientUser,
-  patient: patient,
+  patient,
   key,
   payload: {
     data,
-    appointment
+    appointmentId: data.appointment_id || null
   },
   externalIdBase: `${key}_${data.invoice_id || Date.now()}`
 });
 
 
-
-
-  if (!message) return ;
-
-// ==================================================
-// 📤 РАССЫЛКА
-// ==================================================
-if (!key || !message) {
-  console.log('❌ NO KEY OR MESSAGE');
-  return;
-}
-
-// ===== TEMPLATE LOADING =====
-const maxTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key,
-      channel: 'MAX'
-    }
-  }
-});
-
-const emailTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key,
-      channel: 'EMAIL'
-    } 
-  }
-});
-
-if (patientUser) {
-
-  console.log('👤 DIRECT PATIENT:', patientUser.id);
-
- // await handlePatientNotification({
-  //  user: patientUser,
-  //  data,
-  //  appointment,
-  //  key,
-   // message,
-  //  templateData,
-  //  maxTemplate,
-  //  emailTemplate,
-  //  bot
- // });
-}
-
-
-const users = await prisma.user.findMany();
-
-console.log('👥 USERS COUNT:', users.length);
-
-
-
-for (const user of users) {
-
-  // ===============================
-  // 👤 ПАЦИЕНТ (сразу фильтруем)
-  // ===============================
-if (user.type === 'PATIENT') continue;
-
-// ===============================
-// 🔍 USER + ROLE
-// ===============================
-const userSetting = await prisma.userNotification.findFirst({
-  where: {
-    userId: user.id,
-    type: { key }
-  }
-});
-
-const role = await prisma.role.findFirst({
-  where: { key: user.activeRole }
-});
-
-if (!role) continue;
-
-const roleSetting = await prisma.roleNotification.findFirst({
-  where: {
-    roleId: role.id,
-    type: { key }
-  }
-});
-
-if (!roleSetting) continue;
-
-// ===============================
-// 🧠 RESOLVE MODE
-// ===============================
-const mode = resolveMode(
-  userSetting?.mode,
-  roleSetting.defaultMode
-);
-
-  // ===============================
-  // 🚫 NONE
-  // ===============================
-  if (mode === 'none') continue;
-
-  // ===============================
-  // 👨‍⚕️ SELF
-  // ===============================
-  if (mode === 'self') {
-    if (String(user.mis_id) !== String(doctorId)) continue;
-  }
-
- // console.log('🔁 LOOP EMPLOYEE:', user.id);
-
-  // ===============================
-  // 👨‍⚕️ СОТРУДНИК
-  // ===============================
-  try {
-    if (!user.vk_id) continue;
-
-    console.log('📨 SEND TO:', user.vk_id);
-
- //   await bot.api.sendMessageToUser(
- //     Number(user.vk_id),
- //     message
- //   );
-
-  } catch (e) {
-    console.error('❌ SEND ERROR:', e.message);
-  }
-}
 }
