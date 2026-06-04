@@ -73,17 +73,8 @@ if (!settings.length && user.activeRole === 'PATIENT') {
 
 if (user.activeRole === 'PATIENT') {
 
-  // как было
-  filtered = settings.filter(s =>
-    keys.includes(s.type.key)
-  );
-
-} else {
-
-  // 🔥 СОТРУДНИК — новая логика
-
   const role = await prisma.role.findFirst({
-    where: { key: user.activeRole }
+    where: { key: 'PATIENT' }
   });
 
   const roleSettings = role
@@ -93,32 +84,25 @@ if (user.activeRole === 'PATIENT') {
       })
     : [];
 
-filtered = roleSettings
-  .filter(r => keys.includes(r.type.key))
-  .map(r => {
+  filtered = roleSettings
+    .filter(r => keys.includes(r.type.key))
+    .map(r => {
 
-const userOverride = settings.find(
-  s => s.type.key === r.type.key
-);
+      const userOverride = settings.find(
+        s => s.type.key === r.type.key
+      );
 
-const mode = resolveMode(
-  userOverride?.mode,
-  r.defaultMode
-);
+      const mode = resolveMode(
+        userOverride?.mode,
+        r.defaultMode
+      );
 
-
-  console.log('MODE RAW:', {
-  key: r.type.key,
-  user: userOverride?.mode,
-  role: r.defaultMode
-});
-
-    return {
-      ...r,
-      mode,
-      type: r.type
-    };
-  });
+      return {
+        ...r,
+        mode,
+        type: r.type
+      };
+    });
 }
 
 
