@@ -9,6 +9,7 @@ import { getPatientById } from './mis.service.js';
 //import path from 'path';
 import { renderTemplate } from '../../common/template.util.js';
 import { buildMessage } from '../notification/buildMessage.service.js';
+import { resolveMode } from '../../common/notificationMode.util.js';
 
 
 
@@ -469,34 +470,38 @@ if (user.type === 'PATIENT') continue;
     }
   });
 
-  let mode = null;
-
-  if (userSetting) {
-    mode = userSetting.mode;
-  } else {
-    // ===============================
-    // 🔍 ROLE FALLBACK
-    // ===============================
-    const role = await prisma.role.findFirst({
-      where: { key: user.activeRole }
-    });
-
-    if (!role) {
-      console.log('❌ NO ROLE FOR USER:', user.id, user.activeRole);
-      continue;
-    }
-
-    const roleSetting = await prisma.roleNotification.findFirst({
-      where: {
-        roleId: role.id,
-        type: { key }
-      }
-    });
-
-    if (!roleSetting) continue;
-
-    mode = roleSetting.defaultMode;
+// ===============================
+// 🔍 USER + ROLE
+// ===============================
+const userSetting = await prisma.userNotification.findFirst({
+  where: {
+    userId: user.id,
+    type: { key }
   }
+});
+
+const role = await prisma.role.findFirst({
+  where: { key: user.activeRole }
+});
+
+if (!role) continue;
+
+const roleSetting = await prisma.roleNotification.findFirst({
+  where: {
+    roleId: role.id,
+    type: { key }
+  }
+});
+
+if (!roleSetting) continue;
+
+// ===============================
+// 🧠 RESOLVE MODE
+// ===============================
+const mode = resolveMode(
+  userSetting?.mode,
+  roleSetting.defaultMode
+);
 
   // ===============================
   // 🚫 NONE
