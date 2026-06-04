@@ -163,7 +163,62 @@ console.log('🔍 CHECK PATIENT:', {
   event: patientIdFromEvent
 });
 
+// ===============================
+// 🧠 RESOLVE MODE (как у сотрудников)
+// ===============================
 
+const userSetting = await prisma.userNotification.findFirst({
+  where: {
+    userId: user.id,
+    type: { key }
+  }
+});
+
+const role = await prisma.role.findFirst({
+  where: { key: 'PATIENT' }
+});
+
+if (!role) {
+  console.log('❌ NO PATIENT ROLE');
+  return;
+}
+
+const roleSetting = await prisma.roleNotification.findFirst({
+  where: {
+    roleId: role.id,
+    type: { key }
+  }
+});
+
+// ❗ если глобально запрещено — сразу стоп
+if (!roleSetting) {
+  console.log('⛔ NO ROLE SETTING FOR PATIENT:', key);
+  return;
+}
+
+const mode = resolveMode(
+  userSetting?.mode,
+  roleSetting.defaultMode
+);
+
+// 🚫 NONE
+if (mode === 'none') {
+  console.log('⛔ PATIENT MODE NONE:', key);
+  return;
+}
+
+const PATIENT_ALLOWED_KEYS = [
+  'lab_full',
+  'lab_partial',
+  'visit_create',
+  'visit_cancel',
+  'visit_move'
+];
+
+if (!PATIENT_ALLOWED_KEYS.includes(key)) {
+  console.log('⛔ BLOCKED EVENT FOR PATIENT:', key);
+  return;
+}
 
   let patient = null;
 
