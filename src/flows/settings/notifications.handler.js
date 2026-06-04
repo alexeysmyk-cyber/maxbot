@@ -152,6 +152,7 @@ export async function showNotifications(ctx, user) {
     ctx,
     '🔔 Уведомления',
     Keyboard.inlineKeyboard([
+      [Keyboard.button.callback('📅 Визиты', 'notif_group_visit')],
       [Keyboard.button.callback('🧪 Анализы', 'notif_group_lab')],
       [
         Keyboard.button.callback('⬅️ Назад', 'notifications'),
