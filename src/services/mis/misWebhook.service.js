@@ -163,6 +163,11 @@ console.log('🔍 CHECK PATIENT:', {
   event: patientIdFromEvent
 });
 
+if (String(user.mis_id) !== String(patientIdFromEvent)) {
+  console.log('⛔ SKIP PATIENT (ID MISMATCH)');
+  return;
+}
+
 // ===============================
 // 🧠 RESOLVE MODE (как у сотрудников)
 // ===============================
@@ -333,15 +338,28 @@ const patientId =
 let patientUser = null;
 
 if (patientId || phoneHash) {
- patientUser = await prisma.user.findFirst({
-  where: {
-    OR: [
-      patientId ? { mis_id: String(patientId) } : undefined,
-      phoneHash ? { phone_hash: phoneHash } : undefined
-    ].filter(Boolean)
-  }
-});
+ let patientUser = null;
 
+// 1. ищем строго по ID (главный ключ)
+if (patientId) {
+  patientUser = await prisma.user.findFirst({
+    where: { mis_id: String(patientId) }
+  });
+}
+
+// 2. fallback по телефону ТОЛЬКО если нет ID
+if (!patientUser && !patientId && phoneHash) {
+  patientUser = await prisma.user.findFirst({
+    where: { phone_hash: phoneHash }
+  });
+}
+
+if (patientUser && patientUser.mis_id && patientId) {
+  if (String(patientUser.mis_id) !== String(patientId)) {
+    console.log('⛔ ID MISMATCH — SKIP USER');
+    return;
+  }
+}
   if (!patientUser) {
 
 
@@ -360,8 +378,7 @@ if (patientId || phoneHash) {
     await prisma.user.update({
   where: { id: patientUser.id },
   data: {
-    mis_id: String(patientId),
-    ...(phoneHash ? { phone_hash: phoneHash } : {})
+     ...(phoneHash ? { phone_hash: phoneHash } : {})
   }
 });
 
