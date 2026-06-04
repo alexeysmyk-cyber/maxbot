@@ -213,7 +213,7 @@ const result = await buildMessage(
   appointment
 );
 
-
+  
 if (!result) return ;
 
 console.log('📦 EVENT:', event);
