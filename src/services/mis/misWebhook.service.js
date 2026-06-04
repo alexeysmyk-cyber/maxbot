@@ -128,17 +128,12 @@ const patientId =
 // ===============================
 let patientUser = null;
 
-if (patientId || phoneHash) {
- let patientUser = null;
-
-// 1. ищем строго по ID (главный ключ)
 if (patientId) {
   patientUser = await prisma.user.findFirst({
     where: { mis_id: String(patientId) }
   });
 }
 
-// 2. fallback по телефону ТОЛЬКО если нет ID
 if (!patientUser && !patientId && phoneHash) {
   patientUser = await prisma.user.findFirst({
     where: { phone_hash: phoneHash }
