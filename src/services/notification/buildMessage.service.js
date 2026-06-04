@@ -101,7 +101,7 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
   }
 }
 
-else if (event === 'cancel_appointment') {
+else if (event === 'cancel_appointment' || event === 'visit_cancel') {
 
   const oldId = data.id;
   const patientName = data.patient_name;
