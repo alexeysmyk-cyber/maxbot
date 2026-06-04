@@ -460,15 +460,6 @@ for (const user of users) {
   // 👤 ПАЦИЕНТ (сразу фильтруем)
   // ===============================
 if (user.type === 'PATIENT') continue;
-  // ===============================
-  // 🔍 USER OVERRIDE
-  // ===============================
-  const userSetting = await prisma.userNotification.findFirst({
-    where: {
-      userId: user.id,
-      type: { key }
-    }
-  });
 
 // ===============================
 // 🔍 USER + ROLE
