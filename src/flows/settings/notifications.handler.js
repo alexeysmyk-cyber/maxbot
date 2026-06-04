@@ -208,9 +208,16 @@ const typeId = Number(typeIdStr);
 
 
   // разрешаем только анализы
-  if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
-    return ctx.reply('❌ Недоступно');
-  }
+ if (![
+  'lab_full',
+  'lab_partial',
+  'visit_create',
+  'visit_cancel',
+  'visit_move',
+  'visit_finish'
+].includes(setting.type.key)) {
+  return ctx.reply('❌ Недоступно');
+}
 }
 
 
