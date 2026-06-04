@@ -148,7 +148,7 @@ if (user.activeRole === 'PATIENT') {
 
   buttons.push(
      [
-        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('⬅️ Назад', 'notifications'),
         Keyboard.button.callback('🏠 Домой', 'back_to_menu')
       ]);
 
@@ -170,7 +170,7 @@ export async function showNotifications(ctx, user) {
     Keyboard.inlineKeyboard([
       [Keyboard.button.callback('🧪 Анализы', 'notif_group_lab')],
       [
-        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('⬅️ Назад', 'notifications'),
         Keyboard.button.callback('🏠 Домой', 'back_to_menu')
       ]
     ])
