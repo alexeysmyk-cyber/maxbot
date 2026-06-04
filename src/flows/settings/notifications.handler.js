@@ -31,20 +31,25 @@ const GROUP_KEYS = {
 
 export async function showNotificationGroup(ctx, user, text) {
 
-  if (user.activeRole === 'PATIENT') {
+if (!text.startsWith('notif_group_')) return;
 
-  // разрешаем только lab
-  if (!text.includes('lab')) {
+const groupKey = text.replace('notif_group_', '');
+
+if (user.activeRole === 'PATIENT') {
+  if (groupKey !== 'lab') {
     return ctx.reply('❌ Недоступно');
   }
 }
 
   console.log('🔥 ENTER showNotificationGroup:', text);
 
-  if (!text.startsWith('notif_group_')) return;
 
-  const groupKey = text.replace('notif_group_', '');
-  const keys = GROUP_KEYS[groupKey] || [];
+if (!GROUP_KEYS[groupKey]) {
+  console.log('❌ UNKNOWN GROUP:', groupKey);
+  return;
+}
+
+const keys = GROUP_KEYS[groupKey];
 
   // 1. получаем
 let settings = await prisma.userNotification.findMany({
@@ -135,9 +140,9 @@ if (user.activeRole === 'PATIENT') {
 
     return [
       Keyboard.button.callback(
-        `${label} ${s.type.name}`,
-        `notif_${s.typeId}`
-      )
+  `${label} ${s.type.name}`,
+  `notif_${s.typeId}_${groupKey}`
+)
     ];
   });
 
@@ -190,12 +195,18 @@ return smartReply(
 
 export async function openNotificationSettings(ctx, user, text) {
 
-  if (user.activeRole === 'PATIENT') {
+if (!text.startsWith('notif_')) return;
 
-  const raw = text.replace('notif_', '');
-  if (!/^\d+$/.test(raw)) return;
+const raw = text.replace('notif_', '');
+const [typeIdStr, groupKey] = raw.split('_');
+if (!groupKey) {
+  console.log('❌ NO GROUP KEY - BLOCK');
+  return;
+}
+if (!/^\d+$/.test(typeIdStr)) return;
 
-  const typeId = Number(raw);
+const typeId = Number(typeIdStr);
+  
 
   const setting = await prisma.userNotification.findFirst({
     where: {
@@ -206,6 +217,11 @@ export async function openNotificationSettings(ctx, user, text) {
   });
 
   if (!setting) return;
+  
+  if (user.activeRole === 'PATIENT') {
+
+
+
 
   // разрешаем только анализы
   if (!['lab_full', 'lab_partial'].includes(setting.type.key)) {
@@ -213,27 +229,8 @@ export async function openNotificationSettings(ctx, user, text) {
   }
 }
 
-  if (!text.startsWith('notif_')) return;
 
-  const raw = text.replace('notif_', '');
 
-  // защита от group и мусора
-  if (!/^\d+$/.test(raw)) {
-    console.log('❌ INVALID notif id:', raw);
-    return;
-  }
-
-  const typeId = Number(raw);
-
-  const setting = await prisma.userNotification.findFirst({
-    where: {
-      userId: user.id,
-      typeId
-    },
-    include: { type: true }
-  });
-
-  if (!setting) return;
 
   const buttons = [];
 
@@ -245,24 +242,24 @@ if (user.activeRole === 'PATIENT') {
 
   if (['lab_full', 'lab_partial'].includes(setting.type.key)) {
     buttons.push(
-      [Keyboard.button.callback('✅ Получать', `set_mode_${typeId}_all`)],
-      [Keyboard.button.callback('❌ Не получать', `set_mode_${typeId}_none`)]
+      [Keyboard.button.callback('✅ Получать', `set_mode_${typeId}_all_${groupKey}`)],
+      [Keyboard.button.callback('❌ Не получать', `set_mode_${typeId}_none_${groupKey}`)]
     );
   }
 
 } else {
 
   buttons.push(
-    [Keyboard.button.callback('🌍 Все', `set_mode_${typeId}_all`)],
-    [Keyboard.button.callback('👤 Только мои', `set_mode_${typeId}_self`)],
-    [Keyboard.button.callback('🚫 Выключить', `set_mode_${typeId}_none`)]
+    [Keyboard.button.callback('🌍 Все', `set_mode_${typeId}_all_${groupKey}`)],
+    [Keyboard.button.callback('👤 Только мои', `set_mode_${typeId}_self_${groupKey}`)],
+    [Keyboard.button.callback('🚫 Выключить', `set_mode_${typeId}_none_${groupKey}`)]
   );
 
 }
 
   buttons.push(
      [
-        Keyboard.button.callback('⬅️ Назад', 'settings'),
+        Keyboard.button.callback('⬅️ Назад', groupKey ? `notif_group_${groupKey}` : 'settings'),
         Keyboard.button.callback('🏠 Домой', 'back_to_menu')
       
   ]);
@@ -289,7 +286,7 @@ export async function setNotificationMode(ctx, user, text) {
   // ===============================
   // 📦 ПАРСИНГ
   // ===============================
-  const [, , typeId, mode] = text.split('_');
+  const [, , typeId, mode, groupKey] = text.split('_');
   const numericTypeId = Number(typeId);
 
   if (!numericTypeId) {
@@ -346,6 +343,8 @@ if (user.activeRole === 'PATIENT') {
   });
 
   console.log('💾 SAVED');
-
-  return showNotifications(ctx, user);
+if (!groupKey) {
+  return showNotifications(ctx, user); // fallback
+}
+  return showNotificationGroup(ctx, user, `notif_group_${groupKey}`);
 }
