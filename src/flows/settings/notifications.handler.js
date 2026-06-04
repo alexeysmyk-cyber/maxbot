@@ -36,11 +36,10 @@ if (!text.startsWith('notif_group_')) return;
 const groupKey = text.replace('notif_group_', '');
 
 if (user.activeRole === 'PATIENT') {
-  if (groupKey !== 'lab') {
+  if (!['lab', 'visit'].includes(groupKey)) {
     return ctx.reply('❌ Недоступно');
   }
 }
-
   console.log('🔥 ENTER showNotificationGroup:', text);
 
 
@@ -223,7 +222,14 @@ const typeId = Number(typeIdStr);
 // 👤 PATIENT → только анализы (boolean)
 if (user.activeRole === 'PATIENT') {
 
-  if (['lab_full', 'lab_partial'].includes(setting.type.key)) {
+  if ([
+  'lab_full',
+  'lab_partial',
+  'visit_create',
+  'visit_cancel',
+  'visit_move',
+  'visit_finish'
+].includes(setting.type.key)) {
     buttons.push(
       [Keyboard.button.callback('✅ Получать', `set_mode_${typeId}_all_${groupKey}`)],
       [Keyboard.button.callback('❌ Не получать', `set_mode_${typeId}_none_${groupKey}`)]
@@ -288,7 +294,14 @@ if (user.activeRole === 'PATIENT') {
 
   if (!type) return;
 
-  if (!['lab_full', 'lab_partial', 'notif_group_visit'].includes(type.key)) {
+  if (![
+  'lab_full',
+  'lab_partial',
+  'visit_create',
+  'visit_cancel',
+  'visit_move',
+  'visit_finish'
+].includes(type.key)) {
     return ctx.reply('❌ Недоступно');
   }
 
