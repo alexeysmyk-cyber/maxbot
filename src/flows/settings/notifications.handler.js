@@ -155,7 +155,7 @@ export async function showNotifications(ctx, user) {
       [Keyboard.button.callback('📅 Визиты', 'notif_group_visit')],
       [Keyboard.button.callback('🧪 Анализы', 'notif_group_lab')],
       [
-        Keyboard.button.callback('⬅️ Назад', 'notifications'),
+        Keyboard.button.callback('⬅️ Назад', 'settings'),
         Keyboard.button.callback('🏠 Домой', 'back_to_menu')
       ]
     ])
@@ -213,8 +213,6 @@ const typeId = Number(typeIdStr);
     return ctx.reply('❌ Недоступно');
   }
 }
-
-
 
 
   const buttons = [];
@@ -290,7 +288,7 @@ if (user.activeRole === 'PATIENT') {
 
   if (!type) return;
 
-  if (!['lab_full', 'lab_partial'].includes(type.key)) {
+  if (!['lab_full', 'lab_partial', 'notif_group_visit'].includes(type.key)) {
     return ctx.reply('❌ Недоступно');
   }
 
