@@ -1,6 +1,6 @@
 import { sendNotification } from '../services/notification/send.js';
 import { buildMessage } from '../services/notification/buildMessage.service.js';
-import { prisma } from '../db/prisma.js';
+import prisma from '../db/prisma.js';
 import { getBot } from '../max/max.service.js';
 
 
