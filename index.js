@@ -12,6 +12,10 @@ import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
 
 
 startMaxBot();
+//worker after the bot start
+import './src/worker/notification.worker.js';
+
+
 dotenv.config();
 console.log('ENV SECRET:', process.env.MIS_WEBHOOK_SECRET);
 const app = express();

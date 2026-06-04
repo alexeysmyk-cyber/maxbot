@@ -10,7 +10,7 @@ import { getPatientById } from './mis.service.js';
 import { renderTemplate } from '../../common/template.util.js';
 import { buildMessage } from '../notification/buildMessage.service.js';
 import { resolveMode } from '../../common/notificationMode.util.js';
-
+import { createNotificationsForUser } from '../notification/createNotificationsForUser.js';
 
 
 export async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
@@ -472,6 +472,29 @@ console.log('TEMPLATE DATA:', templateData);
 
 const { message, doctorId, key } = result;
 
+let patient = null;
+
+try {
+  patient = await getPatientById(patientId);
+} catch (e) {
+  console.error('❌ LOAD PATIENT ERROR');
+}
+
+console.log('🚨 TRY CREATE NOTIFICATIONS');
+
+await createNotificationsForUser({
+  user: patientUser,
+  patient: patient,
+  key,
+  payload: {
+    data,
+    appointment
+  },
+  externalIdBase: `${key}_${data.invoice_id || Date.now()}`
+});
+
+
+
 
   if (!message) return ;
 
@@ -506,17 +529,17 @@ if (patientUser) {
 
   console.log('👤 DIRECT PATIENT:', patientUser.id);
 
-  await handlePatientNotification({
-    user: patientUser,
-    data,
-    appointment,
-    key,
-    message,
-    templateData,
-    maxTemplate,
-    emailTemplate,
-    bot
-  });
+ // await handlePatientNotification({
+  //  user: patientUser,
+  //  data,
+  //  appointment,
+  //  key,
+   // message,
+  //  templateData,
+  //  maxTemplate,
+  //  emailTemplate,
+  //  bot
+ // });
 }
 
 
@@ -588,10 +611,10 @@ const mode = resolveMode(
 
     console.log('📨 SEND TO:', user.vk_id);
 
-    await bot.api.sendMessageToUser(
-      Number(user.vk_id),
-      message
-    );
+ //   await bot.api.sendMessageToUser(
+ //     Number(user.vk_id),
+ //     message
+ //   );
 
   } catch (e) {
     console.error('❌ SEND ERROR:', e.message);
