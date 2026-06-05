@@ -120,9 +120,27 @@ else if (event === 'cancel_appointment' || event === 'visit_cancel') {
   // ================================
   let newAppointment = null;
 
-  if (data.moved_to) {
-    newAppointment = await getAppointmentWithRetry(data.moved_to);
+ if (data.moved_to) {
+  const id = data.moved_to;
+
+  const cached = global.appointmentCache?.get(id);
+
+  if (cached && Date.now() - cached.ts < 5000) {
+    newAppointment = cached.data;
+    console.log('🧪 MOVE APPOINTMENT FROM CACHE');
+  } else {
+    newAppointment = await getAppointmentWithRetry(id);
+
+    if (newAppointment) {
+      global.appointmentCache = global.appointmentCache || new Map();
+
+      global.appointmentCache.set(id, {
+        data: newAppointment,
+        ts: Date.now()
+      });
+    }
   }
+}
 
 
 if (Array.isArray(newAppointment)) {
