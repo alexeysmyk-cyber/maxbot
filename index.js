@@ -123,10 +123,13 @@ app.get('/api/roles', basicAuth,async (req, res) => {
 });
 
 app.get('/api/queue', basicAuth,async (req, res) => {
-  const data = await prisma.notification.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 100
-  });
+const data = await prisma.notification.findMany({
+  orderBy: { createdAt: 'desc' },
+  take: 100,
+  include: {
+    user: true   // 🔥 ВАЖНО
+  }
+});
 
   res.json(data);
 });
