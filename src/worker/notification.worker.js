@@ -14,7 +14,6 @@ import { renderTemplate } from '../common/template.util.js';
 export async function processNotifications() {
     
     const appointmentCache = new Map();
-    const appointmentCache = new Map();
     const APPOINTMENT_CACHE_TTL = 5000; // 5 секунд
     const patientCache = new Map();
     const CACHE_TTL = 30 * 1000; // 30 секунд
