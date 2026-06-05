@@ -98,9 +98,14 @@ if (!data) {
 const key = n.type;
 
 // appointment
-let appointment = null;
+// =========================
+// 📅 appointment (ИЗ PAYLOAD ИЛИ FALLBACK)
+// =========================
+let appointment = n.payload?.appointment || null;
 
-if (n.payload?.appointmentId) {
+if (appointment) {
+  console.log('🧪 APPOINTMENT FROM PAYLOAD');
+} else if (n.payload?.appointmentId) {
   const id = n.payload.appointmentId;
 
   const cached = appointmentCache.get(id);
@@ -109,6 +114,8 @@ if (n.payload?.appointmentId) {
     appointment = cached.data;
     console.log('🧪 APPOINTMENT FROM CACHE');
   } else {
+    console.log('🧪 FALLBACK LOAD APPOINTMENT');
+
     appointment = await getAppointmentWithRetry(id);
 
     if (appointment) {
@@ -120,10 +127,15 @@ if (n.payload?.appointmentId) {
   }
 }
 
+// ✅ ВОТ ЗДЕСЬ
+if (!appointment && n.payload?.appointmentId) {
+  console.log('⚠️ APPOINTMENT STILL EMPTY — DATA NOT READY IN MIS');
+}
+
 const result = await buildMessage(
   n.type,
   data,
-  appointment
+  appointment || {}
 );
 
 if (!result) {
