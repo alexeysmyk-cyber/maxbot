@@ -253,7 +253,7 @@ if (user.type === 'PATIENT') {
     console.log('❌ PATIENT NOT FOUND');
      skip = true;
   }
-}
+
 
 
 
