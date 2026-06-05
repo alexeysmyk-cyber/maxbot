@@ -52,13 +52,13 @@ export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
 
-function normalizeEvent(event, data) {
+function normalizeEvent(event, data = {}) {
 
-  if (event === 'cancel_appointment' && data.moved_to) {
+  if (event === 'cancel_appointment' && data?.moved_to) {
     return 'visit_move';
   }
 
-  if (event === 'create_appointment' && data.moved_from) {
+  if (event === 'create_appointment' && data?.moved_from) {
     return 'visit_move';
   }
 
@@ -238,7 +238,7 @@ if (patientUser && !patientUser.vk_id) {
 const appointment = null;
 
 console.log('DATA NAME RAW:', data.patient_name);
-const normalizedEvent = normalizeEvent(event);
+const normalizedEvent = normalizeEvent(event, data);
 
 const key = normalizedEvent;
 
