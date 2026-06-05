@@ -210,7 +210,15 @@ let patient = null;
 
 if (user.type === 'PATIENT') {
   try {
+
+console.log('🧪 GET PATIENT BY ID:', {
+  patientId,
+  raw: data
+});
+
     patient = await getPatientById(patientIdFromEvent);
+
+
   } catch (e) {
     console.error('❌ LOAD PATIENT ERROR');
   }
