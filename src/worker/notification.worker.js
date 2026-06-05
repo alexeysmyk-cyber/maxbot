@@ -70,6 +70,10 @@ let emailMessage = null;
 
  let data = n.payload?.data;
 
+console.log('🧪 DATA BEFORE USING:', data);
+console.log('🧪 DATA.patient_id:', data?.patient_id);
+
+
 if (typeof data === 'string') {
   try {
     data = JSON.parse(data);
@@ -129,7 +133,12 @@ const channel = n.channel;
   appointment?.patient_id;
 
 console.log('🧪 FINAL patientIdFromEvent:', patientIdFromEvent);
-  console.log('🧠 PATIENT ID FROM EVENT:', patientIdFromEvent);
+
+if (!patientIdFromEvent) {
+  console.log('❌ INVALID PATIENT ID:', patientIdFromEvent);
+  continue;
+}
+
 
 // только для пациентов
 if (user.type === 'PATIENT') {
@@ -222,19 +231,23 @@ let patient = null;
 if (user.type === 'PATIENT') {
   try {
 
-console.log('🧪 GET PATIENT BY ID:', {
-  patientIdFromEvent,
-  raw: data
-});
+    console.log('🧪 CALL getPatientById WITH:', {
+      raw: patientIdFromEvent,
+      type: typeof patientIdFromEvent
+    });
 
     patient = await getPatientById(patientIdFromEvent);
 
+    console.log('🧪 RESULT getPatientById:', patient);
 
   } catch (e) {
-  console.error('❌ LOAD PATIENT ERROR:', {
-    message: e.message,
-    stack: e.stack
-  });
+    console.error('❌ LOAD PATIENT ERROR:', e.message);
+  }
+
+  if (!patient) {
+    console.log('❌ PATIENT NOT FOUND AFTER CALL');
+    continue;
+  }
 }
   if (!patient) {
     console.log('❌ PATIENT NOT FOUND');
