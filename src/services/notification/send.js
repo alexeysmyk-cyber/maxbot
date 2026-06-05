@@ -16,11 +16,14 @@ export async function sendNotification({
       throw new Error('NO_VK_ID');
     }
 
-    await bot.api.sendMessageToUser(
-      Number(user.vk_id),
-      message
-    );
-
+    await bot.api.sendMessageToUser({
+  user_id: Number(user.vk_id),
+  message: finalMessage
+});
+console.log('🧪 SEND PAYLOAD:', {
+  user_id: Number(user.vk_id),
+  message: finalMessage
+});
     return;
   }
 
