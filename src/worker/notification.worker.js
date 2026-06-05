@@ -281,20 +281,6 @@ const templateData = {
   status: data.status || ''
 };
 
-
-const { finalMessage, emailMessage } = renderNotification({
-  message,
-  templateData,
-  maxTemplate,
-  emailTemplate
-});
-function renderNotification({
-  message,
-  templateData,
-  maxTemplate,
-  emailTemplate
-}) {
-
 let finalMessage = message;
 let emailMessage = message;
 
@@ -302,7 +288,7 @@ let emailMessage = message;
 if (maxTemplate?.text?.trim()) {
   finalMessage = renderTemplate(
     maxTemplate.text,
-    data // 🔥 пока используем data (или позже templateData)
+    templateData
   );
 }
 
@@ -310,15 +296,11 @@ if (maxTemplate?.text?.trim()) {
 if (emailTemplate?.text?.trim()) {
   emailMessage = renderTemplate(
     emailTemplate.text,
-    data
+    templateData
   );
 }
 
-  return {
-    finalMessage,
-    emailMessage
-  };
-}
+console.log('🧪 FINAL MESSAGE:', finalMessage);
 
 
       // =========================
