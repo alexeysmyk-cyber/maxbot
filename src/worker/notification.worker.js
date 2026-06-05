@@ -34,6 +34,11 @@ const list = await prisma.notification.findMany({
 
  
     try {
+
+    let finalMessage = null;
+let emailMessage = null;
+
+
  await prisma.notification.update({
   where: { id: n.id },
   data: { status: 'processing' }
@@ -86,8 +91,8 @@ if (!result) {
 
 const { message, doctorId } = result;
 
-let finalMessage = message;
-let emailMessage = message;
+finalMessage = message;
+emailMessage = message;
 
 // канал БЕРЁМ ИЗ БД
 const channel = n.channel;
