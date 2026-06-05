@@ -258,7 +258,7 @@ else if (event === 'create_patient') {
 
 }
 
-else if (event === 'create_invoice') {
+else if (event === 'invoice_create') {
 
   key = 'invoice_create';
 
@@ -290,7 +290,7 @@ else if (event === 'create_invoice') {
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
 
-else if (event === 'full_payment_invoice') {
+else if (event === 'invoice_pay') {
 
   if (data.moved_from) return null;
 
