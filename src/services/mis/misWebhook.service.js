@@ -222,15 +222,9 @@ const key = normalizedEvent;
 
 let patient = null;
 
-try {
-  patient = await getPatientById(patientId);
-} catch (e) {
-  console.error('❌ LOAD PATIENT ERROR');
-}
 
 await createNotificationsForUser({
   user: patientUser,
-  patient,
   key,
   payload: {
     data,
@@ -249,13 +243,11 @@ for (const user of users) {
 
   await createNotificationsForUser({
     user,
-    patient,
     key,
     payload: {
       data,
       appointmentId: data.appointment_id || null
     },
-    // 🔥 ОБЯЗАТЕЛЬНО уникальный id
     externalIdBase: `${key}_${data.invoice_id || Date.now()}_${user.id}`
   });
 }
