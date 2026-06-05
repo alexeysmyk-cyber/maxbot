@@ -50,6 +50,12 @@ function normalizeEvent(event) {
     case 'move_appointment':
       return 'visit_move';
 
+    case 'create_invoice':
+      return 'invoice_create';
+
+    case 'full_payment_invoice':
+      return 'invoice_pay';
+
     default:
       return event;
   }
