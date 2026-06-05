@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Queue</title>
+</head>
+
+<body>
+
+<h2>📬 Notification Queue</h2>
+
+<button onclick="removeSelected()">🗑 Delete selected</button>
+
+<br><br>
+
+<table border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th></th>
+      <th>ID</th>
+      <th>User</th>
+      <th>Type</th>
+      <th>Channel</th>
+      <th>Status</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+  <tbody id="table"></tbody>
+</table>
+
+<script>
+
+let list = [];
+
+async function load() {
+  const res = await fetch('/api/queue');
+  list = await res.json();
+
+  render();
+}
+
+function render() {
+  const table = document.getElementById('table');
+  table.innerHTML = '';
+
+  list.forEach(n => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td><input type="checkbox" value="${n.id}"></td>
+      <td>${n.id}</td>
+      <td>${n.userId}</td>
+      <td>${n.type}</td>
+      <td>${n.channel}</td>
+      <td>${n.status}</td>
+      <td>${new Date(n.createdAt).toLocaleString()}</td>
+    `;
+
+    table.appendChild(tr);
+  });
+}
+
+async function removeSelected() {
+  const checked = [...document.querySelectorAll('input[type=checkbox]:checked')];
+
+  const ids = checked.map(c => Number(c.value));
+
+  if (!ids.length) {
+    alert('Ничего не выбрано');
+    return;
+  }
+
+  if (!confirm('Удалить выбранные?')) return;
+
+  await fetch('/api/queue/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ ids })
+  });
+
+  load();
+}
+
+load();
+
+</script>
+
+</body>
+</html>

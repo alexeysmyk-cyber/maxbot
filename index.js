@@ -122,6 +122,15 @@ app.get('/api/roles', basicAuth,async (req, res) => {
   res.json(data);
 });
 
+app.get('/api/queue', basicAuth,async (req, res) => {
+  const data = await prisma.notification.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 100
+  });
+
+  res.json(data);
+});
+
 app.post('/api/roles', basicAuth,async (req, res) => {
   const { role, typeId, defaultMode } = req.body;
 
@@ -160,7 +169,17 @@ app.post('/api/notifications',basicAuth, async (req, res) => {
 
   res.json({ success: true });
 });
+app.post('/api/queue/delete',basicAuth, async (req, res) => {
+  const { ids } = req.body;
 
+  await prisma.notification.deleteMany({
+    where: {
+      id: { in: ids }
+    }
+  });
+
+  res.json({ ok: true });
+});
 // ===== ADMIN =====
 app.get('/admin', basicAuth, (req, res) => {
   res.sendFile(path.resolve('public/admin.html'));
