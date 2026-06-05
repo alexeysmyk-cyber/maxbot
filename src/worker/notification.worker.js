@@ -34,6 +34,7 @@ const list = await prisma.notification.findMany({
 
  
     try {
+        let skip = false;
 
     let finalMessage = null;
 let emailMessage = null;
@@ -113,7 +114,7 @@ console.log('🧠 PATIENT ID FROM EVENT:', patientIdFromEvent);
 if (user.type === 'PATIENT') {
   if (String(user.mis_id) !== String(patientIdFromEvent)) {
     console.log('⛔ SKIP PATIENT (ID MISMATCH)');
-    continue;
+     skip = true;
   }
 }
 
@@ -130,7 +131,7 @@ const role = await prisma.role.findFirst({
 
 if (!role) {
   console.log('❌ NO ROLE');
-  continue;
+   skip = true;
 }
 
 const type = await prisma.notificationType.findFirst({
@@ -139,7 +140,7 @@ const type = await prisma.notificationType.findFirst({
 
 if (!type) {
   console.log('❌ TYPE NOT FOUND:', key);
-  continue;
+   skip = true;
 }
 
 const roleSetting = await prisma.roleNotification.findFirst({
@@ -151,7 +152,7 @@ const roleSetting = await prisma.roleNotification.findFirst({
 
 if (!roleSetting) {
   console.log('⛔ NO ROLE SETTING:', key);
-  continue; 
+   skip = true;
 }
 
 const mode = resolveMode(
@@ -161,7 +162,7 @@ const mode = resolveMode(
 
 if (mode === 'none') {
   console.log('⛔ MODE NONE:', key);
-  continue;
+   skip = true;
 }
 
 // self (для сотрудников)
@@ -176,7 +177,7 @@ if (mode === 'self') {
 
   if (String(user.mis_id) !== String(doctorId)) {
     console.log('⛔ NOT SELF');
-    continue;
+     skip = true;
   }
 }
 
@@ -191,7 +192,7 @@ if (user.type === 'PATIENT') {
 
   if (!PATIENT_ALLOWED_KEYS.includes(key)) {
     console.log('⛔ BLOCKED EVENT FOR PATIENT:', key);
-    continue;
+     skip = true;
   }
 }
 
@@ -206,7 +207,7 @@ if (user.type === 'PATIENT') {
 
   if (!patient) {
     console.log('❌ PATIENT NOT FOUND');
-    continue;
+     skip = true;
   }
 }
 
@@ -314,11 +315,15 @@ console.log('🧪 FINAL MESSAGE:', finalMessage);
       // =========================
       
       console.log('🚀 PROCESS:', n.id);
-
- if (!channel) {
-  console.log('🚫 NO CHANNEL');
+if (!channel) {
+  skip = true;
+}
+      if (skip) {
+  console.log('⛔ SKIPPED');
   continue;
 }
+
+
 console.log('🧪 FINAL MESSAGE:', finalMessage);
 await sendNotification({
   channel,
