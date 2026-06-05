@@ -108,7 +108,39 @@ if (user.activeRole === 'PATIENT') {
       };
     });
 }
+else {
 
+  const role = await prisma.role.findFirst({
+    where: { key: user.activeRole }
+  });
+
+  const roleSettings = role
+    ? await prisma.roleNotification.findMany({
+        where: { roleId: role.id },
+        include: { type: true }
+      })
+    : [];
+
+  filtered = roleSettings
+    .filter(r => keys.includes(r.type.key))
+    .map(r => {
+
+      const userOverride = settings.find(
+        s => s.type.key === r.type.key
+      );
+
+      const mode = resolveMode(
+        userOverride?.mode,
+        r.defaultMode
+      );
+
+      return {
+        ...r,
+        mode,
+        type: r.type
+      };
+    });
+}
 
 
 
