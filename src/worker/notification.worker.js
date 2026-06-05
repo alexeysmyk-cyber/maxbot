@@ -12,6 +12,10 @@ import { renderTemplate } from '../common/template.util.js';
 
 export async function processNotifications() {
 
+    const patientCache = new Map();
+    const CACHE_TTL = 30 * 1000; // 30 секунд
+
+
     console.log('👷 WORKER TICK');
   let bot;
 
@@ -138,17 +142,28 @@ if (!patientIdFromEvent) {
   continue;
 }
 
-  let patient = null;
+let patient = null;
 
-console.log('🧪 LOAD PATIENT WITH:', patientIdFromEvent);
+const cached = patientCache.get(patientIdFromEvent);
 
-try {
-  patient = await getPatientById(patientIdFromEvent);
-  console.log('🧪 PATIENT RESULT:', patient);
-} catch (e) {
-  console.error('❌ LOAD PATIENT ERROR:', e.message);
+if (cached && Date.now() - cached.ts < CACHE_TTL) {
+  patient = cached.data;
+  console.log('🧪 PATIENT FROM CACHE');
+} else {
+  try {
+    patient = await getPatientById(patientIdFromEvent);
+
+    if (patient) {
+      patientCache.set(patientIdFromEvent, {
+        data: patient,
+        ts: Date.now()
+      });
+    }
+
+  } catch (e) {
+    console.error('❌ LOAD PATIENT ERROR:', e.message);
+  }
 }
-
 
 
 console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
@@ -361,8 +376,6 @@ if (!channel) {
   continue;
 }
 
-
-console.log('🧪 FINAL MESSAGE:', finalMessage);
 
 if (!finalMessage) {
   console.log('❌ FINAL MESSAGE EMPTY');
