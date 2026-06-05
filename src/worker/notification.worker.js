@@ -86,6 +86,9 @@ if (!result) {
 
 const { message, doctorId } = result;
 
+let finalMessage = message;
+let emailMessage = message;
+
 // канал БЕРЁМ ИЗ БД
 const channel = n.channel;
 
@@ -281,8 +284,6 @@ const templateData = {
   status: data.status || ''
 };
 
-let finalMessage = message;
-let emailMessage = message;
 
 // MAX template
 if (maxTemplate?.text?.trim()) {
