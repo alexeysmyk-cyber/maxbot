@@ -68,7 +68,12 @@ let emailMessage = null;
       // 3. собираем сообщение
       // =========================
 
- const { data } = n.payload;
+ const { data } = n.payload || {};
+
+if (!data) {
+  console.log('❌ NO DATA IN PAYLOAD');
+  skip = true;
+}
 const key = n.type;
 
 // appointment
@@ -91,6 +96,11 @@ if (!result) {
 }
 
 const { message, doctorId } = result;
+
+if (!message) {
+  console.log('❌ EMPTY MESSAGE');
+  skip = true;
+}
 
 finalMessage = message;
 emailMessage = message;
@@ -325,6 +335,12 @@ if (!channel) {
 
 
 console.log('🧪 FINAL MESSAGE:', finalMessage);
+
+if (!finalMessage) {
+  console.log('❌ FINAL MESSAGE EMPTY');
+  continue;
+}
+
 await sendNotification({
   channel,
   user,
