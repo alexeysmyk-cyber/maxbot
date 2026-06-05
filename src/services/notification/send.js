@@ -1,13 +1,11 @@
 import { sendEmailSafe } from './email.util.js';
 
-/**
- * Универсальная отправка
- */
 export async function sendNotification({
   channel,
   user,
   patient,
-  message,
+  finalMessage,
+  emailMessage,
   bot
 }) {
 
@@ -17,18 +15,20 @@ export async function sendNotification({
     }
 
     await bot.api.sendMessageToUser({
-  user_id: Number(user.vk_id),
-  message: finalMessage
-});
-console.log('🧪 SEND PAYLOAD:', {
-  user_id: Number(user.vk_id),
-  message: finalMessage
-});
+      user_id: Number(user.vk_id),
+      message: finalMessage
+    });
+
+    console.log('🧪 SEND PAYLOAD:', {
+      user_id: Number(user.vk_id),
+      message: finalMessage
+    });
+
     return;
   }
 
   if (channel === 'EMAIL') {
-    await sendEmailSafe(patient, message);
+    await sendEmailSafe(patient, emailMessage);
     return;
   }
 
