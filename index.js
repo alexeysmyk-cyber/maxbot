@@ -73,6 +73,13 @@ app.post('/api/templates/preview', basicAuth, (req, res) => {
   res.send(result);
 });
 
+app.get('/admin/templates', basicAuth, (req, res) => {
+  res.sendFile(path.resolve('public/templates.html'));
+});
+
+app.get('/admin/notifications', basicAuth, (req, res) => {
+  res.sendFile(path.resolve('public/notifications.html'));
+});
 
 app.get('/api/notifications', basicAuth, async (req, res) => {
   const data = await prisma.userNotification.findMany({
@@ -83,6 +90,10 @@ app.get('/api/notifications', basicAuth, async (req, res) => {
   });
 
   res.json(data);
+});
+
+app.get('/admin/roles', basicAuth, (req, res) => {
+  res.sendFile(path.resolve('public/roles.html'));
 });
 
 app.get('/api/users',basicAuth, async (req, res) => {
@@ -100,6 +111,17 @@ app.get('/api/types',basicAuth, async (req, res) => {
   res.json(types);
 });
 
+app.get('/api/roles', basicAuth,async (req, res) => {
+  const data = await prisma.roleNotification.findMany({
+    include: {
+      type: true,
+      role: true   // 🔥 ОБЯЗАТЕЛЬНО
+    }
+  });
+
+  res.json(data);
+});
+
 app.get('/api/queue', basicAuth,async (req, res) => {
   const data = await prisma.notification.findMany({
     orderBy: { createdAt: 'desc' },
@@ -107,6 +129,10 @@ app.get('/api/queue', basicAuth,async (req, res) => {
   });
 
   res.json(data);
+});
+
+app.get('/admin/queue', basicAuth, (req, res) => {
+  res.sendFile(path.resolve('public/queue.html'));
 });
 
 app.post('/api/roles', basicAuth,async (req, res) => {
@@ -207,4 +233,3 @@ setInterval(() => {
 
 app.use('/files', express.static(path.resolve('uploads')));
 app.use('/public', express.static('public'));
-app.use('/admin', basicAuth, express.static('public'));
