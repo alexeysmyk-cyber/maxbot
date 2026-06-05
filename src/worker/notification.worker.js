@@ -212,7 +212,7 @@ if (user.type === 'PATIENT') {
   try {
 
 console.log('🧪 GET PATIENT BY ID:', {
-  patientId,
+  patientIdFromEvent,
   raw: data
 });
 
@@ -220,9 +220,11 @@ console.log('🧪 GET PATIENT BY ID:', {
 
 
   } catch (e) {
-    console.error('❌ LOAD PATIENT ERROR');
-  }
-
+  console.error('❌ LOAD PATIENT ERROR:', {
+    message: e.message,
+    stack: e.stack
+  });
+}
   if (!patient) {
     console.log('❌ PATIENT NOT FOUND');
      skip = true;
