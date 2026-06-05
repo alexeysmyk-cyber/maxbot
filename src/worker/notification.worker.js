@@ -139,9 +139,14 @@ const channel = n.channel;
 
 if (!patientIdFromEvent) {
   console.log('❌ INVALID PATIENT ID:', patientIdFromEvent);
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
   continue;
 }
-
 let patient = null;
 
 const cached = patientCache.get(patientIdFromEvent);
@@ -371,14 +376,25 @@ console.log('🧪 FINAL MESSAGE:', finalMessage);
 if (!channel) {
   skip = true;
 }
-      if (skip) {
+if (skip) {
   console.log('⛔ SKIPPED');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
   continue;
 }
 
-
 if (!finalMessage) {
   console.log('❌ FINAL MESSAGE EMPTY');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
   continue;
 }
 
@@ -416,8 +432,12 @@ await sendNotification({
           attempts: n.attempts + 1
         }
       });
+      
     }
   }
+
+
+  
 }
 
 
