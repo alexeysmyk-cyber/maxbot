@@ -143,7 +143,7 @@ const roleSetting = await prisma.roleNotification.findFirst({
 
 if (!roleSetting) {
   console.log('⛔ NO ROLE SETTING:', key);
-  continue;
+  continue; 
 }
 
 const mode = resolveMode(
