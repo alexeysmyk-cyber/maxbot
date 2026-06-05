@@ -233,5 +233,27 @@ await createNotificationsForUser({
   externalIdBase: `${key}_${data.invoice_id || Date.now()}`
 });
 
+// ===============================
+// 👨‍⚕️ СОТРУДНИКИ (В ОЧЕРЕДЬ)
+// ===============================
+const users = await prisma.user.findMany();
+
+for (const user of users) {
+  if (user.type === 'PATIENT') continue;
+
+  await createNotificationsForUser({
+    user,
+    patient,
+    key,
+    payload: {
+      data,
+      appointmentId: data.appointment_id || null
+    },
+    // 🔥 ОБЯЗАТЕЛЬНО уникальный id
+    externalIdBase: `${key}_${data.invoice_id || Date.now()}_${user.id}`
+  });
+}
+
+
 
 }
