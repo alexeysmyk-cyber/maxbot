@@ -4,11 +4,17 @@ import { hashPhone } from '../../common/hash.util.js';
 //import fs from 'fs';
 //import path from 'path';
 import { createNotificationsForUser } from '../notification/createNotificationsForUser.js';
+import { getAppointmentById } from './mis.service.js';
 
 
 export async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
   for (let i = 0; i < tries; i++) {
     try {
+
+          if (typeof getAppointmentById !== 'function') {
+        console.error('❌ getAppointmentById NOT IMPORTED');
+        return null;
+      }
       const res = await getAppointmentById(id);
 
       if (!res || res.error !== 0) {

@@ -10,6 +10,7 @@ import { renderTemplate } from '../common/template.util.js';
 
 
 
+
 export async function processNotifications() {
 
     const patientCache = new Map();
