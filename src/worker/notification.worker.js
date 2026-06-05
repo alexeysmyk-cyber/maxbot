@@ -125,10 +125,19 @@ if (!role) {
   continue;
 }
 
+const type = await prisma.notificationType.findFirst({
+  where: { key }
+});
+
+if (!type) {
+  console.log('❌ TYPE NOT FOUND:', key);
+  continue;
+}
+
 const roleSetting = await prisma.roleNotification.findFirst({
   where: {
     roleId: role.id,
-    type: { key }
+    typeId: type.id
   }
 });
 
