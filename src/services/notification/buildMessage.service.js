@@ -10,6 +10,10 @@ export async function buildMessage(event, data, appointment) {
 
     console.log('📦 RAW EVENT:', event);
 
+    if (event === 'visit_move') {
+  event = 'visit_cancel';
+}
+
 if (event === 'create_appointment' || event === 'visit_create') {
 
   if (data.moved_from) return null;
