@@ -244,15 +244,11 @@ if (user.type === 'PATIENT') {
     console.error('❌ LOAD PATIENT ERROR:', e.message);
   }
 
-  if (!patient) {
-    console.log('❌ PATIENT NOT FOUND AFTER CALL');
-    continue;
-  }
 }
-  if (!patient) {
-    console.log('❌ PATIENT NOT FOUND');
-     skip = true;
-  }
+ if (user.type === 'PATIENT' && !patient) {
+  console.log('❌ PATIENT NOT FOUND');
+  skip = true;
+}
 
 
 
