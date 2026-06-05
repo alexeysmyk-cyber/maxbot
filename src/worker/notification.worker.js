@@ -90,23 +90,6 @@ if (!data) {
 }
 const key = n.type;
 
-
-let patient = null;
-
-
-try {
-  patient = await getPatientById(patientIdFromEvent);
-  console.log('🧪 PATIENT LOADED:', !!patient);
-} catch (e) {
-  console.error('❌ LOAD PATIENT ERROR:', e.message);
-}
-
-
-
-
-
-
-
 // appointment
 let appointment = null;
 
@@ -143,20 +126,34 @@ const channel = n.channel;
       // 4. пациент (для email)
       // =========================
    
-      let patientIdFromEvent =
+  let patientIdFromEvent =
   data.patient_id ||
   data.patientId ||
   data.patient?.id ||
   appointment?.patient_id;
 
 
-console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
-  console.log('🧪 FINAL patientIdFromEvent:', patientIdFromEvent);
-
 if (!patientIdFromEvent) {
   console.log('❌ INVALID PATIENT ID:', patientIdFromEvent);
   continue;
 }
+
+  let patient = null;
+
+console.log('🧪 LOAD PATIENT WITH:', patientIdFromEvent);
+
+try {
+  patient = await getPatientById(patientIdFromEvent);
+  console.log('🧪 PATIENT RESULT:', patient);
+} catch (e) {
+  console.error('❌ LOAD PATIENT ERROR:', e.message);
+}
+
+
+
+console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
+
+
 
 
 // только для пациентов
@@ -244,8 +241,6 @@ if (user.type === 'PATIENT') {
      skip = true;
   }
 }
-
-let patient = null;
 
 
  if (user.type === 'PATIENT' && !patient) {
