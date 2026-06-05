@@ -288,7 +288,37 @@ const { finalMessage, emailMessage } = renderNotification({
   maxTemplate,
   emailTemplate
 });
+function renderNotification({
+  message,
+  templateData,
+  maxTemplate,
+  emailTemplate
+}) {
 
+let finalMessage = message;
+let emailMessage = message;
+
+// MAX template
+if (maxTemplate?.text?.trim()) {
+  finalMessage = renderTemplate(
+    maxTemplate.text,
+    data // 🔥 пока используем data (или позже templateData)
+  );
+}
+
+// EMAIL template
+if (emailTemplate?.text?.trim()) {
+  emailMessage = renderTemplate(
+    emailTemplate.text,
+    data
+  );
+}
+
+  return {
+    finalMessage,
+    emailMessage
+  };
+}
 
 
 
@@ -342,37 +372,7 @@ await sendNotification({
   }
 }
 
-function renderNotification({
-  message,
-  templateData,
-  maxTemplate,
-  emailTemplate
-}) {
 
-let finalMessage = message;
-let emailMessage = message;
-
-// MAX template
-if (maxTemplate?.text?.trim()) {
-  finalMessage = renderTemplate(
-    maxTemplate.text,
-    data // 🔥 пока используем data (или позже templateData)
-  );
-}
-
-// EMAIL template
-if (emailTemplate?.text?.trim()) {
-  emailMessage = renderTemplate(
-    emailTemplate.text,
-    data
-  );
-}
-
-  return {
-    finalMessage,
-    emailMessage
-  };
-}
 
 setInterval(processNotifications, 5000);
 
