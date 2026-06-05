@@ -14,21 +14,33 @@ export async function sendNotification({
       throw new Error('NO_VK_ID');
     }
 
-    await bot.api.sendMessageToUser({
-      user_id: Number(user.vk_id),
-      message: finalMessage
+    const cleanMessage = String(finalMessage || '')
+      .replace(/\[.*?\]\(mailto:(.*?)\)/g, '$1');
+
+    console.log('🧪 SEND TO MAX:', {
+      vk_id: user.vk_id,
+      type: typeof cleanMessage,
+      preview: cleanMessage.slice(0, 50)
     });
+
+    await bot.api.sendMessageToUser(
+      Number(user.vk_id),
+      cleanMessage
+    );
 
     console.log('🧪 SEND PAYLOAD:', {
       user_id: Number(user.vk_id),
-      message: finalMessage
+      message: cleanMessage
     });
 
     return;
   }
 
   if (channel === 'EMAIL') {
-    await sendEmailSafe(patient, emailMessage);
+    await sendEmailSafe(
+      patient,
+      emailMessage || finalMessage
+    );
     return;
   }
 
