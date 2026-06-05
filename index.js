@@ -122,17 +122,29 @@ app.get('/api/roles', basicAuth,async (req, res) => {
   res.json(data);
 });
 
-app.get('/api/queue', basicAuth,async (req, res) => {
-const data = await prisma.notification.findMany({
-  orderBy: { createdAt: 'desc' },
-  take: 100,
-  include: {
-    user: true   // 🔥 ВАЖНО
-  }
+app.get('/api/queue', basicAuth, async (req, res) => {
+  const notifications = await prisma.notification.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 100
+  });
+
+  // 🔥 вытаскиваем всех пользователей
+  const users = await prisma.user.findMany();
+
+  // 🔥 делаем map для быстрого поиска
+  const userMap = Object.fromEntries(
+    users.map(u => [u.id, u])
+  );
+
+  // 🔥 "джоиним"
+  const result = notifications.map(n => ({
+    ...n,
+    user: userMap[n.userId] || null
+  }));
+
+  res.json(result);
 });
 
-  res.json(data);
-});
 
 app.get('/admin/queue', basicAuth, (req, res) => {
   res.sendFile(path.resolve('public/queue.html'));

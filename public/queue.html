@@ -49,9 +49,11 @@ function render() {
     tr.innerHTML = `
       <td><input type="checkbox" value="${n.id}"></td>
       <td>${n.id}</td>
-      <td>  ${n.user?.name || 'Без имени'} 
+      <td>
+  ${n.user?.name || n.user?.email || '—'}
   <br>
-  <small>ID: ${n.userId}</small></td>
+  <small>ID: ${n.userId}</small>
+</td>
       <td>${n.type}</td>
       <td>${n.channel}</td>
       <td>${n.status}</td>
