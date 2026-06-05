@@ -198,23 +198,7 @@ const appointment = null;
 console.log('DATA NAME RAW:', data.patient_name);
 const normalizedEvent = normalizeEvent(event);
 
-const result = await buildMessage(
-  normalizedEvent,
-  data,
-  appointment
-);
-
-  
-if (!result) return ;
-
-console.log('📦 EVENT:', event);
-console.log('🧠 BUILD RESULT:', result);
-
-
-const { key } = result;
-
-
-console.log('🚨 TRY CREATE NOTIFICATIONS');
+const key = normalizedEvent;
 
 let patient = null;
 
@@ -223,11 +207,6 @@ try {
 } catch (e) {
   console.error('❌ LOAD PATIENT ERROR');
 }
-
-
-
-
-
 
 await createNotificationsForUser({
   user: patientUser,
