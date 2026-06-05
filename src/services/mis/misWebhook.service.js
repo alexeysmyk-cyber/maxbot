@@ -52,7 +52,16 @@ export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
 
-function normalizeEvent(event) {
+function normalizeEvent(event, data) {
+
+  if (event === 'cancel_appointment' && data.moved_to) {
+    return 'visit_move';
+  }
+
+  if (event === 'create_appointment' && data.moved_from) {
+    return 'visit_move';
+  }
+
   switch (event) {
     case 'cancel_appointment':
       return 'visit_cancel';
@@ -62,12 +71,6 @@ function normalizeEvent(event) {
 
     case 'move_appointment':
       return 'visit_move';
-
-    case 'create_invoice':
-      return 'invoice_create';
-
-    case 'full_payment_invoice':
-      return 'invoice_pay';
 
     default:
       return event;
@@ -110,6 +113,12 @@ export async function handleMisWebhook(req, bot) {
 
 // 🔥 нормализация data
 let data = req.body.data || {};
+
+// 👇 ВОТ СЮДА ВСТАВИТЬ
+if (event === 'create_appointment' && data.moved_from) {
+  console.log('⛔ SKIP CREATE — MOVE HANDLED BY CANCEL');
+  return;
+}
 
 for (const key in req.body) {
   const match = key.match(/^data\[(.+)\]$/);
