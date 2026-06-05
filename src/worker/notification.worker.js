@@ -12,7 +12,10 @@ import { renderTemplate } from '../common/template.util.js';
 
 
 export async function processNotifications() {
-
+    
+    const appointmentCache = new Map();
+    const appointmentCache = new Map();
+    const APPOINTMENT_CACHE_TTL = 5000; // 5 секунд
     const patientCache = new Map();
     const CACHE_TTL = 30 * 1000; // 30 секунд
 
@@ -99,9 +102,23 @@ const key = n.type;
 let appointment = null;
 
 if (n.payload?.appointmentId) {
-  appointment = await getAppointmentWithRetry(
-    n.payload.appointmentId
-  );
+  const id = n.payload.appointmentId;
+
+  const cached = appointmentCache.get(id);
+
+  if (cached && Date.now() - cached.ts < APPOINTMENT_CACHE_TTL) {
+    appointment = cached.data;
+    console.log('🧪 APPOINTMENT FROM CACHE');
+  } else {
+    appointment = await getAppointmentWithRetry(id);
+
+    if (appointment) {
+      appointmentCache.set(id, {
+        data: appointment,
+        ts: Date.now()
+      });
+    }
+  }
 }
 
 const result = await buildMessage(

@@ -7,7 +7,7 @@ import { createNotificationsForUser } from '../notification/createNotificationsF
 import { getAppointmentById } from './mis.service.js';
 
 
-export async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
+export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
   for (let i = 0; i < tries; i++) {
     try {
 
@@ -18,9 +18,16 @@ export async function getAppointmentWithRetry(id, tries = 5, delay = 1000) {
       const res = await getAppointmentById(id);
 
       if (!res || res.error !== 0) {
-        console.log('❌ MIS ERROR');
-        continue;
-      }
+  console.log('❌ MIS ERROR');
+
+  // 🔥 если rate limit — подождать
+  if (res?.data?.code === 429) {
+    console.log('⏳ RATE LIMIT — WAIT');
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  continue;
+}
 
       const appointment = res.data?.[0];
 
