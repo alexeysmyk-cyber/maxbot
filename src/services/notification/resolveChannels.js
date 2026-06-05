@@ -12,9 +12,8 @@ export function resolveChannels(user, patient, key) {
   }
 
   // ✅ EMAIL
-  if (canSendEmail(patient, key)) {
-    channels.push('EMAIL');
-  }
-
+if (patient && canSendEmail(patient, key)) {
+  channels.push('EMAIL');
+}
   return channels;
 }

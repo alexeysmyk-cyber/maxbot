@@ -35,7 +35,7 @@ export function canSendEmail(patient, key) {
     key === 'lab_full' ||
     key === 'lab_partial';
 
-  if (!patient.email) return false;
+  if (!patient || !patient.email) return false;
 
   if (isLab) {
     return patient.send_email_lab === true;
