@@ -167,23 +167,24 @@ if (patientUser && patientUser.mis_id && patientId) {
 // 4. create / update
 if (!patientUser) {
   patientUser = await prisma.user.create({
-    data: {
-      mis_id: String(patientId),
-      phone_hash: phoneHash,
-      type: 'PATIENT',
-      activeRole: 'PATIENT'
-    }
-  });
+  data: {
+    mis_id: String(patientId),
+    phone_hash: phoneHash,
+    email: data.patient_email || null, // 👈 ДОБАВЬ
+    type: 'PATIENT',
+    activeRole: 'PATIENT'
+  }
+});
 
   console.log('🆕 PATIENT USER CREATED');
 } else {
   await prisma.user.update({
-    where: { id: patientUser.id },
-    data: {
-      ...(phoneHash ? { phone_hash: phoneHash } : {})
-    }
-  });
-
+  where: { id: patientUser.id },
+  data: {
+    ...(phoneHash ? { phone_hash: phoneHash } : {}),
+    ...(data.patient_email ? { email: data.patient_email } : {}) // 👈 ВОТ ЭТО ДОБАВЬ
+  }
+});
   console.log('♻️ PATIENT USER UPDATED');
 }
 // ===============================
