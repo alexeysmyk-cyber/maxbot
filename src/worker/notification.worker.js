@@ -32,7 +32,7 @@ const list = await prisma.notification.findMany({
 
   for (const n of list) {
 
- 
+ console.log('🧪 RAW PAYLOAD FROM DB:', JSON.stringify(n.payload, null, 2));
     try {
         let skip = false;
 
@@ -68,7 +68,17 @@ let emailMessage = null;
       // 3. собираем сообщение
       // =========================
 
- const { data } = n.payload || {};
+ let data = n.payload?.data;
+
+if (typeof data === 'string') {
+  try {
+    data = JSON.parse(data);
+  } catch (e) {
+    console.log('❌ JSON PARSE ERROR');
+  }
+}
+
+console.log('🧪 DATA IN WORKER:', data);
 
 if (!data) {
   console.log('❌ NO DATA IN PAYLOAD');
@@ -118,7 +128,8 @@ const channel = n.channel;
   data.patient?.id ||
   appointment?.patient_id;
 
-console.log('🧠 PATIENT ID FROM EVENT:', patientIdFromEvent);
+console.log('🧪 FINAL patientIdFromEvent:', patientIdFromEvent);
+  console.log('🧠 PATIENT ID FROM EVENT:', patientIdFromEvent);
 
 // только для пациентов
 if (user.type === 'PATIENT') {
