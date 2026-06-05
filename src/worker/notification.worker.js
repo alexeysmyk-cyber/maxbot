@@ -32,7 +32,7 @@ const list = await prisma.notification.findMany({
 
   for (const n of list) {
 
- console.log('🧪 RAW PAYLOAD FROM DB:', JSON.stringify(n.payload, null, 2));
+ // console.log('🧪 RAW PAYLOAD FROM DB:', JSON.stringify(n.payload, null, 2));
     try {
         let skip = false;
 
@@ -70,7 +70,7 @@ let emailMessage = null;
 
  let data = n.payload?.data;
 
-console.log('🧪 DATA BEFORE USING:', data);
+// console.log('🧪 DATA BEFORE USING:', data);
 console.log('🧪 DATA.patient_id:', data?.patient_id);
 
 
@@ -82,13 +82,30 @@ if (typeof data === 'string') {
   }
 }
 
-console.log('🧪 DATA IN WORKER:', data);
+//console.log('🧪 DATA IN WORKER:', data);
 
 if (!data) {
   console.log('❌ NO DATA IN PAYLOAD');
   skip = true;
 }
 const key = n.type;
+
+
+let patient = null;
+
+
+try {
+  patient = await getPatientById(patientIdFromEvent);
+  console.log('🧪 PATIENT LOADED:', !!patient);
+} catch (e) {
+  console.error('❌ LOAD PATIENT ERROR:', e.message);
+}
+
+
+
+
+
+
 
 // appointment
 let appointment = null;
@@ -132,7 +149,9 @@ const channel = n.channel;
   data.patient?.id ||
   appointment?.patient_id;
 
-console.log('🧪 FINAL patientIdFromEvent:', patientIdFromEvent);
+
+console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
+  console.log('🧪 FINAL patientIdFromEvent:', patientIdFromEvent);
 
 if (!patientIdFromEvent) {
   console.log('❌ INVALID PATIENT ID:', patientIdFromEvent);
@@ -228,23 +247,7 @@ if (user.type === 'PATIENT') {
 
 let patient = null;
 
-if (user.type === 'PATIENT') {
-  try {
 
-    console.log('🧪 CALL getPatientById WITH:', {
-      raw: patientIdFromEvent,
-      type: typeof patientIdFromEvent
-    });
-
-    patient = await getPatientById(patientIdFromEvent);
-
-    console.log('🧪 RESULT getPatientById:', patient);
-
-  } catch (e) {
-    console.error('❌ LOAD PATIENT ERROR:', e.message);
-  }
-
-}
  if (user.type === 'PATIENT' && !patient) {
   console.log('❌ PATIENT NOT FOUND');
   skip = true;
