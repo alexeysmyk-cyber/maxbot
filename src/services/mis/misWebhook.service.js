@@ -164,6 +164,17 @@ if (patientUser && patientUser.mis_id && patientId) {
   }
 }
 
+
+function normalizeEmail(email) {
+  if (!email) return null;
+
+  // убираем markdown mailto
+  const match = email.match(/mailto:(.+?)\)/);
+  if (match) return match[1];
+
+  return email;
+}
+
 // 4. create / update
 if (!patientUser) {
   patientUser = await prisma.user.create({
@@ -187,6 +198,8 @@ if (!patientUser) {
 });
   console.log('♻️ PATIENT USER UPDATED');
 }
+console.log('🧪 TEST PATIENT USER:', patientUser);
+
 // ===============================
 // 🚀 FIRST CONTACT (ПОКА ЛОГ)
 // ===============================

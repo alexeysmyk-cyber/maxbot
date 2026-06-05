@@ -47,6 +47,13 @@ const list = await prisma.notification.findMany({
         where: { id: n.userId }
       });
 
+      console.log('🧪 WORKER USER:', {
+  id: user.id,
+  vk_id: user.vk_id,
+  mis_id: user.mis_id,
+  type: user.type
+});
+
       if (!user) {
         throw new Error('USER_NOT_FOUND');
       }
@@ -142,6 +149,14 @@ if (mode === 'none') {
 
 // self (для сотрудников)
 if (mode === 'self') {
+
+    console.log('🧪 MODE CHECK:', {
+  mode,
+  userMis: user.mis_id,
+  doctorId
+});
+
+
   if (String(user.mis_id) !== String(doctorId)) {
     console.log('⛔ NOT SELF');
     continue;
