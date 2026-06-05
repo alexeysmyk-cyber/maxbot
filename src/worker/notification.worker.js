@@ -303,7 +303,7 @@ const { finalMessage, emailMessage } = renderNotification({
   console.log('🚫 NO CHANNEL');
   continue;
 }
-
+console.log('🧪 FINAL MESSAGE:', finalMessage);
 await sendNotification({
   channel,
   user,
@@ -349,23 +349,24 @@ function renderNotification({
   emailTemplate
 }) {
 
-  let finalMessage = message;
+let finalMessage = message;
+let emailMessage = message;
 
-  if (maxTemplate?.text?.trim()) {
-    finalMessage = renderTemplate(
-      maxTemplate.text,
-      templateData
-    );
-  }
+// MAX template
+if (maxTemplate?.text?.trim()) {
+  finalMessage = renderTemplate(
+    maxTemplate.text,
+    data // 🔥 пока используем data (или позже templateData)
+  );
+}
 
-  let emailMessage = message;
-
-  if (emailTemplate?.text?.trim()) {
-    emailMessage = renderTemplate(
-      emailTemplate.text,
-      templateData
-    );
-  }
+// EMAIL template
+if (emailTemplate?.text?.trim()) {
+  emailMessage = renderTemplate(
+    emailTemplate.text,
+    data
+  );
+}
 
   return {
     finalMessage,
