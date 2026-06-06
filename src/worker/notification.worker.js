@@ -175,12 +175,15 @@ emailMessage = builtMessage;
       // 4. пациент (для email)
       // =========================
    
- let patientIdFromEvent =
+ // =========================
+// 4. пациент
+// =========================
+
+let patientIdFromEvent =
   data.patient_id ||
   data.patientId ||
   data.patient?.id ||
   safeAppointment?.patient_id;
-
 
 if (!patientIdFromEvent) {
   console.log('❌ INVALID PATIENT ID:', patientIdFromEvent);
@@ -192,12 +195,10 @@ if (!patientIdFromEvent) {
 
   continue;
 }
+
 let patient = n.payload?.patient || null;
 
-if (!patient) {
-  patient = await getPatientById(patientIdFromEvent);
-}
-
+// cache
 const cached = patientCache.get(patientIdFromEvent);
 
 if (cached && Date.now() - cached.ts < CACHE_TTL) {
@@ -207,10 +208,24 @@ if (cached && Date.now() - cached.ts < CACHE_TTL) {
   try {
     patient = await getPatientById(patientIdFromEvent);
 
+    if (patient) {
+      patientCache.set(patientIdFromEvent, {
+        data: patient,
+        ts: Date.now()
+      });
+    }
+  } catch (e) {
+    console.error('❌ LOAD PATIENT ERROR:', e.message);
+  }
+}
 
+// =========================
+// 5. каналы (ТОЛЬКО ЗДЕСЬ)
+// =========================
 
+const channels = resolveChannels(user, patient, key);
 
-
+console.log('📡 CHANNELS FROM WORKER:', channels);
 
 if (!channels.length) {
   console.log('🚫 NO CHANNELS');
@@ -222,40 +237,6 @@ if (!channels.length) {
 
   continue;
 }
-
-console.log('📡 CHANNELS FROM WORKER:', channels);
-
-
-
-
-
-
-
-
-
-    if (patient) {
-      patientCache.set(patientIdFromEvent, {
-        data: patient,
-        ts: Date.now()
-      });
-    }
-
-  } catch (e) {
-    console.error('❌ LOAD PATIENT ERROR:', e.message);
-  }
-}
-const channels = resolveChannels(user, patient, key);
-
-console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
-
-console.log('🧪 PATIENT OBJECT:', patient);
-
-console.log('🧪 PATIENT EMAIL:', patient?.email);
-
-console.log('🧪 PATIENT SETTINGS:', {
-  send_email: patient?.send_email,
-  send_email_lab: patient?.send_email_lab
-});
 
 
 // только для пациентов
