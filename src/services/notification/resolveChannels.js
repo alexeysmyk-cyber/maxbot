@@ -3,7 +3,7 @@ import { canSendEmail } from './email.util.js';
 /**
  * Возвращает список каналов для пользователя
  */
-export function resolveChannels(user, patient, key, data) {
+export function resolveChannels(user, patient, key) {
   const channels = [];
 
   const email =

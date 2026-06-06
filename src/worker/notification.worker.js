@@ -192,7 +192,11 @@ if (!patientIdFromEvent) {
 
   continue;
 }
-let patient = null;
+let patient = n.payload?.patient || null;
+
+if (!patient) {
+  patient = await getPatientById(patientIdFromEvent);
+}
 
 const cached = patientCache.get(patientIdFromEvent);
 
@@ -205,7 +209,7 @@ if (cached && Date.now() - cached.ts < CACHE_TTL) {
 
 
 
-const channels = resolveChannels(user, patient, key, data);
+
 
 
 if (!channels.length) {
@@ -240,7 +244,7 @@ console.log('📡 CHANNELS FROM WORKER:', channels);
     console.error('❌ LOAD PATIENT ERROR:', e.message);
   }
 }
-
+const channels = resolveChannels(user, patient, key);
 
 console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
 
@@ -389,8 +393,6 @@ if (user.type === 'PATIENT') {
 
 
 
-console.log('📡 CHANNEL:', channel);
-
 
 const maxTemplate = await prisma.notificationTemplate.findUnique({
   where: {
@@ -460,7 +462,6 @@ new_doctor: safeAppointment?.doctor || data.doctor || '',
   new_time: formatTime(rawStart),
 
   old_doctor: data.old_doctor || '',
-  //new_doctor: appointment?.doctor || data.doctor || '',
 
   review_link: data.review_link || '',
   author_name: data.author_name || '',

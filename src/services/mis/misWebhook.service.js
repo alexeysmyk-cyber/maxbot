@@ -259,15 +259,15 @@ const normalizedEvent = normalizeEvent(event, data);
 const key = normalizedEvent;
 
 
-
 await createNotificationsForUser({
   user: patientUser,
   patient, // 🔥 ВОТ ЭТО КЛЮЧЕВОЕ
   key,
   payload: {
-    data,
-    appointmentId: data.appointment_id || null
-  },
+  data,
+  appointmentId: data.appointment_id || null,
+  patient
+},
   externalIdBase: `${key}_${data.invoice_id || Date.now()}`
 });
 
@@ -284,9 +284,10 @@ for (const user of users) {
   patient,
   key,
   payload: {
-    data,
-    appointmentId: data.appointment_id || null
-  },
+  data,
+  appointmentId: data.appointment_id || null,
+  patient
+},
     externalIdBase: `${key}_${data.invoice_id || Date.now()}_${user.id}`
   });
 }
