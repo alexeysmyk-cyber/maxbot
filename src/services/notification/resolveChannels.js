@@ -6,29 +6,20 @@ import { canSendEmail } from './email.util.js';
 export function resolveChannels(user, patient, key) {
   const channels = [];
 
-  const email =
-  patient?.email ||
-  data?.patient_email ||
-  user?.email;
-
-  // ===============================
-  // ✅ MAX (если есть диалог)
-  // ===============================
+  // MAX
   if (user?.vk_id) {
     channels.push('MAX');
   }
 
-  // ===============================
-  // ✅ EMAIL из MIS
-  // ===============================
+  // EMAIL (только через настройки пациента)
   if (patient && canSendEmail(patient, key)) {
     channels.push('EMAIL');
   }
 
-  // ===============================
-  // 🔥 FALLBACK EMAIL (если MIS не дал пациента)
-  // ===============================
+  // ❌ УБЕРИ fallback полностью
+  // if (!channels.length && user?.email) {
+  //   channels.push('EMAIL');
+  // }
 
-
-  return channels;
+  return channels.filter(Boolean);
 }
