@@ -23,10 +23,7 @@ export function resolveChannels(user, patient, key) {
   // ===============================
   // 🔥 FALLBACK EMAIL (если MIS не дал пациента)
   // ===============================
-  if (!channels.length && user?.email) {
-    console.log('⚠️ FALLBACK EMAIL FROM USER');
-    channels.push('EMAIL');
-  }
+
 
   return channels;
 }
