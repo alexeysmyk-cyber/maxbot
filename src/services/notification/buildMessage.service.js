@@ -75,10 +75,9 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
     return null;
   }
 
-  const patientName = appointment.patient_name;
-  const doctor = appointment.doctor;
-
- doctorId = appointment.doctor_id;
+  const patientName = safeAppointment?.patient_name;
+const doctor = safeAppointment?.doctor;
+doctorId = safeAppointment?.doctor_id;
 
   message = isFull
     ? '🔬 Анализы полностью готовы\n\n'
@@ -364,7 +363,7 @@ else if (event === 'invoice_pay') {
   return null;
 }
 console.log('📦 BUILD EVENT:', event);
-return { message, doctorId, key, appointment };
+return { message, doctorId, key };
 
 
 }
