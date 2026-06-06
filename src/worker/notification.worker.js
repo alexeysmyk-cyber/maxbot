@@ -167,19 +167,9 @@ finalMessage = builtMessage;
 emailMessage = builtMessage;
 
 // канал БЕРЁМ ИЗ БД
-const channels = resolveChannels(user, patient, key);
-
-console.log('📡 CHANNELS FROM WORKER:', channels);
 
 
-if (!channels.length) {
-  console.log('🚫 NO CHANNELS');
-  await prisma.notification.update({
-    where: { id: n.id },
-    data: { status: 'skipped' }
-  });
-  continue;
-}
+
 
       // =========================
       // 4. пациент (для email)
@@ -215,8 +205,19 @@ if (cached && Date.now() - cached.ts < CACHE_TTL) {
 
 
 
+const channels = resolveChannels(user, patient, key, data);
 
-const channels = resolveChannels(user, patient, key);
+
+if (!channels.length) {
+  console.log('🚫 NO CHANNELS');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
+}
 
 console.log('📡 CHANNELS FROM WORKER:', channels);
 
@@ -491,16 +492,7 @@ console.log('🧪 FINAL MESSAGE:', finalMessage);
       // =========================
       
       console.log('🚀 PROCESS:', n.id);
-if (!channel) {
-  console.log('⛔ NO CHANNEL');
 
-  await prisma.notification.update({
-    where: { id: n.id },
-    data: { status: 'skipped' }
-  });
-
-  continue;
-}
 if (skip) {
   console.log('⛔ SKIPPED');
 

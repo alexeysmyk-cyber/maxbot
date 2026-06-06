@@ -5,6 +5,7 @@ import { hashPhone } from '../../common/hash.util.js';
 //import path from 'path';
 import { createNotificationsForUser } from '../notification/createNotificationsForUser.js';
 import { getAppointmentById } from './mis.service.js';
+import { getPatientById } from './mis.service.js';
 
 
 export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
@@ -156,6 +157,21 @@ const patientId =
   data.patientId ||
   data.patient?.id;
 
+  let patient = null;
+
+if (patientId) {
+  try {
+    const res = await getPatientById(patientId);
+
+    // 🔥 ВАЖНО: у тебя ответ в формате { error, data }
+    patient = res?.data || null;
+
+    console.log('🧪 WEBHOOK PATIENT:', patient);
+  } catch (e) {
+    console.error('❌ LOAD PATIENT ERROR:', e.message);
+  }
+}
+
 
   if (isDuplicate(event, data)) {
     return ;
@@ -242,11 +258,11 @@ const normalizedEvent = normalizeEvent(event, data);
 
 const key = normalizedEvent;
 
-let patient = null;
 
 
 await createNotificationsForUser({
   user: patientUser,
+  patient, // 🔥 ВОТ ЭТО КЛЮЧЕВОЕ
   key,
   payload: {
     data,
@@ -263,13 +279,14 @@ const users = await prisma.user.findMany();
 for (const user of users) {
   if (user.type === 'PATIENT') continue;
 
-  await createNotificationsForUser({
-    user,
-    key,
-    payload: {
-      data,
-      appointmentId: data.appointment_id || null
-    },
+ await createNotificationsForUser({
+  user, // ✅ правильно
+  patient,
+  key,
+  payload: {
+    data,
+    appointmentId: data.appointment_id || null
+  },
     externalIdBase: `${key}_${data.invoice_id || Date.now()}_${user.id}`
   });
 }
