@@ -149,7 +149,14 @@ const result = await buildMessage(
 );
 
 if (!result) {
-  throw new Error('BUILD_MESSAGE_FAILED');
+  console.log('⛔ BUILD SKIPPED');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 
 const { message: builtMessage, doctorId, key: builtKey } = result;

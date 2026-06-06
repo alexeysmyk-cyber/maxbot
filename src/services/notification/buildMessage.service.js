@@ -14,6 +14,18 @@ export async function buildMessage(event, data, appointment) {
   event = 'visit_cancel';
 }
 
+if (event === 'finish_appointment') {
+  event = 'update_appointment';
+}
+
+if (event === 'create_invoice') {
+  event = 'invoice_create';
+}
+
+if (event === 'full_payment_invoice') {
+  event = 'invoice_pay';
+}
+
 if (event === 'create_appointment' || event === 'visit_create') {
 
   if (data.moved_from) return null;
