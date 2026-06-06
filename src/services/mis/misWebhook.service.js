@@ -163,9 +163,17 @@ if (patientId) {
   try {
     const res = await getPatientById(patientId);
 
-    if (res && res.error === 0) {
+    // ✅ вариант 1: MIS обёртка
+    if (res && res.error === 0 && res.data) {
       patient = res.data;
-    } else {
+    }
+
+    // ✅ вариант 2: уже нормальный объект (твоя текущая ситуация)
+    else if (res && res.patient_id) {
+      patient = res;
+    }
+
+    else {
       console.log('❌ MIS PATIENT ERROR:', res);
     }
 
