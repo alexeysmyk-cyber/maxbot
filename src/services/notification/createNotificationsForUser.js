@@ -14,7 +14,7 @@ export async function createNotificationsForUser({
 
  // const channels = resolveChannels(user, patient, key, data);
 
-const channels = resolveChannels(user, patient, key, payload?.data);
+const channels = resolveChannels(user, patient, key );
 
  console.log('🧪 TEST CHANNEL RESOLVE:', {
   userId: user.id,

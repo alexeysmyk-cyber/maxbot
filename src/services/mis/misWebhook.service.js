@@ -157,25 +157,28 @@ const patientId =
   data.patientId ||
   data.patient?.id;
 
-  let patient = null;
+let patient = null;
 
 if (patientId) {
   try {
     const res = await getPatientById(patientId);
 
-    // 🔥 ВАЖНО: у тебя ответ в формате { error, data }
-    patient = res?.data || null;
+    if (res && res.error === 0) {
+      patient = res.data;
+    } else {
+      console.log('❌ MIS PATIENT ERROR:', res);
+    }
 
     console.log('🧪 WEBHOOK PATIENT:', patient);
+
   } catch (e) {
     console.error('❌ LOAD PATIENT ERROR:', e.message);
   }
 }
 
-
-  if (isDuplicate(event, data)) {
-    return ;
-  }
+if (!patient && data.patient) {
+  patient = data.patient;
+}
 
  // ===============================
 // 👤 FIND OR CREATE PATIENT USER
@@ -251,11 +254,13 @@ if (patientUser && !patientUser.vk_id) {
   console.log('📱 NEED FIRST CONTACT:', phoneHash);
 }
 
-const appointment = null;
 
 console.log('DATA NAME RAW:', data.patient_name);
 const normalizedEvent = normalizeEvent(event, data);
 
+if (isDuplicate(normalizedEvent, data)) {
+  return;
+}
 const key = normalizedEvent;
 
 
@@ -268,7 +273,7 @@ await createNotificationsForUser({
   appointmentId: data.appointment_id || null,
   patient
 },
-  externalIdBase: `${key}_${data.invoice_id || Date.now()}`
+  externalIdBase: `${key}_${data.id || data.appointment_id || Date.now()}`
 });
 
 // ===============================
