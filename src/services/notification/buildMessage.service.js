@@ -23,11 +23,11 @@ if (event === 'create_appointment' || event === 'visit_create') {
 
   const timeStart = data.time_start;
   const room =
-  appointment?.room || data.room;
+  safeAppointment?.room || data.room;
   const doctor =
-  appointment?.doctor || data.doctor;
+  safeAppointment?.doctor || data.doctor;
   const patientName =
-  appointment?.patient_name || data.patient_name;
+  safeAppointment?.patient_name || data.patient_name;
   const patientPhone = data.patient_phone;
   const source = data.source || '';
 

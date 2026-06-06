@@ -93,13 +93,19 @@ if (typeof data === 'string') {
 
 if (!data) {
   console.log('❌ NO DATA IN PAYLOAD');
-  skip = true;
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
-const key = n.type;
+
 
 // appointment
 // =========================
-// 📅 appointment (ИЗ PAYLOAD ИЛИ FALLBACK)
+// 📅 appointment
 // =========================
 let appointment = n.payload?.appointment || null;
 
@@ -127,30 +133,30 @@ if (appointment) {
   }
 }
 
-// ✅ ВОТ ЗДЕСЬ
 if (!appointment && n.payload?.appointmentId) {
   console.log('⚠️ APPOINTMENT STILL EMPTY — DATA NOT READY IN MIS');
 }
 
+const safeAppointment = appointment || null;
+
+// =========================
+// 🧠 buildMessage
+// =========================
 const result = await buildMessage(
   n.type,
   data,
-  appointment || {}
+  safeAppointment
 );
 
 if (!result) {
   throw new Error('BUILD_MESSAGE_FAILED');
 }
 
-const { message, doctorId } = result;
+const { message: builtMessage, doctorId, key: builtKey } = result;
+const key = builtKey || n.type;
 
-if (!message) {
-  console.log('❌ EMPTY MESSAGE');
-  skip = true;
-}
-
-finalMessage = message;
-emailMessage = message;
+finalMessage = builtMessage;
+emailMessage = builtMessage;
 
 // канал БЕРЁМ ИЗ БД
 const channel = n.channel;
@@ -159,11 +165,11 @@ const channel = n.channel;
       // 4. пациент (для email)
       // =========================
    
-  let patientIdFromEvent =
+ let patientIdFromEvent =
   data.patient_id ||
   data.patientId ||
   data.patient?.id ||
-  appointment?.patient_id;
+  safeAppointment?.patient_id;
 
 
 if (!patientIdFromEvent) {
@@ -207,10 +213,18 @@ console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
 
 // только для пациентов
 if (user.type === 'PATIENT') {
-  if (String(user.mis_id) !== String(patientIdFromEvent)) {
-    console.log('⛔ SKIP PATIENT (ID MISMATCH)');
-     skip = true;
-  }
+
+
+ if (String(user.mis_id) !== String(patientIdFromEvent)) {
+  console.log('⛔ SKIP PATIENT (ID MISMATCH)');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
+}
 }
 
 const userSetting = await prisma.userNotification.findFirst({
@@ -226,7 +240,13 @@ const role = await prisma.role.findFirst({
 
 if (!role) {
   console.log('❌ NO ROLE');
-   skip = true;
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 
 const type = await prisma.notificationType.findFirst({
@@ -235,7 +255,13 @@ const type = await prisma.notificationType.findFirst({
 
 if (!type) {
   console.log('❌ TYPE NOT FOUND:', key);
-   skip = true;
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 
 const roleSetting = await prisma.roleNotification.findFirst({
@@ -247,7 +273,13 @@ const roleSetting = await prisma.roleNotification.findFirst({
 
 if (!roleSetting) {
   console.log('⛔ NO ROLE SETTING:', key);
-   skip = true;
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 
 const mode = resolveMode(
@@ -257,22 +289,26 @@ const mode = resolveMode(
 
 if (mode === 'none') {
   console.log('⛔ MODE NONE:', key);
-   skip = true;
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 
 // self (для сотрудников)
 if (mode === 'self') {
-
-    console.log('🧪 MODE CHECK:', {
-  mode,
-  userMis: user.mis_id,
-  doctorId
-});
-
-
   if (String(user.mis_id) !== String(doctorId)) {
     console.log('⛔ NOT SELF');
-     skip = true;
+
+    await prisma.notification.update({
+      where: { id: n.id },
+      data: { status: 'skipped' }
+    });
+
+    continue;
   }
 }
 
@@ -287,14 +323,24 @@ if (user.type === 'PATIENT') {
 
   if (!PATIENT_ALLOWED_KEYS.includes(key)) {
     console.log('⛔ BLOCKED EVENT FOR PATIENT:', key);
-     skip = true;
+    await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
   }
 }
 
 
  if (user.type === 'PATIENT' && !patient) {
   console.log('❌ PATIENT NOT FOUND');
-  skip = true;
+ await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 
 
@@ -346,19 +392,20 @@ function formatTime(dateTime) {
   return dateTime.split(' ')[1] || '';
 }
 
-const rawStart = data.time_start || appointment?.time_start || '';
-const rawEnd = data.time_end || appointment?.time_end || '';
+const rawStart = safeAppointment?.time_start || data.time_start || '';
+const rawEnd = data.time_end || safeAppointment?.time_end || '';
 
 const templateData = {
-  patient_name: appointment?.patient_name || data.patient_name || '',
-  doctor_name: appointment?.doctor || data.doctor || '',
+  patient_name: safeAppointment?.patient_name || data.patient_name || '',
+  doctor_name: safeAppointment?.doctor || data.doctor || '',
 
   date: formatDateRu(rawStart),
   time_start: formatTime(rawStart),
   time_end: formatTime(rawEnd),
 
-  cabinet: appointment?.room || data.room || '',
-  clinic: appointment?.clinic || data.clinic || '',
+  cabinet: safeAppointment?.room || data.room || '',
+clinic: safeAppointment?.clinic || data.clinic || '',
+new_doctor: safeAppointment?.doctor || data.doctor || '',
 
   phone: data.patient_phone || '',
   email: data.patient_email || '',
@@ -370,7 +417,7 @@ const templateData = {
   new_time: formatTime(rawStart),
 
   old_doctor: data.old_doctor || '',
-  new_doctor: appointment?.doctor || data.doctor || '',
+  //new_doctor: appointment?.doctor || data.doctor || '',
 
   review_link: data.review_link || '',
   author_name: data.author_name || '',
@@ -403,7 +450,14 @@ console.log('🧪 FINAL MESSAGE:', finalMessage);
       
       console.log('🚀 PROCESS:', n.id);
 if (!channel) {
-  skip = true;
+  console.log('⛔ NO CHANNEL');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+
+  continue;
 }
 if (skip) {
   console.log('⛔ SKIPPED');
