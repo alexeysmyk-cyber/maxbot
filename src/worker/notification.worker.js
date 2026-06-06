@@ -198,24 +198,30 @@ if (!patientIdFromEvent) {
 
 let patient = n.payload?.patient || null;
 
-// cache
-const cached = patientCache.get(patientIdFromEvent);
-
-if (cached && Date.now() - cached.ts < CACHE_TTL) {
-  patient = cached.data;
-  console.log('🧪 PATIENT FROM CACHE');
+if (patient) {
+  console.log('🧪 PATIENT FROM PAYLOAD');
 } else {
-  try {
-    patient = await getPatientById(patientIdFromEvent);
+  const cached = patientCache.get(patientIdFromEvent);
 
-    if (patient) {
-      patientCache.set(patientIdFromEvent, {
-        data: patient,
-        ts: Date.now()
-      });
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    patient = cached.data;
+    console.log('🧪 PATIENT FROM CACHE');
+  } else {
+    try {
+      console.log('🧪 FALLBACK LOAD PATIENT');
+
+      patient = await getPatientById(patientIdFromEvent);
+
+      if (patient) {
+        patientCache.set(patientIdFromEvent, {
+          data: patient,
+          ts: Date.now()
+        });
+      }
+
+    } catch (e) {
+      console.error('❌ LOAD PATIENT ERROR:', e.message);
     }
-  } catch (e) {
-    console.error('❌ LOAD PATIENT ERROR:', e.message);
   }
 }
 
@@ -234,7 +240,8 @@ console.log('📡 CHANNEL FROM DB:', channel);
 if (user.type === 'PATIENT') {
 
 
- if (String(user.mis_id) !== String(patientIdFromEvent)) {
+ if (user.type === 'PATIENT' && patientIdFromEvent) {
+  if (String(user.mis_id) !== String(patientIdFromEvent)) {
   console.log('⛔ SKIP PATIENT (ID MISMATCH)');
 
   await prisma.notification.update({
@@ -243,7 +250,11 @@ if (user.type === 'PATIENT') {
   });
 
   continue;
-}
+}}
+
+
+
+
 }
 
 const userSetting = await prisma.userNotification.findFirst({
@@ -352,14 +363,17 @@ if (user.type === 'PATIENT') {
 }
 
 
- if (user.type === 'PATIENT' && !patient) {
-  console.log('❌ PATIENT NOT FOUND');
- await prisma.notification.update({
-    where: { id: n.id },
-    data: { status: 'skipped' }
-  });
+if (user.type === 'PATIENT' && !patient) {
+  console.log('⚠️ PATIENT NOT FOUND — SKIP EMAIL ONLY');
 
-  continue;
+  if (channel === 'EMAIL') {
+    await prisma.notification.update({
+      where: { id: n.id },
+      data: { status: 'skipped' }
+    });
+
+    continue;
+  }
 }
 
 
