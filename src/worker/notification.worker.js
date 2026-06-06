@@ -7,6 +7,7 @@ import { resolveMode } from '../common/notificationMode.util.js';
 import { getPatientById } from '../services/mis/mis.service.js';
 import { getAppointmentWithRetry } from '../services/mis/misWebhook.service.js';
 import { renderTemplate } from '../common/template.util.js';
+import { resolveChannels } from '../services/notification/resolveChannels.js';
 
 
 
@@ -166,7 +167,19 @@ finalMessage = builtMessage;
 emailMessage = builtMessage;
 
 // канал БЕРЁМ ИЗ БД
-const channel = n.channel;
+const channels = resolveChannels(user, patient, key);
+
+console.log('📡 CHANNELS FROM WORKER:', channels);
+
+
+if (!channels.length) {
+  console.log('🚫 NO CHANNELS');
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
+  });
+  continue;
+}
 
       // =========================
       // 4. пациент (для email)
@@ -200,6 +213,21 @@ if (cached && Date.now() - cached.ts < CACHE_TTL) {
   try {
     patient = await getPatientById(patientIdFromEvent);
 
+
+
+
+const channels = resolveChannels(user, patient, key);
+
+console.log('📡 CHANNELS FROM WORKER:', channels);
+
+
+
+
+
+
+
+
+
     if (patient) {
       patientCache.set(patientIdFromEvent, {
         data: patient,
@@ -215,7 +243,14 @@ if (cached && Date.now() - cached.ts < CACHE_TTL) {
 
 console.log('🧪 LOAD PATIENT ONCE:', patientIdFromEvent);
 
+console.log('🧪 PATIENT OBJECT:', patient);
 
+console.log('🧪 PATIENT EMAIL:', patient?.email);
+
+console.log('🧪 PATIENT SETTINGS:', {
+  send_email: patient?.send_email,
+  send_email_lab: patient?.send_email_lab
+});
 
 
 // только для пациентов
@@ -488,14 +523,16 @@ if (!finalMessage) {
   continue;
 }
 
-await sendNotification({
-  channel,
-  user,
-  patient,
-  finalMessage,
-  emailMessage,
-  bot
-});
+for (const channel of channels) {
+  await sendNotification({
+    channel,
+    user,
+    patient,
+    finalMessage,
+    emailMessage,
+    bot
+  });
+}
 
       // =========================
       // 6. успех

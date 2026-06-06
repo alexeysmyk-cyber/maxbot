@@ -12,7 +12,9 @@ export async function createNotificationsForUser({
   externalIdBase
 }) {
 
-  const channels = resolveChannels(user, patient, key);
+ // const channels = resolveChannels(user, patient, key, data);
+
+const channels = [null]; // временно
 
  console.log('🧪 TEST CHANNEL RESOLVE:', {
   userId: user.id,
