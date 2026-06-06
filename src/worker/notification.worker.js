@@ -223,20 +223,11 @@ if (cached && Date.now() - cached.ts < CACHE_TTL) {
 // 5. каналы (ТОЛЬКО ЗДЕСЬ)
 // =========================
 
-const channels = resolveChannels(user, patient, key);
+const channel = n.channel;
 
-console.log('📡 CHANNELS FROM WORKER:', channels);
+console.log('📡 CHANNEL FROM DB:', channel);
 
-if (!channels.length) {
-  console.log('🚫 NO CHANNELS');
 
-  await prisma.notification.update({
-    where: { id: n.id },
-    data: { status: 'skipped' }
-  });
-
-  continue;
-}
 
 
 // только для пациентов
@@ -497,16 +488,75 @@ if (!finalMessage) {
   continue;
 }
 
-for (const channel of channels) {
-  await sendNotification({
-    channel,
-    user,
-    patient,
-    finalMessage,
-    emailMessage,
-    bot
+if (!channel) {
+  console.log('🚫 NO CHANNEL IN DB');
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'skipped' }
   });
+
+  continue;
 }
+
+// 🔥 ВАША БИЗНЕС-ЛОГИКА
+
+// сотрудник → только MAX
+if (user.type === 'EMPLOYEE') {
+  if (channel !== 'MAX') {
+    console.log('⛔ EMPLOYEE EMAIL BLOCKED');
+
+    await prisma.notification.update({
+      where: { id: n.id },
+      data: { status: 'skipped' }
+    });
+
+    continue;
+  }
+}
+
+// пациент → EMAIL только если разрешено и нет MAX
+if (user.type === 'PATIENT') {
+
+  // если есть MAX → только MAX
+  if (user.vk_id && channel === 'EMAIL') {
+    console.log('⛔ PATIENT HAS MAX → SKIP EMAIL');
+
+    await prisma.notification.update({
+      where: { id: n.id },
+      data: { status: 'skipped' }
+    });
+
+    continue;
+  }
+
+  // если EMAIL — проверяем настройки
+  if (channel === 'EMAIL') {
+    if (!patient?.send_email) {
+      console.log('⛔ EMAIL DISABLED IN MIS');
+
+      await prisma.notification.update({
+        where: { id: n.id },
+        data: { status: 'skipped' }
+      });
+
+      continue;
+    }
+  }
+}
+
+// =========================
+// 🚀 ОТПРАВКА
+// =========================
+
+await sendNotification({
+  channel,
+  user,
+  patient,
+  finalMessage,
+  emailMessage,
+  bot
+});
 
       // =========================
       // 6. успех
