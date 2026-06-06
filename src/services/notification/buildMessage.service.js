@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { getAppointmentWithRetry } from '../mis/misWebhook.service.js';
 
-export async function buildMessage(event, data, appointment) {
+export async function buildMessage(event, data, safeAppointment) {
   let message = '';
   let doctorId = null;
 
@@ -70,7 +70,7 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
 
  
 
-  if (!appointment) {
+  if (!safeAppointment) {
     console.log('⚠️ appointment not found');
     return null;
   }
