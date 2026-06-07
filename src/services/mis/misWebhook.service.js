@@ -49,6 +49,8 @@ export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
   console.log('❌ NOT FOUND AFTER RETRIES:', id);
   return null;
 }
+
+
 // 🔥 анти-дубли (в памяти)
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
@@ -271,6 +273,15 @@ if (isDuplicate(normalizedEvent, data)) {
 }
 const key = normalizedEvent;
 
+// ===============================
+// ❌ CANCEL → удалить reminders
+// ===============================
+if (key === 'visit_cancel') {
+  const appointmentId = data.moved_to || data.id || data.appointment_id;
+
+  await deleteReminders(appointmentId);
+}
+
 
 await createNotificationsForUser({
   user: patientUser,
@@ -283,6 +294,71 @@ await createNotificationsForUser({
 },
   externalIdBase: `${key}_${data.id || data.appointment_id || Date.now()}`
 });
+
+
+// ===============================
+// ⏰ REMINDERS
+// ===============================
+if (['visit_create', 'visit_move'].includes(key)) {
+
+  const appointmentId = data.id || data.appointment_id;
+
+  // 🔥 СНАЧАЛА УДАЛЯЕМ СТАРЫЕ
+  await deleteReminders(appointmentId);
+
+  if (appointmentId && data.time_start) {
+
+const visitDate = parseDateTime(data.time_start);
+
+const { sendAt24h, sendAt2h } = buildReminderDates(visitDate);
+
+// 24h
+if (sendAt24h) {
+  await createNotificationsForUser({
+    user: patientUser,
+    patient,
+    key: 'visit_reminder_24h',
+    payload: {
+      data,
+      appointmentId,
+      patient
+    },
+    externalIdBase: `reminder24_${appointmentId}`,
+    sendAt: sendAt24h
+  });
+}
+
+// 2h
+if (sendAt2h) {
+  await createNotificationsForUser({
+    user: patientUser,
+    patient,
+    key: 'visit_reminder_2h',
+    payload: {
+      data,
+      appointmentId,
+      patient
+    },
+    externalIdBase: `reminder2_${appointmentId}`,
+    sendAt: sendAt2h
+  });
+}
+
+    console.log('⏰ REMINDERS UPDATED');
+    console.log('🧠 REMINDER CALC:', {
+  visit: visitDate,
+  sendAt24h,
+  sendAt2h
+});
+  }
+}
+
+
+
+
+
+
+
 
 // ===============================
 // 👨‍⚕️ СОТРУДНИКИ (В ОЧЕРЕДЬ)
@@ -307,4 +383,96 @@ for (const user of users) {
 
 
 
+}
+
+function parseDateTime(str) {
+  if (!str) return null;
+
+  const [date, time] = str.split(' ');
+  const [day, month, year] = date.split('.');
+  const [hour, minute] = time.split(':');
+
+  // Москва = UTC+3 → переводим в UTC
+  return new Date(Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour) - 3,
+    Number(minute)
+  ));
+}
+
+async function deleteReminders(appointmentId) {
+  if (!appointmentId) return;
+
+  await prisma.notification.deleteMany({
+    where: {
+      externalId: {
+        startsWith: `reminder`
+      },
+      payload: {
+        path: ['appointmentId'],
+        equals: appointmentId
+      },
+      status: 'pending'
+    }
+  });
+
+  console.log('🧹 REMINDERS DELETED:', appointmentId);
+}
+
+function buildReminderDates(visitDate) {
+  const now = new Date();
+
+  const result = {
+    sendAt24h: null,
+    sendAt2h: null
+  };
+
+  // ===============================
+  // ⏰ 24 часа
+  // ===============================
+  const sendAt24h = new Date(visitDate);
+  sendAt24h.setHours(sendAt24h.getHours() - 24);
+
+  if (sendAt24h > now) {
+    result.sendAt24h = normalizeToMorning(sendAt24h);
+  }
+
+  // ===============================
+  // ⏰ 2 часа
+  // ===============================
+  const sendAt2h = new Date(visitDate);
+  sendAt2h.setHours(sendAt2h.getHours() - 2);
+
+  if (sendAt2h > now) {
+    // ❗ если визит в 9:00 → не делаем 2h
+
+
+    const visitHourMoscow = visitDate.getUTCHours() + 3;
+
+if (visitHourMoscow > 9) {
+  result.sendAt2h = normalizeToMorning(sendAt2h);
+}
+  }
+console.log('🧠 REMINDER CALC:', {
+  visitUTC: visitDate.toISOString(),
+  visitMoscowHour: visitDate.getUTCHours() + 3,
+  sendAt24h,
+  sendAt2h
+});
+  return result;
+}
+function normalizeToMorning(date) {
+  const result = new Date(date);
+
+  // переводим в московское время
+  const moscowHour = result.getUTCHours() + 3;
+
+  if (moscowHour < 9) {
+    // ставим 09:00 Москва → 06:00 UTC
+    result.setUTCHours(9 - 3, 0, 0, 0);
+  }
+
+  return result;
 }

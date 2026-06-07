@@ -9,8 +9,11 @@ export async function createNotificationsForUser({
   patient,
   key,
   payload,
-  externalIdBase
-}) {
+  externalIdBase,
+  sendAt
+})
+
+{
 
  // const channels = resolveChannels(user, patient, key, data);
 
@@ -35,12 +38,13 @@ const channels = resolveChannels(user, patient, key );
 
     const externalId = `${externalIdBase}_${channel}`;
 
-    await enqueueNotification({
-      userId: user.id,
-      type: key,
-      channel,
-      payload,
-      externalId
-    });
+   await enqueueNotification({
+  userId: user.id,
+  type: key,
+  channel,
+  payload,
+  externalId,
+  sendAt
+});
   }
 }

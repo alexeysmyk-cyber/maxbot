@@ -3,6 +3,9 @@ import path from 'path';
 import { getAppointmentWithRetry } from '../mis/misWebhook.service.js';
 
 export async function buildMessage(event, data, safeAppointment) {
+
+data = data || {};
+
   let message = '';
   let doctorId = null;
 
@@ -356,6 +359,51 @@ else if (event === 'invoice_pay') {
   if (patientGender) message += `⚥ Пол: ${patientGender}\n`;
   if (patientMobile) message += `📞 Телефон: ${patientMobile}\n`;
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
+}
+
+else if (
+  event === 'visit_reminder_24h' ||
+  event === 'visit_reminder_2h'
+) {
+
+  key = event;
+
+  const timeStart =
+    safeAppointment?.time_start || data.time_start;
+
+  if (!timeStart) {
+    console.log('⚠️ NO TIME FOR REMINDER');
+    return null;
+  }
+
+  const room =
+    safeAppointment?.room || data.room;
+
+  const doctor =
+    safeAppointment?.doctor || data.doctor;
+
+  const patientName =
+    safeAppointment?.patient_name || data.patient_name;
+
+  const phone =
+    safeAppointment?.patient_phone || data.patient_phone;
+
+  doctorId =
+    safeAppointment?.doctor_id || data.doctor_id;
+
+  const label =
+    event === 'visit_reminder_24h'
+      ? 'за сутки'
+      : 'за 2 часа';
+
+  message = `⏰ Напоминание о визите (${label})\n\n`;
+
+  if (timeStart) message += `📅 Время: ${timeStart}\n`;
+  if (room) message += `🚪 Кабинет: ${room}\n`;
+  if (doctor) message += `👨‍⚕️ Врач: ${doctor}\n\n`;
+
+  if (patientName) message += `👤 Пациент: ${patientName}\n`;
+  if (phone) message += `📞 Телефон: ${phone}\n`;
 }
 
   if (!key || !message) {

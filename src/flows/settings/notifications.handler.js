@@ -11,6 +11,9 @@ const GROUPS = {
   visit_move: '📅 Визиты',
   visit_finish: '📅 Визиты',
 
+  visit_reminder_24h: '📅 Напоминания-24',
+  visit_reminder_2h: '📅 Напоминания-2',
+
   invoice_create: '💰 Финансы',
   invoice_pay: '💰 Финансы',
 
@@ -18,6 +21,10 @@ const GROUPS = {
   lab_full: '🧪 Анализы',
 
   patient_create: '👤 Пациенты'
+
+
+
+
 };
 
 const GROUP_KEYS = {
