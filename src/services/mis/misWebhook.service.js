@@ -405,20 +405,19 @@ function parseDateTime(str) {
 async function deleteReminders(appointmentId) {
   if (!appointmentId) return;
 
-  await prisma.notification.deleteMany({
+  const deleted = await prisma.notification.deleteMany({
     where: {
       externalId: {
-        startsWith: `reminder`
-      },
-      payload: {
-        path: ['appointmentId'],
-        equals: appointmentId
+        startsWith: `reminder_${appointmentId}`
       },
       status: 'pending'
     }
   });
 
-  console.log('🧹 REMINDERS DELETED:', appointmentId);
+  console.log('🧹 REMINDERS DELETED:', {
+    appointmentId,
+    count: deleted.count
+  });
 }
 
 function buildReminderDates(visitDate) {
