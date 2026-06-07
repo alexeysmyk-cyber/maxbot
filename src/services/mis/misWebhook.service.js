@@ -295,15 +295,7 @@ const isMoveCreate = event === 'create_appointment' && data?.moved_from;
 // ===============================
 if (isMoveCancel) {
 
-  global.oldVisitCache = global.oldVisitCache || {};
-
-  global.oldVisitCache[data.id] = {
-    time_start: data.time_start,
-    doctor: data.doctor,
-    room: data.room
-  };
-
-  const oldId = data.id || data.appointment_id;
+   const oldId = data.id || data.appointment_id;
 
   if (oldId) {
     await deleteReminders(oldId);
@@ -327,12 +319,26 @@ let oldVisit = null;
 
 if (isMoveCreate) {
   const oldId = data.moved_from;
-  oldVisit = global.oldVisitCache?.[oldId];
-}
 
-// если это create после переноса → делаем move
-if (isMoveCreate) {
-  finalKey = 'visit_move';
+  if (oldId) {
+    await new Promise(r => setTimeout(r, 300));
+
+    console.log('📡 LOAD OLD VISIT FROM MIS:', oldId);
+
+    const oldAppointment = await getAppointmentWithRetry(oldId);
+
+    if (oldAppointment) {
+      oldVisit = {
+        time_start: oldAppointment.time_start,
+        doctor: oldAppointment.doctor,
+        room: oldAppointment.room
+      };
+
+      console.log('✅ OLD VISIT FROM MIS:', oldVisit);
+    } else {
+      console.log('❌ OLD VISIT NOT FOUND IN MIS');
+    }
+  }
 }
 
 await createNotificationsForUser({
