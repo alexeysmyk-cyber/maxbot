@@ -152,6 +152,11 @@ else if (event === 'cancel_appointment' || event === 'visit_cancel') {
 
   key = 'visit_cancel';
 
+  if (data.moved_to != null) {
+  console.log('⛔ SKIP CANCEL (MOVE)');
+  return null;
+}
+
   const patientName = data.patient_name;
   const timeStart = data.time_start;
   const doctor = data.doctor;
