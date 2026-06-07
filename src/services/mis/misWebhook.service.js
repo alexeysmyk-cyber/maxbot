@@ -411,12 +411,10 @@ async function deleteReminders(appointmentId) {
 
   const deleted = await prisma.notification.deleteMany({
     where: {
-      externalId: {
-        in: [
-          `reminder24_${appointmentId}`,
-          `reminder2_${appointmentId}`
-        ]
-      },
+      OR: [
+        { externalId: { startsWith: `reminder24_${appointmentId}_` } },
+        { externalId: { startsWith: `reminder2_${appointmentId}_` } }
+      ],
       status: 'pending'
     }
   });
