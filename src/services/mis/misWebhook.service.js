@@ -294,6 +294,15 @@ const isMoveCreate = event === 'create_appointment' && data?.moved_from;
 // 🔥 MOVE CANCEL → удалить старые reminders
 // ===============================
 if (isMoveCancel) {
+
+  global.oldVisitCache = global.oldVisitCache || {};
+
+  global.oldVisitCache[data.id] = {
+    time_start: data.time_start,
+    doctor: data.doctor,
+    room: data.room
+  };
+
   const oldId = data.id || data.appointment_id;
 
   if (oldId) {
@@ -314,6 +323,13 @@ if (key === 'visit_cancel' && !isMoveCancel) {
 }
 let finalKey = key;
 
+let oldVisit = null;
+
+if (isMoveCreate) {
+  const oldId = data.moved_from;
+  oldVisit = global.oldVisitCache?.[oldId];
+}
+
 // если это create после переноса → делаем move
 if (isMoveCreate) {
   finalKey = 'visit_move';
@@ -321,13 +337,18 @@ if (isMoveCreate) {
 
 await createNotificationsForUser({
   user: patientUser,
-  patient, // 🔥 ВОТ ЭТО КЛЮЧЕВОЕ
+  patient,
   key: finalKey,
   payload: {
-  data,
-  appointmentId: data.id || data.appointment_id || null,
-  patient
-},
+    data: {
+      ...data,
+      old_time: oldVisit?.time_start,
+      old_doctor: oldVisit?.doctor,
+      old_room: oldVisit?.room
+    },
+    appointmentId: data.id || data.appointment_id || null,
+    patient
+  },
   externalIdBase: `${finalKey}_${data.id || data.appointment_id || Date.now()}`
 });
 
@@ -393,7 +414,12 @@ for (const user of users) {
   patient,
   key: finalKey,
   payload: {
-  data,
+  data: {
+    ...data,
+    old_time: oldVisit?.time_start,
+    old_doctor: oldVisit?.doctor,
+    old_room: oldVisit?.room
+  },
   appointmentId: data.id || data.appointment_id || null,
   patient
 },
