@@ -277,7 +277,7 @@ const key = normalizedEvent;
 // ❌ CANCEL → удалить reminders
 // ===============================
 if (key === 'visit_cancel') {
-  const appointmentId = data.moved_to || data.id || data.appointment_id;
+ const appointmentId = data.id || data.appointment_id;
 
   await deleteReminders(appointmentId);
 }
@@ -303,53 +303,57 @@ if (['visit_create', 'visit_move'].includes(key)) {
 
   const appointmentId = data.id || data.appointment_id;
 
-  // 🔥 СНАЧАЛА УДАЛЯЕМ СТАРЫЕ
-  await deleteReminders(appointmentId);
+  // 🔥 если перенос — удалить старый визит
+  if (key === 'visit_move' && data.moved_from) {
+    await deleteReminders(data.moved_from);
+  } else {
+    await deleteReminders(appointmentId);
+  }
 
   if (appointmentId && data.time_start) {
 
-const visitDate = parseDateTime(data.time_start);
+    const visitDate = parseDateTime(data.time_start);
+    const { sendAt24h, sendAt2h } = buildReminderDates(visitDate);
 
-const { sendAt24h, sendAt2h } = buildReminderDates(visitDate);
+    // 24h
+    if (sendAt24h) {
+      await createNotificationsForUser({
+        user: patientUser,
+        patient,
+        key: 'visit_reminder_24h',
+        payload: {
+          data,
+          appointmentId,
+          patient
+        },
+        externalIdBase: `reminder24_${appointmentId}`,
+        sendAt: sendAt24h
+      });
+    }
 
-// 24h
-if (sendAt24h) {
-  await createNotificationsForUser({
-    user: patientUser,
-    patient,
-    key: 'visit_reminder_24h',
-    payload: {
-      data,
-      appointmentId,
-      patient
-    },
-    externalIdBase: `reminder24_${appointmentId}`,
-    sendAt: sendAt24h
-  });
-}
-
-// 2h
-if (sendAt2h) {
-  await createNotificationsForUser({
-    user: patientUser,
-    patient,
-    key: 'visit_reminder_2h',
-    payload: {
-      data,
-      appointmentId,
-      patient
-    },
-    externalIdBase: `reminder2_${appointmentId}`,
-    sendAt: sendAt2h
-  });
-}
+    // 2h
+    if (sendAt2h) {
+      await createNotificationsForUser({
+        user: patientUser,
+        patient,
+        key: 'visit_reminder_2h',
+        payload: {
+          data,
+          appointmentId,
+          patient
+        },
+        externalIdBase: `reminder2_${appointmentId}`,
+        sendAt: sendAt2h
+      });
+    }
 
     console.log('⏰ REMINDERS UPDATED');
     console.log('🧠 REMINDER CALC:', {
-  visit: visitDate,
-  sendAt24h,
-  sendAt2h
-});
+      appointmentId,
+      visit: visitDate,
+      sendAt24h,
+      sendAt2h
+    });
   }
 }
 
