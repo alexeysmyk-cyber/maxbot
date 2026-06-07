@@ -13,6 +13,15 @@ import { resolveChannels } from '../services/notification/resolveChannels.js';
 
 
 export async function processNotifications() {
+
+      const EVENTS_WITH_DOCTOR = [
+    'visit_create',
+    'visit_cancel',
+    'visit_move',
+    'visit_finish',
+    'lab_full',
+    'lab_partial'
+  ];
     
     const appointmentCache = new Map();
     const APPOINTMENT_CACHE_TTL = 5000; // 5 секунд
@@ -264,6 +273,21 @@ const userSetting = await prisma.userNotification.findFirst({
   }
 });
 
+if (!userSetting) {
+  console.log('⚠️ NO USER SETTINGS → INIT');
+
+  const { initUserNotifications } = await import('../services/notification/initUserNotifications.js');
+
+  await initUserNotifications(user.id, user.activeRole);
+
+  await prisma.notification.update({
+    where: { id: n.id },
+    data: { status: 'pending' }
+  });
+
+  continue;
+}
+
 const role = await prisma.role.findFirst({
   where: { key: user.activeRole }
 });
@@ -317,6 +341,20 @@ const mode = resolveMode(
   roleSetting.defaultMode
 );
 
+console.log('🧪 MODE DEBUG:', {
+  userId: user.id,
+  key,
+  roleMode: roleSetting.defaultMode,
+  userMode: userSetting?.mode,
+  finalMode: mode,
+  doctorId,
+  userMis: user.mis_id
+});
+
+
+
+
+
 if (mode === 'none') {
   console.log('⛔ MODE NONE:', key);
 
@@ -330,7 +368,19 @@ if (mode === 'none') {
 
 // self (для сотрудников)
 if (mode === 'self') {
-  if (String(user.mis_id) !== String(doctorId)) {
+
+  // 🔥 если событие НЕ поддерживает self — игнорируем фильтр
+  if (!EVENTS_WITH_DOCTOR.includes(key)) {
+    console.log('⚠️ SELF NOT APPLICABLE FOR EVENT:', key);
+  }
+
+  // 🔥 если нет doctorId — тоже не фильтруем
+  else if (!doctorId) {
+    console.log('⚠️ NO DOCTOR ID → SKIP SELF FILTER');
+  }
+
+  // 🔥 нормальный self фильтр
+  else if (String(user.mis_id) !== String(doctorId)) {
     console.log('⛔ NOT SELF');
 
     await prisma.notification.update({
