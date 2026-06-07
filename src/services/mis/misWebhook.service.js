@@ -328,13 +328,23 @@ await createNotificationsForUser({
 // ===============================
 if (['visit_create', 'visit_move'].includes(key)) {
 
-  const appointmentId = data.id || data.appointment_id;
+  let appointmentId = data.id || data.appointment_id;
 
   // 🔥 если перенос — удалить старый визит
   if (key === 'visit_move' && data.moved_from) {
     await deleteReminders(data.moved_from);
   } else {
     await deleteReminders(appointmentId);
+  }
+
+  // 🔥 если это move — берём НОВЫЙ id из MIS
+  if (key === 'visit_move') {
+    const newAppointment = await getAppointmentWithRetry(appointmentId);
+
+    if (newAppointment?.id) {
+      appointmentId = newAppointment.id;
+      console.log('🧠 MOVE → NEW APPOINTMENT ID:', appointmentId);
+    }
   }
 
   if (appointmentId && data.time_start) {
