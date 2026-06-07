@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { getAppointmentWithRetry } from '../mis/misWebhook.service.js';
 
 export async function buildMessage(event, data, safeAppointment) {
 
@@ -13,9 +12,6 @@ data = data || {};
 
     console.log('📦 RAW EVENT:', event);
 
-    if (event === 'visit_move') {
-  event = 'visit_cancel';
-}
 
 if (event === 'finish_appointment') {
   event = 'update_appointment';
@@ -31,7 +27,6 @@ if (event === 'full_payment_invoice') {
 
 if (event === 'create_appointment' || event === 'visit_create') {
 
-  if (data.moved_from) return null;
 
   key = 'visit_create';
   doctorId = data.doctor_id;
@@ -132,34 +127,9 @@ else if (event === 'cancel_appointment' || event === 'visit_cancel') {
   // ================================
   // 🔁 получаем новый визит
   // ================================
-  let newAppointment = null;
-
- if (data.moved_to) {
-  const id = data.moved_to;
-
-  const cached = global.appointmentCache?.get(id);
-
-  if (cached && Date.now() - cached.ts < 5000) {
-    newAppointment = cached.data;
-    console.log('🧪 MOVE APPOINTMENT FROM CACHE');
-  } else {
-    newAppointment = await getAppointmentWithRetry(id);
-
-    if (newAppointment) {
-      global.appointmentCache = global.appointmentCache || new Map();
-
-      global.appointmentCache.set(id, {
-        data: newAppointment,
-        ts: Date.now()
-      });
-    }
-  }
-}
 
 
-if (Array.isArray(newAppointment)) {
-  newAppointment = newAppointment[0];
-}
+
   // ================================
   // 🧩 блок "Было"
   // ================================
@@ -176,41 +146,8 @@ if (Array.isArray(newAppointment)) {
   // ================================
   // 🔁 ПЕРЕНОС (есть данные нового)
   // ================================
- if (newAppointment) {
 
-  key = 'visit_move';
-
-  message = `↪️ Визит перенесён\n\n`;
-
-  if (patientName) {
-    message += `👤 Пациент: ${patientName}\n\n`;
-  }
-
-  // ---------- СТАРЫЙ ----------
-  message += `❌ Отменён визит:\n`;
-
-  if (oldTime) message += `📅 Дата и время: ${oldTime}\n`;
-  if (oldDoctor) message += `👨‍⚕️ Врач: ${oldDoctor}\n`;
-  if (oldRoom) message += `🚪 Кабинет: ${oldRoom}\n`;
-
-  // ---------- НОВЫЙ ----------
-  message += `\n✅ Новый визит:\n`;
-
-  if (newAppointment?.time_start) {
-    message += `📅 Дата и время: ${newAppointment.time_start}\n`;
-  }
-  if (newAppointment?.doctor) {
-    message += `👨‍⚕️ Врач: ${newAppointment.doctor}\n`;
-  }
-  if (newAppointment?.room) {
-    message += `🚪 Кабинет: ${newAppointment.room}\n`;
-  }
-}
-
-  // ================================
-  // 🔁 ПЕРЕНОС (данных нет, но moved_to есть)
-  // ================================
-  else if (data.moved_to) {
+  if (data.moved_to) {
 
   key = 'visit_move';
 
