@@ -150,34 +150,21 @@ else if (event === 'visit_move') {
 
 else if (event === 'cancel_appointment' || event === 'visit_cancel') {
 
-  const oldId = data.id;
+  key = 'visit_cancel';
+
   const patientName = data.patient_name;
-  const oldTime = data.time_start;
-  const oldDoctor = data.doctor;
-  const oldRoom = data.room;
+  const timeStart = data.time_start;
+  const doctor = data.doctor;
+  const room = data.room;
 
   doctorId = data.doctor_id;
 
-  // ================================
-  // 🔁 получаем новый визит
-  // ================================
+  message = `❌ Визит отменён\n\n`;
 
-
-
-  // ================================
-  // 🧩 блок "Было"
-  // ================================
-  function buildOldBlock() {
-    let text = `❌ Было:\n`;
-
-    if (oldTime) text += `📅 ${oldTime}\n`;
-    if (oldDoctor) text += `👨‍⚕️ ${oldDoctor}\n`;
-    if (oldRoom) text += `🚪 ${oldRoom}\n`;
-
-    return text;
-  }
-
- 
+  if (patientName) message += `👤 Пациент: ${patientName}\n`;
+  if (timeStart) message += `📅 ${timeStart}\n`;
+  if (doctor) message += `👨‍⚕️ ${doctor}\n`;
+  if (room) message += `🚪 ${room}\n`;
 }
 
 else if (event === 'update_appointment') {
