@@ -318,6 +318,8 @@ let finalKey = key;
 let oldVisit = null;
 
 if (isMoveCreate) {
+  finalKey = 'visit_move'
+
   const oldId = data.moved_from;
 
   if (oldId) {
