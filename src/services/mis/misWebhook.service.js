@@ -4,8 +4,10 @@ import { hashPhone } from '../../common/hash.util.js';
 //import fs from 'fs';
 //import path from 'path';
 import { createNotificationsForUser } from '../notification/createNotificationsForUser.js';
-import { getAppointmentById } from './mis.service.js';
+import { getAppointmentById, getPatientWithRetry } from './mis.service.js';
 import { getPatientById } from './mis.service.js';
+
+
 
 
 export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
@@ -54,6 +56,8 @@ export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
 // 🔥 анти-дубли (в памяти)
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
+const patientCache = new Map();
+const PATIENT_CACHE_TTL = 30 * 1000;
 
 function normalizeEvent(event, data = {}) {
 
@@ -163,14 +167,30 @@ let patient = null;
 
 if (patientId) {
   try {
-    const res = await getPatientById(patientId);
+    let res;
+
+    const cached = patientCache.get(patientId);
+
+    if (cached && Date.now() - cached.ts < PATIENT_CACHE_TTL) {
+      console.log('🧪 PATIENT FROM CACHE');
+      res = cached.data;
+    } else {
+      res = await getPatientWithRetry(patientId);
+
+      if (res) {
+        patientCache.set(patientId, {
+          data: res,
+          ts: Date.now()
+        });
+      }
+    }
 
     // ✅ вариант 1: MIS обёртка
     if (res && res.error === 0 && res.data) {
       patient = res.data;
     }
 
-    // ✅ вариант 2: уже нормальный объект (твоя текущая ситуация)
+    // ✅ вариант 2: уже нормальный объект
     else if (res && res.patient_id) {
       patient = res;
     }
@@ -186,8 +206,15 @@ if (patientId) {
   }
 }
 
-if (!patient && data.patient) {
-  patient = data.patient;
+if (!patient) {
+  console.log('⚠️ PATIENT NULL → FALLBACK');
+
+  patient = {
+    patient_id: data.patient_id,
+    email: data.patient_email,
+    phone: data.patient_phone,
+    name: data.patient_name
+  };
 }
 
  // ===============================

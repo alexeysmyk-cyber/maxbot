@@ -118,3 +118,33 @@ export async function getPatientById(id) {
     return null;
   }
 }
+export async function getPatientWithRetry(id, tries = 3, delay = 1000) {
+  for (let i = 0; i < tries; i++) {
+    try {
+      const res = await getPatientById(id);
+
+      if (res && res.error === 0 && res.data) {
+        return res.data;
+      }
+
+      if (res && res.patient_id) {
+        return res;
+      }
+
+      // 🔥 rate limit
+      if (res?.data?.code === 429) {
+        console.log('⏳ PATIENT RATE LIMIT → WAIT');
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+
+    } catch (e) {
+      console.log('❌ PATIENT API ERROR:', e.message);
+    }
+
+    await new Promise(r => setTimeout(r, delay));
+  }
+
+  console.log('❌ PATIENT NOT FOUND AFTER RETRIES:', id);
+  return null;
+}
