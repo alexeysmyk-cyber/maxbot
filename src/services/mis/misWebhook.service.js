@@ -61,27 +61,16 @@ const PATIENT_CACHE_TTL = 30 * 1000;
 
 function normalizeEvent(event, data = {}) {
 
-  if (event === 'cancel_appointment' && data?.moved_to) {
-    return 'visit_move';
-  }
+switch (event) {
+  case 'cancel_appointment':
+    return 'visit_cancel';
 
-  if (event === 'create_appointment' && data?.moved_from) {
-    return 'visit_move';
-  }
+  case 'create_appointment':
+    return 'visit_create';
 
-  switch (event) {
-    case 'cancel_appointment':
-      return 'visit_cancel';
-
-    case 'create_appointment':
-      return 'visit_create';
-
-    case 'move_appointment':
-      return 'visit_move';
-
-    default:
-      return event;
-  }
+  default:
+    return event;
+}
 }
 
 function isDuplicate(event, data) {
@@ -301,37 +290,9 @@ const isMoveCancel = event === 'cancel_appointment' && data?.moved_to;
 const isMoveCreate = event === 'create_appointment' && data?.moved_from;
 
 
-
-
-
 // ===============================
-// ❌ CANCEL → удалить reminders
+// 🔥 MOVE CANCEL → удалить старые reminders
 // ===============================
-if (key === 'visit_cancel') {
- const appointmentId = data.id || data.appointment_id;
-
-  await deleteReminders(appointmentId);
-}
-
-
-await createNotificationsForUser({
-  user: patientUser,
-  patient, // 🔥 ВОТ ЭТО КЛЮЧЕВОЕ
-  key,
-  payload: {
-  data,
-  appointmentId: data.appointment_id || null,
-  patient
-},
-  externalIdBase: `${key}_${data.id || data.appointment_id || Date.now()}`
-});
-
-
-// ===============================
-// ⏰ REMINDERS
-// ===============================
-
-// 🔥 1. cancel при переносе → удалить старые
 if (isMoveCancel) {
   const oldId = data.id || data.appointment_id;
 
@@ -343,8 +304,41 @@ if (isMoveCancel) {
   return;
 }
 
+
+// ===============================
+// ❌ CANCEL → удалить reminders
+// ===============================
+if (key === 'visit_cancel' && !isMoveCancel) {
+  const appointmentId = data.id || data.appointment_id;
+  await deleteReminders(appointmentId);
+}
+let finalKey = key;
+
+// если это create после переноса → делаем move
+if (isMoveCreate) {
+  finalKey = 'visit_move';
+}
+
+await createNotificationsForUser({
+  user: patientUser,
+  patient, // 🔥 ВОТ ЭТО КЛЮЧЕВОЕ
+  key: finalKey,
+  payload: {
+  data,
+  appointmentId: data.id || data.appointment_id || null,
+  patient
+},
+  externalIdBase: `${finalKey}_${data.id || data.appointment_id || Date.now()}`
+});
+
+
+// ===============================
+// ⏰ REMINDERS
+// ===============================
+
+
 // 🔥 2. create после переноса И обычный create → создать reminders
-if (isMoveCreate || key === 'visit_create') {
+if (isMoveCreate || finalKey === 'visit_create') {
 
   const appointmentId = data.id || data.appointment_id;
 
@@ -397,10 +391,10 @@ for (const user of users) {
  await createNotificationsForUser({
   user, // ✅ правильно
   patient,
-  key,
+  key: finalKey,
   payload: {
   data,
-  appointmentId: data.appointment_id || null,
+  appointmentId: data.id || data.appointment_id || null,
   patient
 },
     externalIdBase: `${key}_${data.invoice_id || Date.now()}_${user.id}`
