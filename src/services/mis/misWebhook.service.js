@@ -297,6 +297,13 @@ if (isDuplicate(normalizedEvent, data)) {
 }
 const key = normalizedEvent;
 
+const isMoveCancel = event === 'cancel_appointment' && data?.moved_to;
+const isMoveCreate = event === 'create_appointment' && data?.moved_from;
+
+
+
+
+
 // ===============================
 // ❌ CANCEL → удалить reminders
 // ===============================
@@ -324,73 +331,56 @@ await createNotificationsForUser({
 // ⏰ REMINDERS
 // ===============================
 
-// 🔥 MOVE → только удаляем старые
-if (key === 'visit_move') {
-  if (data.moved_from) {
-    await deleteReminders(data.moved_from);
+// 🔥 1. cancel при переносе → удалить старые
+if (isMoveCancel) {
+  const oldId = data.id || data.appointment_id;
 
-    console.log('🧹 MOVE → OLD REMINDERS DELETED:', data.moved_from);
+  if (oldId) {
+    await deleteReminders(oldId);
+    console.log('🧹 MOVE CANCEL → OLD REMINDERS DELETED:', oldId);
   }
+
   return;
 }
 
-// 🔥 CREATE → создаём новые (правильные)
-if (key === 'visit_create') {
+// 🔥 2. create после переноса И обычный create → создать reminders
+if (isMoveCreate || key === 'visit_create') {
 
-  let appointmentId = data.id || data.appointment_id;
-
-  // удалить старые (на всякий случай)
-  await deleteReminders(appointmentId);
+  const appointmentId = data.id || data.appointment_id;
 
   if (appointmentId && data.time_start) {
 
     const visitDate = parseDateTime(data.time_start);
     const { sendAt24h, sendAt2h } = buildReminderDates(visitDate);
 
-    // 24h
     if (sendAt24h) {
       await createNotificationsForUser({
         user: patientUser,
         patient,
         key: 'visit_reminder_24h',
-        payload: {
-          data,
-          appointmentId,
-          patient
-        },
+        payload: { data, appointmentId, patient },
         externalIdBase: `reminder24_${appointmentId}`,
         sendAt: sendAt24h
       });
     }
 
-    // 2h
     if (sendAt2h) {
       await createNotificationsForUser({
         user: patientUser,
         patient,
         key: 'visit_reminder_2h',
-        payload: {
-          data,
-          appointmentId,
-          patient
-        },
+        payload: { data, appointmentId, patient },
         externalIdBase: `reminder2_${appointmentId}`,
         sendAt: sendAt2h
       });
     }
 
-    console.log('⏰ REMINDERS CREATED (CREATE EVENT)');
-    console.log('🧠 REMINDER CALC:', {
+    console.log('⏰ REMINDERS CREATED:', {
       appointmentId,
-      visit: visitDate,
-      sendAt24h,
-      sendAt2h
+      move: isMoveCreate
     });
   }
 }
-
-
-
 
 
 
