@@ -113,6 +113,40 @@ doctorId = safeAppointment?.doctor_id;
     });
   }
 }
+else if (event === 'visit_move') {
+
+  key = 'visit_move';
+
+  const patientName = data.patient_name;
+
+  const oldTime = data.old_time || data.time_start_old;
+  const oldDoctor = data.old_doctor;
+  const oldRoom = data.old_room;
+
+  const newTime = data.time_start;
+  const newDoctor = data.doctor;
+  const newRoom = data.room;
+
+  message = `↪️ Визит перенесён\n\n`;
+
+  if (patientName) {
+    message += `👤 Пациент: ${patientName}\n\n`;
+  }
+
+  // ❌ БЫЛО
+  message += `❌ Было:\n`;
+  if (oldTime) message += `📅 ${oldTime}\n`;
+  if (oldDoctor) message += `👨‍⚕️ ${oldDoctor}\n`;
+  if (oldRoom) message += `🚪 ${oldRoom}\n`;
+
+  // ✅ СТАЛО
+  message += `\n✅ Стало:\n`;
+  if (newTime) message += `📅 ${newTime}\n`;
+  if (newDoctor) message += `👨‍⚕️ ${newDoctor}\n`;
+  if (newRoom) message += `🚪 ${newRoom}\n`;
+}
+
+
 
 else if (event === 'cancel_appointment' || event === 'visit_cancel') {
 
@@ -143,44 +177,7 @@ else if (event === 'cancel_appointment' || event === 'visit_cancel') {
     return text;
   }
 
-  // ================================
-  // 🔁 ПЕРЕНОС (есть данные нового)
-  // ================================
-
-  if (data.moved_to) {
-
-  key = 'visit_move';
-
-  message = `↪️ Визит перенесён\n\n`;
-
-  if (patientName) {
-    message += `👤 Пациент: ${patientName}\n\n`;
-  }
-
-  message += `❌ Отменён визит:\n`;
-
-  if (oldTime) message += `📅 Дата и время: ${oldTime}\n`;
-  if (oldDoctor) message += `👨‍⚕️ Врач: ${oldDoctor}\n`;
-  if (oldRoom) message += `🚪 Кабинет: ${oldRoom}\n`;
-
-  message += `\n⚠️ Новый визит создан, но данные ещё обновляются`;
-}
-  // ================================
-  // ❌ ОТМЕНА
-  // ================================
-  else {
-
-    key = 'visit_cancel';
-
-    message = `❌ Визит отменён\n\n`;
-
-    if (patientName) message += `👤 Пациент: ${patientName}\n`;
-    if (oldTime) message += `📅 ${oldTime}\n`;
-    if (oldDoctor) message += `👨‍⚕️ ${oldDoctor}\n`;
-    if (oldRoom) message += `🚪 ${oldRoom}\n`;
-  }
-
-  // ⛔ НЕ return — идём дальше
+ 
 }
 
 else if (event === 'update_appointment') {
