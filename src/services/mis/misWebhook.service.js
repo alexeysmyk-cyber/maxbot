@@ -338,14 +338,27 @@ if (['visit_create', 'visit_move'].includes(key)) {
   }
 
   // 🔥 если это move — берём НОВЫЙ id из MIS
-  if (key === 'visit_move') {
-    const newAppointment = await getAppointmentWithRetry(appointmentId);
+if (key === 'visit_move') {
+  const oldAppointment = await getAppointmentWithRetry(appointmentId);
+
+  // 🔥 берём НОВЫЙ id из moved_to
+  if (oldAppointment?.moved_to) {
+    const newAppointment = await getAppointmentWithRetry(oldAppointment.moved_to);
 
     if (newAppointment?.id) {
       appointmentId = newAppointment.id;
-      console.log('🧠 MOVE → NEW APPOINTMENT ID:', appointmentId);
+
+      // 🔥 ВАЖНО: обновляем data.time_start
+      data.time_start = newAppointment.time_start;
+
+      console.log('🧠 MOVE → REAL NEW APPOINTMENT:', {
+        old: oldAppointment.id,
+        new: appointmentId,
+        time: data.time_start
+      });
     }
   }
+}
 
   if (appointmentId && data.time_start) {
 
