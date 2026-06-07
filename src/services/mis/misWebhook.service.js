@@ -122,10 +122,7 @@ export async function handleMisWebhook(req, bot) {
 let data = req.body.data || {};
 
 // 👇 ВОТ СЮДА ВСТАВИТЬ
-if (event === 'create_appointment' && data.moved_from) {
-  console.log('⛔ SKIP CREATE — MOVE HANDLED BY CANCEL');
-  return;
-}
+
 
 for (const key in req.body) {
   const match = key.match(/^data\[(.+)\]$/);
@@ -326,39 +323,24 @@ await createNotificationsForUser({
 // ===============================
 // ⏰ REMINDERS
 // ===============================
-if (['visit_create', 'visit_move'].includes(key)) {
+
+// 🔥 MOVE → только удаляем старые
+if (key === 'visit_move') {
+  if (data.moved_from) {
+    await deleteReminders(data.moved_from);
+
+    console.log('🧹 MOVE → OLD REMINDERS DELETED:', data.moved_from);
+  }
+  return;
+}
+
+// 🔥 CREATE → создаём новые (правильные)
+if (key === 'visit_create') {
 
   let appointmentId = data.id || data.appointment_id;
 
-  // 🔥 если перенос — удалить старый визит
-  if (key === 'visit_move' && data.moved_from) {
-    await deleteReminders(data.moved_from);
-  } else {
-    await deleteReminders(appointmentId);
-  }
-
-  // 🔥 если это move — берём НОВЫЙ id из MIS
-if (key === 'visit_move') {
-  const oldAppointment = await getAppointmentWithRetry(appointmentId);
-
-  // 🔥 берём НОВЫЙ id из moved_to
-  if (oldAppointment?.moved_to) {
-    const newAppointment = await getAppointmentWithRetry(oldAppointment.moved_to);
-
-    if (newAppointment?.id) {
-      appointmentId = newAppointment.id;
-
-      // 🔥 ВАЖНО: обновляем data.time_start
-      data.time_start = newAppointment.time_start;
-
-      console.log('🧠 MOVE → REAL NEW APPOINTMENT:', {
-        old: oldAppointment.id,
-        new: appointmentId,
-        time: data.time_start
-      });
-    }
-  }
-}
+  // удалить старые (на всякий случай)
+  await deleteReminders(appointmentId);
 
   if (appointmentId && data.time_start) {
 
@@ -397,7 +379,7 @@ if (key === 'visit_move') {
       });
     }
 
-    console.log('⏰ REMINDERS UPDATED');
+    console.log('⏰ REMINDERS CREATED (CREATE EVENT)');
     console.log('🧠 REMINDER CALC:', {
       appointmentId,
       visit: visitDate,
