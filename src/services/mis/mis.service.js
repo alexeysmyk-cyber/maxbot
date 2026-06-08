@@ -148,3 +148,45 @@ export async function getPatientWithRetry(id, tries = 3, delay = 1000) {
   console.log('❌ PATIENT NOT FOUND AFTER RETRIES:', id);
   return null;
 }
+
+export async function getAppointmentWithRetry(id, tries = 2, delay = 1500) {
+  for (let i = 0; i < tries; i++) {
+    try {
+
+          if (typeof getAppointmentById !== 'function') {
+        console.error('❌ getAppointmentById NOT IMPORTED');
+        return null;
+      }
+      const res = await getAppointmentById(id);
+
+      if (!res || res.error !== 0) {
+  console.log('❌ MIS ERROR');
+
+  // 🔥 если rate limit — подождать
+  if (res?.data?.code === 429) {
+    console.log('⏳ RATE LIMIT — WAIT');
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  continue;
+}
+
+      const appointment = res.data?.[0];
+
+      if (appointment) {
+        console.log('✅ FOUND APPOINTMENT:', id);
+        return appointment;
+      }
+
+      console.log(`⏳ NOT FOUND YET, retry ${i + 1} for id=${id}`);
+
+    } catch (e) {
+      console.error('❌ API ERROR:', e.message);
+    }
+
+    await new Promise(r => setTimeout(r, delay));
+  }
+
+  console.log('❌ NOT FOUND AFTER RETRIES:', id);
+  return null;
+}

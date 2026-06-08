@@ -5,7 +5,7 @@ import { getBot } from '../max/max.service.js';
 import { resolveMode } from '../common/notificationMode.util.js';
 
 import { getPatientById } from '../services/mis/mis.service.js';
-import { getAppointmentWithRetry } from '../services/mis/misWebhook.service.js';
+import { getAppointmentWithRetry } from '../services/mis/mis.service.js';
 import { renderTemplate } from '../common/template.util.js';
 import { resolveChannels } from '../services/notification/resolveChannels.js';
 
