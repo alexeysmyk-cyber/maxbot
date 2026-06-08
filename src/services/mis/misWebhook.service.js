@@ -17,6 +17,7 @@ console.log('📦 RAW BODY:', req.body);
     req.body?.secret;
     
   if (secret !== process.env.MIS_WEBHOOK_SECRET) {
+    console.log('🔥 Wrong secret');
     return;
   }
 
