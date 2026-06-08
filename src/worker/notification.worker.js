@@ -45,8 +45,8 @@ const list = await prisma.notification.findMany({
       { status: 'pending' },
       {
         status: 'processing',
-        updatedAt: {
-          lt: new Date(Date.now() - 60000) // старше 60 сек
+        createdAt: {
+          lt: new Date(Date.now() - 60000)
         }
       }
     ],
