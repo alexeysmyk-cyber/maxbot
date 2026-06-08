@@ -252,7 +252,7 @@ else if (event === 'invoice_create') {
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
 
-else if (event === 'invoice_pay') {
+else if (event === 'invoice_pay' || 'paid_invoice' ) {
 
   if (data.moved_from) return null;
 
