@@ -41,7 +41,15 @@ try {
 
 const list = await prisma.notification.findMany({
   where: {
-    status: 'pending',
+    OR: [
+      { status: 'pending' },
+      {
+        status: 'processing',
+        updatedAt: {
+          lt: new Date(Date.now() - 60000) // старше 60 сек
+        }
+      }
+    ],
     sendAt: { lte: new Date() }
   },
   take: 10
@@ -282,8 +290,9 @@ if (!userSetting) {
 
   await prisma.notification.update({
     where: { id: n.id },
-    data: { status: 'pending' }
+    data: { status: 'skipped' }
   });
+  console.log('⛔ SKIP: NO USER SETTINGS');
 
   continue;
 }
