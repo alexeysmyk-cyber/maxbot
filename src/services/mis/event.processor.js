@@ -23,7 +23,7 @@ switch (event) {
 }
 
 function isDuplicate(event, data) {
-  const key = `${event}_${data.id || data.appointment_id || 'noid'}`;
+  const key = `${event}_${data.id || data.appointment_id || Math.random()}`;
 
   const now = Date.now();
 

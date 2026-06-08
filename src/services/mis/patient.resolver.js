@@ -111,7 +111,7 @@ if  (!patientUser && phoneHash) {
 if (patientUser && patientUser.mis_id && patientId) {
   if (String(patientUser.mis_id) !== String(patientId)) {
     console.log('⛔ ID MISMATCH — SKIP USER');
-    return;
+    return { patient: null, patientUser: null };
   }
 }
 
