@@ -3,11 +3,13 @@ import { processEvent } from './event.processor.js';
 
 
 
-console.log('🔥 WEBHOOK HIT');
-console.log('📦 RAW BODY:', req.body);
 
 
 export async function handleMisWebhook(req, bot) {
+
+  
+console.log('🔥 WEBHOOK HIT');
+console.log('📦 RAW BODY:', req.body);
 
   const secret =
     req.query?.secret ||
@@ -19,6 +21,8 @@ export async function handleMisWebhook(req, bot) {
   }
 
   const event = req.body.event;
+
+  console.log('📦 EVENT:', event);
 
   let data = req.body.data || {};
 
