@@ -22,7 +22,7 @@ if (event === 'create_invoice') {
 }
 
 if (event === 'full_payment_invoice') {
-  event = 'invoice_pay';
+  event = 'invoice_paid';
 }
 
 if (event === 'create_appointment' || event === 'visit_create') {
@@ -39,7 +39,10 @@ if (event === 'create_appointment' || event === 'visit_create') {
   const patientName =
   safeAppointment?.patient_name || data.patient_name;
   const patientPhone = data.patient_phone;
-  const source = data.source || '';
+  const source =
+  data.source?.trim() ||
+  data.author_name?.trim() ||
+  'Неизвестно';
 
   message = `🆕 Новый визит\n\n`;
 
@@ -252,11 +255,11 @@ else if (event === 'invoice_create') {
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
 
-else if (event === 'invoice_pay' || 'paid_invoice' ) {
+else if (event === 'invoice_paid' ) {
 
   if (data.moved_from) return null;
 
-  key = 'invoice_pay';
+ // key = 'invoice_paid';
  
   const number = data.number;
   const date = data.date;
