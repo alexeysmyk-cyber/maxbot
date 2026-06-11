@@ -6,20 +6,21 @@ import { canSendEmail } from './email.util.js';
 export function resolveChannels(user, patient, key) {
   const channels = [];
 
-  // MAX
+  // ===============================
+  // MAX (для всех)
+  // ===============================
   if (user?.vk_id) {
     channels.push('MAX');
   }
 
-  // EMAIL (только через настройки пациента)
-  if (patient && canSendEmail(patient, key)) {
-    channels.push('EMAIL');
+  // ===============================
+  // EMAIL (только для PATIENT)
+  // ===============================
+  if (user?.type === 'PATIENT') {
+    if (patient && canSendEmail(patient, key)) {
+      channels.push('EMAIL');
+    }
   }
-
-  // ❌ УБЕРИ fallback полностью
-  // if (!channels.length && user?.email) {
-  //   channels.push('EMAIL');
-  // }
 
   return channels.filter(Boolean);
 }

@@ -29,10 +29,14 @@ const channels = resolveChannels(user, patient, key );
 
   console.log('📡 CHANNELS:', channels);
 
-  if (!channels.length) {
-    console.log('🚫 NO CHANNELS');
-    return;
-  }
+if (!channels.length) {
+  console.log('🚫 SKIP NOTIFICATION:', {
+    userId: user.id,
+    type: user.type,
+    key
+  });
+  return;
+}
 
   for (const channel of channels) {
 
