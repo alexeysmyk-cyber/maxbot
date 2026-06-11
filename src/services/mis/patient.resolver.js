@@ -89,13 +89,16 @@ if (data.patient || data.patient_name) {
 
 if (!patient) {
   console.log('⚠️ PATIENT NULL → FALLBACK');
+patient = {
+  patient_id: data.patient_id,
+  email: data.patient_email,
+  phone: data.patient_phone,
+  name: data.patient_name,
 
-  patient = {
-    patient_id: data.patient_id,
-    email: data.patient_email,
-    phone: data.patient_phone,
-    name: data.patient_name
-  };
+  // 🔥 ВОТ ЭТО КРИТИЧНО
+  send_email: data.send_email,
+  send_email_lab: data.send_email_lab
+};
 }
 
  // ===============================
