@@ -11,7 +11,7 @@ import { resolveChannels } from '../services/notification/resolveChannels.js';
 
 
 
-
+console.log('👷 WORKER STARTED');
 export async function processNotifications() {
 
       const EVENTS_WITH_DOCTOR = [
@@ -29,7 +29,7 @@ export async function processNotifications() {
     const CACHE_TTL = 30 * 1000; // 30 секунд
 
 
-    console.log('👷 WORKER TICK');
+   // console.log('👷 WORKER TICK');
   let bot;
 
 try {
