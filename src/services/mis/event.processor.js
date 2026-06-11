@@ -131,7 +131,8 @@ await createNotificationsForUser({
       old_room: oldVisit?.room
     },
     appointmentId: data.id || data.appointment_id || null,
-    patient
+    patient,
+     skipMisLoad: true
   },
   externalIdBase: `${finalKey}_${data.id || data.appointment_id || Date.now()}`
 });
@@ -157,7 +158,7 @@ if (isMoveCreate || finalKey === 'visit_create') {
         user: patientUser,
         patient,
         key: 'visit_reminder_24h',
-        payload: { data, appointmentId, patient },
+        payload: { data, appointmentId, patient, skipMisLoad: true },
         externalIdBase: `reminder24_${appointmentId}`,
         sendAt: sendAt24h
       });
@@ -168,7 +169,7 @@ if (isMoveCreate || finalKey === 'visit_create') {
         user: patientUser,
         patient,
         key: 'visit_reminder_2h',
-        payload: { data, appointmentId, patient },
+        payload: { data, appointmentId, patient, skipMisLoad: true },
         externalIdBase: `reminder2_${appointmentId}`,
         sendAt: sendAt2h
       });
@@ -195,7 +196,8 @@ await Promise.all(
           old_room: oldVisit?.room
         },
         appointmentId: data.id || data.appointment_id || null,
-        patient
+        patient,
+         skipMisLoad: true
       },
       externalIdBase: `${finalKey}_${data.id || data.appointment_id}_${user.id}`
     })

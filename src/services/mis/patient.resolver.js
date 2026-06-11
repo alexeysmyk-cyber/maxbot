@@ -45,7 +45,18 @@ if (patientId) {
       console.log('🧪 PATIENT FROM CACHE');
       res = cached.data;
     } else {
-      res = await getPatientWithRetry(patientId);
+
+
+      let patient = null;
+
+// 🔥 если уже есть в webhook — используем
+if (data.patient || data.patient_name) {
+  console.log('🧪 USE PAYLOAD PATIENT');
+  patient = data;
+} else if (patientId) {
+  console.log('🧪 LOAD PATIENT FROM MIS');
+  patient = await getPatientWithRetry(patientId);
+}
 
       if (res) {
         patientCache.set(patientId, {

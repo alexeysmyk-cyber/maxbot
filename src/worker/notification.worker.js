@@ -11,7 +11,7 @@ import { resolveChannels } from '../services/notification/resolveChannels.js';
 
 
 
-console.log('👷 WORKER STARTED');
+
 export async function processNotifications() {
 
       const EVENTS_WITH_DOCTOR = [
@@ -94,6 +94,7 @@ let emailMessage = null;
       // =========================
 
  let data = n.payload?.data;
+ const skipMisLoad = n.payload?.skipMisLoad;
 
 // console.log('🧪 DATA BEFORE USING:', data);
 console.log('🧪 DATA.patient_id:', data?.patient_id);
@@ -138,9 +139,21 @@ if (appointment) {
     appointment = cached.data;
     console.log('🧪 APPOINTMENT FROM CACHE');
   } else {
-    console.log('🧪 FALLBACK LOAD APPOINTMENT');
 
-    appointment = await getAppointmentWithRetry(id);
+// 🔥 проверяем — хватает ли данных из webhook
+const hasEnoughData =
+  data?.time_start &&
+  data?.doctor;
+
+if (skipMisLoad || hasEnoughData) {
+  console.log('🧪 SKIP MIS LOAD → USE PAYLOAD');
+  appointment = data;
+} else {
+  console.log('🧪 FALLBACK LOAD APPOINTMENT');
+  appointment = await getAppointmentWithRetry(id);
+}
+
+
 
     if (appointment) {
       appointmentCache.set(id, {
@@ -225,9 +238,13 @@ if (patient) {
     console.log('🧪 PATIENT FROM CACHE');
   } else {
     try {
-      console.log('🧪 FALLBACK LOAD PATIENT');
-
-      patient = await getPatientById(patientIdFromEvent);
+if (n.payload?.patient) {
+  console.log('🧪 PATIENT FROM PAYLOAD');
+  patient = n.payload.patient;
+} else {
+  console.log('🧪 FALLBACK LOAD PATIENT');
+  patient = await getPatientById(patientIdFromEvent);
+}
 
       if (patient) {
         patientCache.set(patientIdFromEvent, {
@@ -663,8 +680,6 @@ await sendNotification({
 
   
 }
-
-
 
 setInterval(processNotifications, 5000);
 

@@ -63,8 +63,6 @@ if (!data) return [];
 return Array.isArray(data) ? data : [data];
 }
 
-// ===== Получить визит по ID =====
-// ===== Получить визит по ID (через getAppointments) =====
 export async function getAppointmentById(id) {
   try {
     const body = qs.stringify({
@@ -123,23 +121,35 @@ export async function getPatientWithRetry(id, tries = 3, delay = 1000) {
     try {
       const res = await getPatientById(id);
 
+      console.log('🧪 PATIENT RAW RESPONSE:', res);
+
+      // ✅ успех (обёртка МИС)
       if (res && res.error === 0 && res.data) {
         return res.data;
       }
 
+      // ✅ успех (прямой объект)
       if (res && res.patient_id) {
         return res;
       }
 
+      // ⚠️ пустой ответ
+      if (res && res.error === 0 && !res.data) {
+        console.log('⚠️ PATIENT EMPTY DATA');
+      }
+
       // 🔥 rate limit
-      if (res?.data?.code === 429) {
+      if (res?.error === 429) {
         console.log('⏳ PATIENT RATE LIMIT → WAIT');
         await new Promise(r => setTimeout(r, delay));
         continue;
       }
 
     } catch (e) {
-      console.log('❌ PATIENT API ERROR:', e.message);
+      console.error('❌ PATIENT API ERROR:', {
+        message: e.message,
+        stack: e.stack
+      });
     }
 
     await new Promise(r => setTimeout(r, delay));
