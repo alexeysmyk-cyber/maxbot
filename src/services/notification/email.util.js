@@ -28,7 +28,9 @@ ${message}
 `;
 }
 
-
+function isTrue(val) {
+  return val === true || val === '1' || val === 1;
+}
 
 export function canSendEmail(patient, key) {
   const isLab =
@@ -38,10 +40,10 @@ export function canSendEmail(patient, key) {
   if (!patient || !patient.email) return false;
 
   if (isLab) {
-    return patient.send_email_lab === true;
+    return isTrue(patient.send_email_lab);
   }
 
-  return patient.send_email === true;
+  return isTrue(patient.send_email);
 }
 
 
