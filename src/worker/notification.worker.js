@@ -226,10 +226,25 @@ if (!patientIdFromEvent) {
   continue;
 }
 
+
+const patientFromWebhook = data.patient_id
+  ? {
+      id: data.patient_id,
+      name: data.patient_name,
+      phone: data.patient_phone,
+      birth_date: data.patient_birth_date,
+      email: data.patient_email,
+    }
+  : null;
+
 let patient = n.payload?.patient || null;
 
 if (patient) {
   console.log('🧪 PATIENT FROM PAYLOAD');
+} else if (patientFromWebhook) {
+  console.log('🧪 PATIENT FROM WEBHOOK');
+  patient = patientFromWebhook;
+
 } else {
   const cached = patientCache.get(patientIdFromEvent);
 
@@ -238,13 +253,8 @@ if (patient) {
     console.log('🧪 PATIENT FROM CACHE');
   } else {
     try {
-if (n.payload?.patient) {
-  console.log('🧪 PATIENT FROM PAYLOAD');
-  patient = n.payload.patient;
-} else {
-  console.log('🧪 FALLBACK LOAD PATIENT');
-  patient = await getPatientById(patientIdFromEvent);
-}
+      console.log('🧪 FALLBACK LOAD PATIENT');
+      patient = await getPatientById(patientIdFromEvent);
 
       if (patient) {
         patientCache.set(patientIdFromEvent, {
@@ -254,11 +264,10 @@ if (n.payload?.patient) {
       }
 
     } catch (e) {
-      console.error('❌ LOAD PATIENT ERROR:', e.message);
+      console.error('❌ LOAD PATIENT ERROR:', e);
     }
   }
 }
-
 // =========================
 // 5. каналы (ТОЛЬКО ЗДЕСЬ)
 // =========================
@@ -622,7 +631,7 @@ if (user.type === 'PATIENT') {
 
   // если EMAIL — проверяем настройки
   if (channel === 'EMAIL') {
-    if (!patient?.send_email) {
+  if (patient?.send_email === false) {
       console.log('⛔ EMAIL DISABLED IN MIS');
 
       await prisma.notification.update({
