@@ -48,7 +48,14 @@ if (patientId) {
 
 if (data.patient || data.patient_name) {
   console.log('🧪 USE PAYLOAD PATIENT');
-  res = data; // 🔥 ВАЖНО
+  res = {
+  patient_id: data.patient_id,
+  name: data.patient_name,
+  phone: data.patient_phone,
+  email: data.patient_email,
+  send_email: data.send_email,
+  send_email_lab: data.send_email_lab
+};res = data; // 🔥 ВАЖНО
 } else if (patientId) {
   console.log('🧪 LOAD PATIENT FROM MIS');
   res = await getPatientWithRetry(patientId); // 🔥 ВАЖНО
