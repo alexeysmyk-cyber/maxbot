@@ -46,16 +46,12 @@ if (patientId) {
       res = cached.data;
     } else {
 
-
-      let patient = null;
-
-// 🔥 если уже есть в webhook — используем
 if (data.patient || data.patient_name) {
   console.log('🧪 USE PAYLOAD PATIENT');
-  patient = data;
+  res = data; // 🔥 ВАЖНО
 } else if (patientId) {
   console.log('🧪 LOAD PATIENT FROM MIS');
-  patient = await getPatientWithRetry(patientId);
+  res = await getPatientWithRetry(patientId); // 🔥 ВАЖНО
 }
 
       if (res) {
