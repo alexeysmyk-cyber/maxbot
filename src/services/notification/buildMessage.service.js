@@ -21,9 +21,6 @@ if (event === 'create_invoice') {
   event = 'invoice_create';
 }
 
-if (event === 'full_payment_invoice') {
-  event = 'invoice_paid';
-}
 
 if (event === 'create_appointment' || event === 'visit_create') {
 
@@ -257,9 +254,10 @@ else if (event === 'invoice_create') {
 
 else if (event === 'invoice_paid' ) {
 
-  if (data.moved_from) return null;
+  if (data.moved_from) return;
+   
 
- // key = 'invoice_paid';
+  key = 'invoice_paid';
  
   const number = data.number;
   const date = data.date;
