@@ -8,18 +8,20 @@ import { getAppointmentWithRetry } from './mis.service.js';
 const recentEvents = new Map();
 const DUPLICATE_TTL = 30 * 1000; // 30 секунд
 
-function normalizeEvent(event, data = {}) {
+function normalizeEvent(event) {
+  switch (event) {
+    case 'cancel_appointment':
+      return 'visit_cancel';
 
-switch (event) {
-  case 'cancel_appointment':
-    return 'visit_cancel';
+    case 'create_appointment':
+      return 'visit_create';
 
-  case 'create_appointment':
-    return 'visit_create';
+    case 'full_payment_invoice': // 🔥 ДОБАВЬ
+      return 'invoice_paid';
 
-  default:
-    return event;
-}
+    default:
+      return event;
+  }
 }
 
 function isDuplicate(event, data) {

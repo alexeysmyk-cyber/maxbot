@@ -254,10 +254,12 @@ else if (event === 'invoice_create') {
 
 else if (event === 'invoice_paid' ) {
 
+ key = 'invoice_paid';
+
   if (data.moved_from) return;
    
 
-  key = 'invoice_paid';
+ 
  
   const number = data.number;
   const date = data.date;

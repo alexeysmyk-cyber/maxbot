@@ -1,14 +1,9 @@
 import { resolvePatient } from './patient.resolver.js';
 import { processEvent } from './event.processor.js';
 
-
-
-
-
 export async function handleMisWebhook(req, bot) {
 
   
-console.log('🔥 WEBHOOK HIT');
 console.log('📦 RAW BODY:', req.body);
 
   const secret =
