@@ -7,6 +7,21 @@ import { getPatientWithRetry } from './mis.service.js';
 const patientCache = new Map();
 const PATIENT_CACHE_TTL = 30 * 1000;
 
+
+function extractEmail(data) {
+  if (!data) return null;
+
+  if (data.patient_email) return data.patient_email;
+  if (data.email) return data.email;
+
+  if (Array.isArray(data.contacts)) {
+    const emailContact = data.contacts.find(c => c.type === 'email');
+    if (emailContact) return emailContact.value;
+  }
+
+  return null;
+}
+
 export async function resolvePatient(data) {
 
 // ===============================
@@ -46,19 +61,7 @@ if (patientId) {
       res = cached.data;
     } else {
 
-function extractEmail(data) {
-  if (data.patient_email) return data.patient_email;
-  if (data.email) return data.email;
-
-  if (Array.isArray(data.contacts)) {
-    const emailContact = data.contacts.find(c => c.type === 'email');
-    if (emailContact) return emailContact.value;
-  }
-
-  return null;
-}
-
-        
+       
 
 if (data.patient || data.patient_name) {
   console.log('🧪 USE PAYLOAD PATIENT');
