@@ -1,7 +1,55 @@
 import fs from 'fs';
 import path from 'path';
+import { getTemplate } from '../notification/template.service.js';
 
-export async function buildMessage(event, data, safeAppointment) {
+export async function buildMessage(event, data, safeAppointment, user, channel) {
+
+const TEST_MIS_ID = '46493';
+const isTestUser = String(user?.mis_id) === TEST_MIS_ID;
+console.log('🧪 TEMPLATE TEST MODE:', {
+  userId: user?.id,
+  mis_id: user?.mis_id,
+  isTestUser
+});
+
+
+const isPatient = user?.type === 'PATIENT';
+
+// 🔥 TEMPLATE ТОЛЬКО ДЛЯ ПАЦИЕНТА
+if (isTestUser) {
+  const template = await getTemplate({
+    key: event,
+    channel
+  });
+
+  console.log('🧪 TEMPLATE CHECK:', {
+    userType: user?.type,
+    event,
+    channel,
+    hasTemplate: !!template
+  });
+
+  if (template?.text) {
+    console.log('🧪 USE TEMPLATE');
+
+    return {
+      message: applyTemplate(template.text, {
+        data,
+        appointment: safeAppointment
+      }),
+      doctorId: null,
+      key: event
+    };
+  }
+
+  console.log('⚠️ NO TEMPLATE → FALLBACK');
+}
+
+
+
+
+
+
 
 data = data || {};
 
@@ -343,6 +391,24 @@ console.log('📦 BUILD EVENT:', event);
 return { message, doctorId, key };
 
 
+}
+
+function applyTemplate(template, { data, appointment }) {
+  let result = template;
+
+  const vars = {
+    patient_name: data.patient_name,
+    doctor: data.doctor,
+    time: data.time_start,
+    phone: data.patient_phone,
+    clinic: data.clinic
+  };
+
+  for (const key in vars) {
+    result = result.replaceAll(`{{${key}}}`, vars[key] || '');
+  }
+
+  return result;
 }
 
 function processLabFiles(data) {
