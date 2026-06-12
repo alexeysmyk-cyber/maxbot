@@ -46,18 +46,34 @@ if (patientId) {
       res = cached.data;
     } else {
 
+function extractEmail(data) {
+  if (data.patient_email) return data.patient_email;
+  if (data.email) return data.email;
+
+  if (Array.isArray(data.contacts)) {
+    const emailContact = data.contacts.find(c => c.type === 'email');
+    if (emailContact) return emailContact.value;
+  }
+
+  return null;
+}
+
+        
+
 if (data.patient || data.patient_name) {
   console.log('🧪 USE PAYLOAD PATIENT');
-  res = {
-  patient_id: data.patient_id,
-  name: data.patient_name,
-  phone: data.patient_phone,
-  email: data.patient_email,
-  send_email: data.send_email === '1',
-  send_email_lab: data.send_email_lab
-};
 
-} else if (patientId) {
+  res = {
+    patient_id: data.patient_id,
+    name: data.patient_name,
+    phone: data.patient_phone,
+    email: extractEmail(data), // 🔥 ВАЖНО
+    send_email: data.send_email === '1',
+    send_email_lab: data.send_email_lab === '1'
+  };
+}
+
+else if (patientId) {
   console.log('🧪 LOAD PATIENT FROM MIS');
   res = await getPatientWithRetry(patientId); // 🔥 ВАЖНО
 }
@@ -93,16 +109,15 @@ if (data.patient || data.patient_name) {
 
 if (!patient) {
   console.log('⚠️ PATIENT NULL → FALLBACK');
-patient = {
-  patient_id: data.patient_id,
-  email: data.patient_email,
-  phone: data.patient_phone,
-  name: data.patient_name,
 
-  // 🔥 ВОТ ЭТО КРИТИЧНО
-  send_email: data.send_email,
-  send_email_lab: data.send_email_lab
-};
+  patient = {
+    patient_id: data.patient_id,
+    name: data.patient_name,
+    phone: data.patient_phone,
+    email: extractEmail(data), // 🔥 ТУТ ТОЖЕ
+    send_email: data.send_email === '1',
+    send_email_lab: data.send_email_lab === '1'
+  };
 }
 
  // ===============================

@@ -184,6 +184,13 @@ const users = await prisma.user.findMany({
   where: { type: 'EMPLOYEE' }
 });
 
+const entityId =
+  data.id ||
+  data.appointment_id ||
+  data.patient_id ||
+  Date.now();
+
+
 await Promise.all(
   users.map(user =>
     createNotificationsForUser({
@@ -201,7 +208,7 @@ await Promise.all(
         patient,
          skipMisLoad: true
       },
-      externalIdBase: `${finalKey}_${data.id || data.appointment_id}_${user.id}`
+      externalIdBase: `${finalKey}_${entityId}_${user.id}`
     })
   )
 );

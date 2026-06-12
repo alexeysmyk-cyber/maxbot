@@ -3,24 +3,33 @@ import { canSendEmail } from './email.util.js';
 /**
  * Возвращает список каналов для пользователя
  */
-export function resolveChannels(user, patient, key) {
-  const channels = [];
+export function resolveChannels({ user, patient }) {
 
-  // ===============================
-  // MAX (для всех)
-  // ===============================
-  if (user?.vk_id) {
-    channels.push('MAX');
+  // 👨‍⚕️ СОТРУДНИК
+  if (user.type === 'EMPLOYEE') {
+    const channels = [];
+
+    if (user.vk_id) {
+      channels.push('MAX');
+    }
+
+    return channels; // ❗ НЕ ЗАВИСИТ ОТ PATIENT
   }
 
-  // ===============================
-  // EMAIL (только для PATIENT)
-  // ===============================
-  if (user?.type === 'PATIENT') {
-    if (patient && canSendEmail(patient, key)) {
+  // 👤 ПАЦИЕНТ
+  if (user.type === 'PATIENT') {
+    const channels = [];
+
+    if (user.vk_id) {
+      channels.push('MAX');
+    }
+
+    if (patient?.email) {
       channels.push('EMAIL');
     }
+
+    return channels;
   }
 
-  return channels.filter(Boolean);
+  return [];
 }
