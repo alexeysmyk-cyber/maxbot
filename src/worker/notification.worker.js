@@ -203,6 +203,8 @@ if (!result) {
 
 const { message: builtMessage, doctorId, key: builtKey } = result;
 const key = resolveNotificationKey(builtKey || n.type);
+const templateKey = builtKey ;
+
 
 finalMessage = builtMessage;
 emailMessage = builtMessage;
@@ -474,7 +476,7 @@ if (user.type === 'PATIENT' && !patient) {
 const maxTemplate = await prisma.notificationTemplate.findUnique({
   where: {
     key_channel: {
-      key,
+      key: templateKey,
       channel: 'MAX'
     }
   }
@@ -483,7 +485,7 @@ const maxTemplate = await prisma.notificationTemplate.findUnique({
 const emailTemplate = await prisma.notificationTemplate.findUnique({
   where: {
     key_channel: {
-      key,
+      key: templateKey,
       channel: 'EMAIL'
     }
   }
