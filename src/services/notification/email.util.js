@@ -19,7 +19,7 @@ export function buildEmailMessage(message, patient) {
   return `
 ${testMode ? '[TEST MODE]\n' : ''}
 
-Пациент: ${patient.last_name || ''} ${patient.first_name || ''}
+Пациент: ${patient.name || `${patient.last_name || ''} ${patient.first_name || ''}`}
 Email пациента: ${patient.email || 'нет'}
 
 ------------------------
