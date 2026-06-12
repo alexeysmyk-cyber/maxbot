@@ -308,17 +308,12 @@ const userSetting = await prisma.userNotification.findFirst({
 });
 
 if (!userSetting) {
-  console.log('⚠️ NO USER SETTINGS → INIT');
-
-  const { initUserNotifications } = await import('../services/notification/initUserNotifications.js');
-
-  await initUserNotifications(user.id, user.activeRole);
+  console.log('⚠️ NO USER SETTINGS');
 
   await prisma.notification.update({
     where: { id: n.id },
     data: { status: 'skipped' }
   });
-  console.log('⛔ SKIP: NO USER SETTINGS');
 
   continue;
 }

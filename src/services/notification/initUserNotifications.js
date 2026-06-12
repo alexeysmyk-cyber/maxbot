@@ -1,12 +1,17 @@
 import { prisma } from '../../db/prisma.js';
 export async function initUserNotifications(userId, roleKey) {
 
-const existing = await prisma.userNotification.findFirst({
+    console.log('🧪 INIT USER NOTIFICATIONS:', {
+    userId,
+    roleKey
+  });
+
+const existingCount = await prisma.userNotification.count({
   where: { userId }
 });
 
-if (existing) {
-  console.log('⚠️ Notifications already exist, skip init');
+if (existingCount > 0) {
+  console.log('⚠️ Already initialized');
   return;
 }
 
@@ -39,4 +44,8 @@ if (existing) {
   }
 
   console.log('✅ UserNotification initialized for role:', roleKey);
+  console.log('✅ INIT DONE:', {
+  userId,
+  total: roleNotifications.length
+});
 }

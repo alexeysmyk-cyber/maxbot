@@ -101,6 +101,7 @@ else if (patientId) {
     }
 
     console.log('🧪 WEBHOOK PATIENT:', patient);
+    console.log('🧪 NORMALIZED EMAIL:', patient?.email);
 
   } catch (e) {
     console.error('❌ LOAD PATIENT ERROR:', e.message);
@@ -149,6 +150,7 @@ if (patientUser && patientUser.mis_id && patientId) {
 }
 
 
+
 function normalizeEmail(email) {
   if (!email) return null;
 
@@ -160,26 +162,41 @@ function normalizeEmail(email) {
 }
 
 // 4. create / update
-if (!patientUser) {
-  patientUser = await prisma.user.create({
-  data: {
-    mis_id: patientId ? String(patientId) : null,
-    phone_hash: phoneHash,
-    email: data.patient_email || null, // 👈 ДОБАВЬ
-    type: 'PATIENT',
-    activeRole: 'PATIENT'
-  }
+
+console.log('🧪 USER SEARCH RESULT:', {
+  patientId,
+  found: !!patientUser
 });
 
+
+if (!patientUser) {
+  patientUser = await prisma.user.create({
+    data: {
+      mis_id: patientId ? String(patientId) : null,
+      phone_hash: phoneHash,
+      email: extractEmail(data),
+      type: 'PATIENT',
+      activeRole: 'PATIENT'
+    }
+  });
+
   console.log('🆕 PATIENT USER CREATED');
+
+  await initUserNotifications(patientUser.id, 'PATIENT');
+  console.log('🧪 CREATED USER:', patientUser);
+  console.log('🧪 INIT USER NOTIFICATIONS DONE:', {
+  userId: patientUser.id
+});
+
 } else {
   await prisma.user.update({
-  where: { id: patientUser.id },
-  data: {
-    ...(phoneHash ? { phone_hash: phoneHash } : {}),
-    ...(data.patient_email ? { email: data.patient_email } : {}) // 👈 ВОТ ЭТО ДОБАВЬ
-  }
-});
+    where: { id: patientUser.id },
+    data: {
+      ...(phoneHash ? { phone_hash: phoneHash } : {}),
+      ...(extractEmail(data) ? { email: extractEmail(data) } : {})
+    }
+  });
+
   console.log('♻️ PATIENT USER UPDATED');
 }
 console.log('🧪 TEST PATIENT USER:', patientUser);
