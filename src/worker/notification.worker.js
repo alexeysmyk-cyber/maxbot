@@ -9,6 +9,15 @@ import { getAppointmentWithRetry } from '../services/mis/mis.service.js';
 import { renderTemplate } from '../common/template.util.js';
 import { resolveChannels } from '../services/notification/resolveChannels.js';
 
+function resolveNotificationKey(event) {
+  if (
+    event === 'visit_reminder_24h' ||
+    event === 'visit_reminder_2h'
+  ) {
+    return 'visit_create';
+  }
+  return event;
+}
 
 
 
@@ -176,7 +185,9 @@ const safeAppointment = appointment || null;
 const result = await buildMessage(
   n.type,
   data,
-  safeAppointment
+  safeAppointment,
+  user,
+  n.channel
 );
 
 if (!result) {
@@ -191,7 +202,7 @@ if (!result) {
 }
 
 const { message: builtMessage, doctorId, key: builtKey } = result;
-const key = builtKey || n.type;
+const key = resolveNotificationKey(builtKey || n.type);
 
 finalMessage = builtMessage;
 emailMessage = builtMessage;
