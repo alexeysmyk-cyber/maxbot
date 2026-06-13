@@ -3,7 +3,7 @@ import { canSendEmail } from './email.util.js';
 /**
  * Возвращает список каналов для пользователя
  */
-export function resolveChannels({ user, patient }) {
+export function resolveChannels({ user, patient, key  }) {
 
   // 👨‍⚕️ СОТРУДНИК
   if (user.type === 'EMPLOYEE') {
