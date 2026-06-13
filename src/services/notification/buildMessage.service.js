@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { getTemplate } from '../notification/template.service.js';
+import { buildTemplateData } from './templateData.util.js';
+
 
 export async function buildMessage(event, data, safeAppointment, user, channel) {
 
@@ -15,8 +17,7 @@ console.log('🧪 TEMPLATE TEST MODE:', {
 
 const isPatient = user?.type === 'PATIENT';
 
-// 🔥 TEMPLATE ТОЛЬКО ДЛЯ ПАЦИЕНТА
-if (isTestUser) {
+if (isPatient) {
   const template = await getTemplate({
     key: event,
     channel
@@ -30,19 +31,19 @@ if (isTestUser) {
   });
 
   if (template?.text) {
-    console.log('🧪 USE TEMPLATE');
+    const templateData = buildTemplateData({
+      data,
+      safeAppointment
+    });
+
+    console.log('🧪 USE TEMPLATE (buildMessage)');
 
     return {
-      message: applyTemplate(template.text, {
-        data,
-        appointment: safeAppointment
-      }),
+      message: applyTemplate(template.text, templateData),
       doctorId: null,
       key: event
     };
   }
-
-  console.log('⚠️ NO TEMPLATE → FALLBACK');
 }
 
 

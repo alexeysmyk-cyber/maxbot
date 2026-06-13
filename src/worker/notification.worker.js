@@ -7,7 +7,8 @@ import { resolveMode } from '../common/notificationMode.util.js';
 import { getPatientById } from '../services/mis/mis.service.js';
 import { getAppointmentWithRetry } from '../services/mis/mis.service.js';
 import { renderTemplate } from '../common/template.util.js';
-import { resolveChannels } from '../services/notification/resolveChannels.js';
+//import { resolveChannels } from '../services/notification/resolveChannels.js';
+import { buildTemplateData } from '../services/notification/templateData.util.js';
 
 function resolveNotificationKey(event) {
   if (
@@ -473,7 +474,7 @@ if (user.type === 'PATIENT' && !patient) {
 
 
 
-const maxTemplate = await prisma.notificationTemplate.findUnique({
+/*const maxTemplate = await prisma.notificationTemplate.findUnique({
   where: {
     key_channel: {
       key: templateKey,
@@ -518,51 +519,30 @@ function formatTime(dateTime) {
 
 const rawStart = safeAppointment?.time_start || data.time_start || '';
 const rawEnd = data.time_end || safeAppointment?.time_end || '';
+*/
 
-const templateData = {
-  patient_name: safeAppointment?.patient_name || data.patient_name || '',
-  doctor_name: safeAppointment?.doctor || data.doctor || '',
 
-  date: formatDateRu(rawStart),
-  time_start: formatTime(rawStart),
-  time_end: formatTime(rawEnd),
-
-  cabinet: safeAppointment?.room || data.room || '',
-clinic: safeAppointment?.clinic || data.clinic || '',
-new_doctor: safeAppointment?.doctor || data.doctor || '',
-
-  phone: data.patient_phone || '',
-  email: data.patient_email || '',
-  
-  old_date: formatDateRu(data.old_time_start || ''),
-  new_date: formatDateRu(rawStart),
-
-  old_time: formatTime(data.old_time_start || ''),
-  new_time: formatTime(rawStart),
-
-  old_doctor: data.old_doctor || '',
-
-  review_link: data.review_link || '',
-  author_name: data.author_name || '',
-  status: data.status || ''
-};
+const templateData = buildTemplateData({
+  data,
+  safeAppointment
+});
 
 
 // MAX template
-if (maxTemplate?.text?.trim()) {
+/*if (maxTemplate?.text?.trim()) {
   finalMessage = renderTemplate(
     maxTemplate.text,
     templateData
   );
-}
+}*/
 
-// EMAIL template
+/* EMAIL template
 if (emailTemplate?.text?.trim()) {
   emailMessage = renderTemplate(
     emailTemplate.text,
     templateData
   );
-}
+}*/
 
 console.log('🧪 FINAL MESSAGE:', finalMessage);
 
