@@ -394,19 +394,12 @@ return { message, doctorId, key };
 
 }
 
-function applyTemplate(template, { data, appointment }) {
+
+function applyTemplate(template, templateData) {
   let result = template;
 
-  const vars = {
-    patient_name: data.patient_name,
-    doctor: data.doctor,
-    time: data.time_start,
-    phone: data.patient_phone,
-    clinic: data.clinic
-  };
-
-  for (const key in vars) {
-    result = result.replaceAll(`{{${key}}}`, vars[key] || '');
+  for (const key in templateData) {
+    result = result.replaceAll(`{{${key}}}`, templateData[key] || '');
   }
 
   return result;

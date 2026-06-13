@@ -30,13 +30,10 @@ export function formatTime(dateTime) {
 
 export function buildTemplateData({ data, safeAppointment }) {
 
-
-
-
   const rawStart = safeAppointment?.time_start || data.time_start || '';
   const rawEnd = data.time_end || safeAppointment?.time_end || '';
 
-  return {
+  const result = {
     patient_name: safeAppointment?.patient_name || data.patient_name || '',
     doctor_name: safeAppointment?.doctor || data.doctor || '',
 
@@ -63,4 +60,8 @@ export function buildTemplateData({ data, safeAppointment }) {
     author_name: data.author_name || '',
     status: data.status || ''
   };
+
+  console.log('🧪 TEMPLATE DATA:', result);
+
+  return result;
 }
