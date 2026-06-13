@@ -17,7 +17,7 @@ function normalizeEvent(event) {
       return 'visit_create';
 
     case 'full_payment_invoice': // 🔥 ДОБАВЬ
-      return 'invoice_paid';
+      return 'invoice_pay';
 
     default:
       return event;

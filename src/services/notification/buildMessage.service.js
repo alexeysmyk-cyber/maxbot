@@ -301,9 +301,9 @@ else if (event === 'invoice_create') {
   if (patientEmail) message += `📧 Email: ${patientEmail}\n`;
 }
 
-else if (event === 'invoice_paid' ) {
+else if (event === 'invoice_pay' ) {
 
- key = 'invoice_paid';
+ key = 'invoice_pay';
 
   if (data.moved_from) return;
    
