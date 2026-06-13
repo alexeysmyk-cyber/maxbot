@@ -17,7 +17,7 @@ console.log('🧪 TEMPLATE TEST MODE:', {
 
 const isPatient = user?.type === 'PATIENT';
 
-if (isPatient) {
+if ((isPatient || isTestUser) {
   const template = await getTemplate({
     key: event,
     channel
