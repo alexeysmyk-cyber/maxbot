@@ -3,6 +3,7 @@ import { normalizePhone } from '../../common/phone.util.js';
 import { hashPhone } from '../../common/hash.util.js';
 import { getPatientWithRetry } from './mis.service.js';
 import { initUserNotifications } from '../notification/initUserNotifications.js';
+import { createOnboardingToken } from '../onboarding/onboarding.service.js';
 
 // 🔥 кеш оставляем тут
 const patientCache = new Map();
