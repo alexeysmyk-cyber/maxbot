@@ -51,6 +51,9 @@ model User {
   alerts UpcomingVisitAlert[]
 
   createdAt DateTime @default(now())
+  onboardingTokens OnboardingToken[]
+  preferredChannel String? // MAX / EMAIL / WHATSAPP / TELEGRAM
+
   
 }
 
@@ -232,4 +235,17 @@ model Notification {
   @@index([status, sendAt])
   @@index([userId])
   @@unique([externalId, channel])
+} 
+
+model OnboardingToken {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  token      String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }

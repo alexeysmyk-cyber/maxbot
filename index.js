@@ -144,6 +144,36 @@ app.get('/api/queue', basicAuth, async (req, res) => {
 
   res.json(result);
 });
+app.get('/welcome', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.send('❌ Token not provided');
+  }
+
+  const record = await prisma.onboardingToken.findUnique({
+    where: { token },
+    include: { user: true }
+  });
+
+  // ❌ не найден
+  if (!record) {
+    return res.send('❌ Invalid token');
+  }
+
+  // ❌ истёк
+  if (record.expiresAt < new Date()) {
+    return res.send('❌ Token expired');
+  }
+
+  // ❌ уже использован (пока можно не блокировать)
+  if (record.used) {
+    return res.send('⚠️ Token already used');
+  }
+
+  // ✅ отдаём страницу
+  res.sendFile(path.resolve('public/welcome.html'));
+});
 
 
 app.get('/admin/queue', basicAuth, (req, res) => {
@@ -198,6 +228,45 @@ app.post('/api/queue/delete',basicAuth, async (req, res) => {
   });
 
   res.json({ ok: true });
+});
+app.post('/api/onboarding/select-channel', async (req, res) => {
+  const { token, channel } = req.body;
+
+  if (!token || !channel) {
+    return res.status(400).json({ error: 'INVALID_DATA' });
+  }
+
+  const record = await prisma.onboardingToken.findUnique({
+    where: { token },
+    include: { user: true }
+  });
+
+  if (!record) {
+    return res.status(400).json({ error: 'INVALID_TOKEN' });
+  }
+
+  // сохраняем выбор
+  await prisma.user.update({
+    where: { id: record.userId },
+    data: {
+      preferredChannel: channel // 👈 новое поле
+    }
+  });
+
+  // помечаем токен
+  await prisma.onboardingToken.update({
+    where: { id: record.id },
+    data: { used: true }
+  });
+
+  // если MAX → даём ссылку
+  if (channel === 'MAX') {
+    return res.json({
+      link: 'https://max.ru/bot/YOUR_BOT'
+    });
+  }
+
+  return res.json({ success: true });
 });
 
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор канала</title>
+</head>
+
+<body>
+
+<h2>Добро пожаловать 👋</h2>
+
+<p>Выберите удобный канал связи:</p>
+
+<button onclick="select('EMAIL')">📧 Email</button>
+<button onclick="select('MAX')">🤖 MAX</button>
+
+<script>
+
+const token = new URLSearchParams(window.location.search).get('token');
+
+async function select(channel) {
+  const res = await fetch('/api/onboarding/select-channel', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token,
+      channel
+    })
+  });
+
+  const data = await res.json();
+
+  if (channel === 'MAX') {
+    window.location.href = data.link;
+  } else {
+    document.body.innerHTML = '<h3>✅ Вы выбрали Email</h3>';
+  }
+}
+
+</script>
+
+</body>
+</html>
