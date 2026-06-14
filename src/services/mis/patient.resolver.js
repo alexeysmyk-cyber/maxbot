@@ -203,6 +203,35 @@ if (!patientUser) {
 
   console.log('♻️ PATIENT USER UPDATED');
 }
+
+
+
+
+// тестируем токен
+
+
+
+if (user.type === 'PATIENT' && user.email) {
+
+  // 🔥 защита: не отправлять каждый раз
+  if (!user.onboardingSentAt) {
+
+    console.log('🚀 SEND ONBOARDING');
+
+    await createOnboardingToken(user.id);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        onboardingSentAt: new Date()
+      }
+    });
+  }
+ }
+
+ 
+ 
+
 console.log('🧪 TEST PATIENT USER:', patientUser);
 
   return {

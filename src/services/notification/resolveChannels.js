@@ -1,5 +1,6 @@
 import { canSendEmail } from './email.util.js';
 
+
 /**
  * Возвращает список каналов для пользователя
  */

@@ -53,7 +53,7 @@ model User {
   createdAt DateTime @default(now())
   onboardingTokens OnboardingToken[]
   preferredChannel String? // MAX / EMAIL / WHATSAPP / TELEGRAM
-
+onboardingSentAt DateTime?
   
 }
 
