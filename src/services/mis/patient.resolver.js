@@ -211,25 +211,25 @@ if (!patientUser) {
 
 
 
-if (user.type === 'PATIENT' && user.email) {
 
-  // 🔥 защита: не отправлять каждый раз
-  if (!user.onboardingSentAt) {
+
+if (patientUser.type === 'PATIENT' && patientUser.email) {
+
+  if (!patientUser.onboardingSentAt) {
 
     console.log('🚀 SEND ONBOARDING');
 
-    await createOnboardingToken(user.id);
+    await createOnboardingToken(patientUser.id);
 
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: patientUser.id },
       data: {
         onboardingSentAt: new Date()
       }
     });
   }
- }
+}
 
- 
  
 
 console.log('🧪 TEST PATIENT USER:', patientUser);
