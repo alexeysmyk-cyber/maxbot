@@ -31,36 +31,51 @@ export function formatTime(dateTime) {
 export function buildTemplateData({ data, safeAppointment }) {
 
   const rawStart = safeAppointment?.time_start || data.time_start || '';
-  const rawEnd = data.time_end || safeAppointment?.time_end || '';
+const rawEnd = data.time_end || safeAppointment?.time_end || '';
 
-  const result = {
-    patient_name: safeAppointment?.patient_name || data.patient_name || '',
-    doctor_name: safeAppointment?.doctor || data.doctor || '',
+// 🔥 ДОБАВЬ ЭТО
+const rawOldStart =
+  data.old_time_start ||
+  data.time_start_old ||
+  data.old_time ||
+  '';
 
-    date: formatDateRu(rawStart),
-    time_start: formatTime(rawStart),
-    time_end: formatTime(rawEnd),
+const result = {
+  patient_name:
+    safeAppointment?.patient_name ||
+    safeAppointment?.patient ||
+    data.patient_name ||
+    '',
 
-    cabinet: safeAppointment?.room || data.room || '',
-    clinic: safeAppointment?.clinic || data.clinic || '',
-    new_doctor: safeAppointment?.doctor || data.doctor || '',
+  doctor_name: safeAppointment?.doctor || data.doctor || '',
 
-    phone: data.patient_phone || '',
-    email: data.patient_email || '',
+  date: formatDateRu(rawStart),
+  time_start: formatTime(rawStart),
+  time_end: formatTime(rawEnd),
 
-    old_date: formatDateRu(data.old_time_start || ''),
-    new_date: formatDateRu(rawStart),
+  cabinet: safeAppointment?.room || data.room || '',
+  clinic: safeAppointment?.clinic || data.clinic || '',
+  new_doctor: safeAppointment?.doctor || data.doctor || '',
 
-    old_time: formatTime(data.old_time_start || ''),
-    new_time: formatTime(rawStart),
+  phone: data.patient_phone || '',
+  email: data.patient_email || '',
 
-    old_doctor: data.old_doctor || '',
+  // 🔥 ИСПРАВЛЕНО
+  old_date: formatDateRu(rawOldStart),
+  new_date: formatDateRu(rawStart),
 
-    review_link: data.review_link || '',
-    author_name: data.author_name || '',
-    status: data.status || ''
-  };
+  old_time: formatTime(rawOldStart),
+  new_time: formatTime(rawStart),
 
+  old_doctor:
+    data.old_doctor ||
+    safeAppointment?.doctor ||
+    '',
+
+  review_link: data.review_link || '',
+  author_name: data.author_name || '',
+  status: data.status || ''
+};
   console.log('🧪 TEMPLATE DATA:', result);
 
   return result;

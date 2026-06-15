@@ -122,8 +122,15 @@ else if (event === 'full_ready_lab_result' || event === 'part_ready_lab_result')
     return null;
   }
 
-  const patientName = safeAppointment?.patient_name;
-const doctor = safeAppointment?.doctor;
+const patientName =
+  safeAppointment?.patient_name ||
+  safeAppointment?.patient ||
+  data.patient_name;
+
+const doctor =
+  safeAppointment?.doctor || data.doctor;
+
+
 doctorId = safeAppointment?.doctor_id;
 
   message = isFull
