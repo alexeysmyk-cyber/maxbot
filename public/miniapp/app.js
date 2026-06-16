@@ -745,7 +745,7 @@ async function init() {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-  mis_id: window.MIS_ID
+  max_id: maxUser.id
 })
 });
 
