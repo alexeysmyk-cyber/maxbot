@@ -147,12 +147,12 @@ try {
 
   try {
     response = await fetch('/miniapp/doctors', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        mis_id: window.MIS_ID
-      })
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    max_id: maxUser.id
+  })
+});
   } catch (err2) {
     content.innerHTML = `<div class="card">Ошибка загрузки врачей</div>`;
     return;

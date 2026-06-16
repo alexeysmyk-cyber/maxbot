@@ -12,8 +12,22 @@ const router = express.Router();
 // ===============================
 router.post("/doctors", async (req, res) => {
   try {
-    const { mis_id } = req.body;
-    console.log("🔥 REQ MIS_ID:", mis_id);
+
+    const { max_id } = req.body;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        maxId: String(max_id)
+      }
+    });
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
+
+    const mis_id = user.misId;
+
+    console.log("🔥 REAL MIS_ID:", mis_id);
     const body = qs.stringify({
       api_key: process.env.API_KEY
     });
@@ -71,14 +85,26 @@ router.post('/auth', async (req, res) => {
 
   console.log("📥 MAX AUTH:", max_id);
 
-  // временно разрешаем только тебе
   if (!max_id) {
-    return res.status(403).json({ ok: false });
+    return res.json({ ok: false });
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      maxId: String(max_id)
+    }
+  });
+
+  console.log("👤 DB USER:", user);
+
+  if (!user) {
+    return res.json({ ok: false });
   }
 
   return res.json({
     ok: true,
-    mis_id: 46493 // временно
+    role: user.type,
+    mis_id: user.misId
   });
 });
 
