@@ -25,6 +25,23 @@ const prisma = new PrismaClient();
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
+app.get('/public/miniapp/index.html', (req, res) => {
+  const userAgent = req.headers['user-agent'] || '';
+
+  const isMax = userAgent.includes('Max') || userAgent.includes('MAX');
+
+  if (!isMax) {
+    return res.send(`
+      <html>
+        <body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif">
+          <h2>❌ Доступ только через MAX</h2>
+        </body>
+      </html>
+    `);
+  }
+
+  res.sendFile(path.join(process.cwd(), 'public/miniapp/index.html'));
+});
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));
 
