@@ -26,16 +26,23 @@ import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 
 
-console.log("WINDOW MAX:", window.MAX);
+console.log("WINDOW MAX:", window.WebApp);
 
-if (window.MAX) {
-  window.MAX.getUser().then(user => {
-    document.body.innerHTML += `
-      <div style="background:black;color:white">
-        USER: ${JSON.stringify(user)}
-      </div>
-    `;
-  });
+if (window.WebApp) {
+  document.body.innerHTML += `
+    <div style="position:fixed;top:0;left:0;background:green;color:white;padding:10px;z-index:9999">
+      ✅ RUNNING IN MAX
+    </div>
+  `;
+
+  console.log("WebApp:", window.WebApp);
+
+} else {
+  document.body.innerHTML += `
+    <div style="position:fixed;top:0;left:0;background:red;color:white;padding:10px;z-index:9999">
+      ❌ NOT IN MAX
+    </div>
+  `;
 }
 
 // ===============================
@@ -52,28 +59,28 @@ const scheduleTab = document.getElementById('scheduleTab');
 const isLocal = window.location.hostname === "localhost";
 
 // MAX должен быть в window
-const isMax = typeof window.MAX !== "undefined";
+const isMax = typeof window.WebApp !== "undefined";
 
-/*if (!isLocal && !isMax) {
+if (!isLocal && !isMax) {
   document.body.innerHTML = `
     <div style="text-align:center;margin-top:100px;font-size:20px">
       ❌ Доступ только через MAX
     </div>
   `;
   throw new Error("ACCESS DENIED");
-}*/
+}
 
 
 async function getMaxUser() {
 
   // если не в MAX — сразу выходим
-  if (!window.MAX) {
+  if (!window.WebApp) {
     console.log("❌ MAX not found");
     return null;
   }
 
   try {
-    const user = await window.MAX.getUser();
+    const user = await window.WebApp.getUser();
 
     console.log("✅ MAX USER:", user);
 
@@ -737,7 +744,7 @@ async function init() {
     return;
   }*/
 const isLocal = window.location.hostname === "localhost";
-const isMax = typeof window.MAX !== "undefined";
+const isMax = typeof window.WebApp !== "undefined";
 
 if (!isMax && !isLocal) {
   console.log("⚠️ OPENED OUTSIDE MAX");
@@ -782,8 +789,8 @@ if (!isMax && !isLocal) {
   renderVisits();
 }
 
-if (window.MAX) {
-  window.MAX.getUser().then(user => {
+if (window.WebApp) {
+  window.WebApp.getUser().then(user => {
     document.body.innerHTML += `
       <div style="
         position:fixed;
