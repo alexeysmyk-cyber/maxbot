@@ -717,8 +717,6 @@ function attachEvents() {
 // ===============================
 async function init() {
 
-  document.getElementById('app').style.display = 'none';
-document.getElementById('main').style.display = 'block';
 
   const isMax = isRunningInMAX();
 
@@ -806,29 +804,7 @@ console.log("STEP 2 AUTH:", data);
     return;
   }
 
-  // ===============================
-  // 🔐 AUTH
-  // ===============================
-  const res = await fetch('/miniapp/auth', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      max_id: maxUser.id
-    })
-  });
-
-  const data = await res.json();
-
-  console.log("STEP 2 AUTH:", data);
-
-  if (!data.ok) {
-    document.body.innerHTML = `
-      <div style="text-align:center;padding:50px">
-        <h2>❌ Нет доступа</h2>
-      </div>
-    `;
-    return;
-  }
+ 
 
   // ===============================
   // 🧠 MIS
@@ -840,6 +816,10 @@ console.log("STEP 2 AUTH:", data);
   // ===============================
   // 🚀 APP
   // ===============================
+
+  
+  document.getElementById('app').style.display = 'none';
+document.getElementById('main').style.display = 'block';
   attachEvents();
   renderVisits();
 }
