@@ -58,13 +58,7 @@ const scheduleTab = document.getElementById('scheduleTab');
 // AUTH
 // ===============================
 
-const isLocal = window.location.hostname === "localhost";
-const isMax = isRunningInMAX();
 
-if (!isMax && !isLocal) {
-  document.body.innerHTML = "❌ Только через MAX";
-  return;
-}
 
 
 async function getMaxUser() {
@@ -733,12 +727,12 @@ async function init() {
     return;
   }*/
 const isLocal = window.location.hostname === "localhost";
-const isMax = typeof isRunningInMAX()!== "undefined";
+const isMax = isRunningInMAX();
 
 if (!isMax && !isLocal) {
   console.log("⚠️ OPENED OUTSIDE MAX");
 
-  // временно разрешаем
+  // fallback
   window.MIS_ID = 46493;
 
   attachEvents();
