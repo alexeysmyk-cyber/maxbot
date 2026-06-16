@@ -21,7 +21,7 @@ router.post("/doctors", async (req, res) => {
 
     const user = await prisma.user.findFirst({
       where: {
-        maxId: String(max_id)
+        vk_id: String(max_id)
       }
     });
 
@@ -95,7 +95,7 @@ router.post('/auth', async (req, res) => {
 
   const user = await prisma.user.findFirst({
     where: {
-      maxId: String(max_id)
+      vk_id: String(max_id)
     }
   });
 

@@ -43,7 +43,7 @@ app.post('/miniapp/auth', async (req, res) => {
     // 🔥 ищем пользователя в БД
     const user = await prisma.user.findFirst({
       where: {
-        maxId: String(max_id)
+        vk_id: String(max_id)
       }
     });
 
