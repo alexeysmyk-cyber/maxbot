@@ -12,9 +12,11 @@ export async function getDoctors(req, res) {
   try {
 
 
-   const tgUser = {
-  mis_id: 43347
+ const tgUser = {
+  mis_id: req.body.mis_id
 };
+
+console.log("🔥 REQ MIS_ID:", req.body.mis_id);
 
     if (!tgUser) {
       return res.status(403).send("User not found in DB");

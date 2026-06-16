@@ -5,7 +5,7 @@ import qs from "querystring";
 const router = express.Router();
 
 // 🔥 ТВОЙ MIS ID
-const MY_MIS_ID = 43347;
+const { mis_id } = req.body;
 
 // ===============================
 // ВРАЧИ
@@ -34,8 +34,8 @@ router.post("/doctors", async (req, res) => {
 
     res.json({
       doctors,
-      currentDoctorId: MY_MIS_ID,
-      isDirector: true
+      currentDoctorId: mis_id,
+isDirector: false // временно
     });
 
   } catch (e) {
