@@ -142,10 +142,11 @@ console.log("ROLES:", roles);
 
 
 
-  return {
-    isDirector: true,
-    currentDoctorId,
-    doctors
-  };
+ return {
+  isDirector,
+  isDoctor,
+  currentDoctorId,
+  doctors
+};
 }
 
