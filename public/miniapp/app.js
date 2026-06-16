@@ -150,6 +150,7 @@ try {
   console.warn("Doctors request timeout, retrying...");
 
   try {
+    console.log("🚀 SEND MIS_ID:", window.MIS_ID);
     response = await fetch('/miniapp/doctors', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
