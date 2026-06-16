@@ -25,6 +25,10 @@ import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 
+
+console.log("WINDOW MAX:", window.MAX);
+
+
 // ===============================
 // DOM
 // ===============================
@@ -724,16 +728,12 @@ async function init() {
     return;
   }*/
 const isLocal = window.location.hostname === "localhost";
+const isMax = typeof window.MAX !== "undefined";
 
-if (!maxUser && !isLocal) {
-  document.body.innerHTML = "❌ Открывайте только через MAX";
-  return;
-}
+if (!isMax && !isLocal) {
+  console.log("⚠️ OPENED OUTSIDE MAX");
 
-// 👉 для локальной разработки
-if (!maxUser && isLocal) {
-  console.log("⚠️ LOCAL MODE");
-
+  // временно разрешаем
   window.MIS_ID = 46493;
 
   attachEvents();
