@@ -289,27 +289,27 @@ const roleLabel = role?.name || user.activeRole || user.type;
   const buttons = [];
 
  if (user.activeRole !== 'PATIENT') {
-bot.api.sendMessageToUser(userId, {
-  text: "Меню",
-  reply_markup: {
-    inline_keyboard: [
-      [
-        {
-          text: "💰 Создать счёт",
-          callback_data: "create_invoice"
-        }
-      ],
-      [
-        {
-          text: "📅 Расписание",
-          web_app: {
-            url: "https://maxbot.sredaclinic.ru/public/miniapp/index.html"
+  await ctx.api.sendMessageToUser(ctx.from.id, {
+    text: "Меню",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "💰 Создать счёт",
+            callback_data: "create_invoice"
           }
-        }
+        ],
+        [
+          {
+            text: "📅 Расписание",
+            web_app: {
+              url: "https://maxbot.sredaclinic.ru/public/miniapp/index.html"
+            }
+          }
+        ]
       ]
-    ]
-  }
-});
+    }
+  });
 }
 
   buttons.push([
