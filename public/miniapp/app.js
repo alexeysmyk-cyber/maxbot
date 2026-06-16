@@ -26,7 +26,7 @@ import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 
 
-console.log("WINDOW MAX:", window.WebApp);
+
 
 function isRunningInMAX() {
   return !!window.WebApp &&
@@ -59,39 +59,26 @@ const scheduleTab = document.getElementById('scheduleTab');
 // ===============================
 
 const isLocal = window.location.hostname === "localhost";
+const isMax = isRunningInMAX();
 
-// MAX должен быть в window
-const isMax = typeof window.WebApp !== "undefined";
-
-if (!isLocal && !isMax) {
-  document.body.innerHTML = `
-    <div style="text-align:center;margin-top:100px;font-size:20px">
-      ❌ Доступ только через MAX
-    </div>
-  `;
-  throw new Error("ACCESS DENIED");
+if (!isMax && !isLocal) {
+  document.body.innerHTML = "❌ Только через MAX";
+  return;
 }
 
 
 async function getMaxUser() {
 
-  // если не в MAX — сразу выходим
-  if (!window.WebApp) {
-    console.log("❌ MAX not found");
+  if (!isRunningInMAX()) {
+    console.log("❌ NOT MAX");
     return null;
   }
 
-  try {
-    const user = await window.WebApp.getUser();
+  const user = window.WebApp.initDataUnsafe?.user;
 
-    console.log("✅ MAX USER:", user);
+  console.log("✅ MAX USER:", user);
 
-    return user;
-
-  } catch (e) {
-    console.error("❌ MAX ERROR:", e);
-    return null;
-  }
+  return user;
 }
 
 
@@ -746,7 +733,7 @@ async function init() {
     return;
   }*/
 const isLocal = window.location.hostname === "localhost";
-const isMax = typeof window.WebApp !== "undefined";
+const isMax = typeof isRunningInMAX()!== "undefined";
 
 if (!isMax && !isLocal) {
   console.log("⚠️ OPENED OUTSIDE MAX");
@@ -791,22 +778,22 @@ if (!isMax && !isLocal) {
   renderVisits();
 }
 
-if (window.WebApp) {
-  window.WebApp.getUser().then(user => {
-    document.body.innerHTML += `
-      <div style="
-        position:fixed;
-        top:0;
-        left:0;
-        background:black;
-        color:white;
-        padding:10px;
-        z-index:9999;
-      ">
-        USER: ${JSON.stringify(user)}
-      </div>
-    `;
-  });
+if (isRunningInMAX()) {
+  const user = window.WebApp.initDataUnsafe?.user;
+
+  document.body.innerHTML += `
+    <div style="
+      position:fixed;
+      top:40px;
+      left:0;
+      background:black;
+      color:white;
+      padding:10px;
+      z-index:9999;
+    ">
+      USER: ${JSON.stringify(user)}
+    </div>
+  `;
 } else {
   document.body.innerHTML += `
     <div style="
