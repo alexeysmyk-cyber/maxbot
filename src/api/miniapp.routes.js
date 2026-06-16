@@ -82,36 +82,30 @@ router.post("/get-patient", async (req, res) => {
 router.post("/create-appointment", async (req, res) => {
   proxy(req, res, "createAppointment");
 });
-
 router.post('/auth', async (req, res) => {
-
   const { max_id } = req.body;
 
-  console.log("📥 MAX AUTH:", max_id);
-
-  if (!max_id) {
-    return res.json({ ok: false });
-  }
-
   const user = await prisma.user.findFirst({
-    where: {
-      vk_id: String(max_id)
-    }
+    where: { vk_id: String(max_id) }
   });
-
-  console.log("👤 DB USER:", user);
 
   if (!user) {
     return res.json({ ok: false });
   }
 
+  if (user.type === 'PATIENT') {
+    return res.json({
+      ok: true,
+      role: 'PATIENT'
+    });
+  }
+
   return res.json({
     ok: true,
-    role: user.type,
-    mis_id: user.misId
+    role: 'EMPLOYEE',
+    mis_id: user.mis_id
   });
 });
-
 async function proxy(req, res, method) {
   try {
 
