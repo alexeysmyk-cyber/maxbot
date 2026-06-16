@@ -745,11 +745,15 @@ async function init() {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    max_id: maxUser.id
-  })
+  mis_id: window.MIS_ID
+})
 });
 
 const data = await res.json();
+
+window.MIS_ID = data.mis_id;
+
+console.log("✅ MIS_ID SET:", window.MIS_ID);
 
 // ===============================
 // ❌ НЕТ В БАЗЕ
