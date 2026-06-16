@@ -26,9 +26,13 @@ const prisma = new PrismaClient();
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.get('/public/miniapp/index.html', (req, res) => {
-  const userAgent = req.headers['user-agent'] || '';
 
-  const isMax = userAgent.includes('Max') || userAgent.includes('MAX');
+  const referer = req.headers.referer || '';
+  const origin = req.headers.origin || '';
+
+  const isMax =
+    referer.includes('max.ru') ||
+    origin.includes('max.ru');
 
   if (!isMax) {
     return res.send(`
