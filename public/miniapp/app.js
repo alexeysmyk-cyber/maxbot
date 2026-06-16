@@ -721,10 +721,22 @@ async function init() {
   const isMax = isRunningInMAX();
 
   // ===============================
-  // 1. НЕ MAX → fallback
+  // ❌ НЕ MAX → СРАЗУ БЛОК
   // ===============================
   if (!isMax && !isLocal) {
-    console.log("⚠️ OUTSIDE MAX");
+    document.body.innerHTML = `
+      <div style="text-align:center;padding:50px">
+        <h2>❌ Доступ только через MAX</h2>
+      </div>
+    `;
+    return;
+  }
+
+  // ===============================
+  // 🧪 LOCAL → тестовый режим
+  // ===============================
+  if (isLocal && !isMax) {
+    console.log("🧪 LOCAL MODE");
 
     window.MIS_ID = 46493;
 
@@ -734,19 +746,25 @@ async function init() {
   }
 
   // ===============================
-  // 2. MAX → получаем user
+  // ✅ MAX → получаем user
   // ===============================
-  const maxUser = await getMaxUser();
+  let maxUser = null;
+
+  for (let i = 0; i < 10; i++) {
+    maxUser = window.WebApp?.initDataUnsafe?.user;
+    if (maxUser) break;
+    await new Promise(r => setTimeout(r, 100));
+  }
 
   console.log("STEP 1 USER:", maxUser);
 
   if (!maxUser) {
-    document.body.innerHTML = "❌ Нет пользователя MAX";
+    document.body.innerHTML = "❌ Ошибка получения пользователя MAX";
     return;
   }
 
   // ===============================
-  // 3. AUTH
+  // 🔐 AUTH
   // ===============================
   const res = await fetch('/miniapp/auth', {
     method: 'POST',
@@ -760,7 +778,7 @@ async function init() {
 
   const data = await res.json();
 
-  console.log("STEP 2 AUTH RESPONSE:", data);
+  console.log("STEP 2 AUTH:", data);
 
   if (!data.ok) {
     document.body.innerHTML = "❌ Нет доступа";
@@ -768,18 +786,21 @@ async function init() {
   }
 
   // ===============================
-  // 4. MIS ID
+  // 🧠 MIS
   // ===============================
   window.MIS_ID = data.mis_id;
 
   console.log("STEP 3 MIS_ID:", window.MIS_ID);
 
   // ===============================
-  // 5. START APP
+  // 🚀 APP
   // ===============================
   attachEvents();
   renderVisits();
 }
+
+
+
 if (isRunningInMAX()) {
   const user = window.WebApp.initDataUnsafe?.user;
 
