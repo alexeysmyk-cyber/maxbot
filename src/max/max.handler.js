@@ -289,9 +289,15 @@ const roleLabel = role?.name || user.activeRole || user.type;
   const buttons = [];
 
  if (user.activeRole !== 'PATIENT') {
+   const webAppButton = {
+    type: "link",
+    text: "🔗 Открыть приложение",
+    url: "https://ваш-домен.max.ru" // Замените на ваш URL
+  };
+
   buttons.push([
     Keyboard.button.callback('💰 Создать счёт', 'create_invoice'),
-    Keyboard.button.webApp('🔗 Открыть приложение', 'https://maxbot.sredaclinic.ru/public/miniapp/index.html')
+    webAppButton
   ]);
   
 }
