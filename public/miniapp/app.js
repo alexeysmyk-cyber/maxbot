@@ -54,14 +54,14 @@ const isLocal = window.location.hostname === "localhost";
 // MAX должен быть в window
 const isMax = typeof window.MAX !== "undefined";
 
-if (!isLocal && !isMax) {
+/*if (!isLocal && !isMax) {
   document.body.innerHTML = `
     <div style="text-align:center;margin-top:100px;font-size:20px">
       ❌ Доступ только через MAX
     </div>
   `;
   throw new Error("ACCESS DENIED");
-}
+}*/
 
 
 async function getMaxUser() {
