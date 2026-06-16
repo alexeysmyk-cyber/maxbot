@@ -292,7 +292,7 @@ const roleLabel = role?.name || user.activeRole || user.type;
    const webAppButton = {
     type: "link",
     text: "🔗 Открыть приложение",
-    url: "https://ваш-домен.max.ru" // Замените на ваш URL
+    url: "https://maxbot.sredaclinic.ru/public/miniapp/index.html" // Замените на ваш URL
   };
 
   buttons.push([
