@@ -123,6 +123,13 @@ function setActive(tab) {
 // ===============================
 async function renderVisits() {
 
+if (!window.MIS_ID) {
+  console.error("❌ MIS_ID НЕ УСТАНОВЛЕН");
+  content.innerHTML = `<div class="card">Ошибка авторизации</div>`;
+  return;
+}
+
+
   content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
 
 
@@ -751,7 +758,7 @@ async function init() {
 
 const data = await res.json();
 
-window.MIS_ID = data.mis_id;
+
 
 console.log("✅ MIS_ID SET:", window.MIS_ID);
 
@@ -773,7 +780,9 @@ if (!data.ok) {
   `;
   return;
 }
+window.MIS_ID = data.mis_id;
 
+console.log("✅ MIS_ID SET:", window.MIS_ID);
 // ===============================
 // 🟡 ПАЦИЕНТ
 // ===============================
@@ -809,10 +818,9 @@ console.log("STEP 2 AUTH:", data);
   // ===============================
   // 🧠 MIS
   // ===============================
-  window.MIS_ID = data.mis_id;
 
   console.log("STEP 3 MIS_ID:", window.MIS_ID);
-
+console.log("INIT DONE, MIS_ID:", window.MIS_ID);
   // ===============================
   // 🚀 APP
   // ===============================
