@@ -292,6 +292,15 @@ const roleLabel = role?.name || user.activeRole || user.type;
   buttons.push([
     Keyboard.button.callback('💰 Создать счёт', 'create_invoice')
   ]);
+
+   buttons.push([
+    [
+      Keyboard.button.webApp(
+        '📅 Открыть МИС',
+        'https://maxbot.sredaclinic.ru/public/miniapp/index.html'
+      )
+    ]
+  ]);
 }
 
   buttons.push([

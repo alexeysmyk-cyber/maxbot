@@ -1,0 +1,1964 @@
+* {
+  -webkit-user-select: none;
+  user-select: none;
+}
+textarea,
+input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+button,
+.slot,
+.tab,
+.doctor-header,
+.hint-wrapper {
+  -webkit-touch-callout: none;
+}
+
+
+
+/* ============================= */
+/* БАЗА */
+/* ============================= */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;              /* страница не скроллится */
+  background: #f4f7fb;
+  font-family: Inter, sans-serif;
+  color: #1f2d3d;
+  overscroll-behavior: none;
+}
+
+
+.service-item-select.selected {
+  background: #e6f8fb;
+  border: 1px solid #00a4c7;
+}
+
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;              /* убираем scroll отсюда */
+  padding-top: 6px;
+}
+#scheduleContainer {
+  flex: 1;                       /* занимает всё оставшееся место */
+  overflow-y: auto;              /* scroll только здесь */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 90px;
+}
+
+.visit-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  text-align: center;
+}
+
+.services-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: 0.3s ease;
+  opacity: 0;
+}
+
+.services-content.open {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.services-arrow {
+  transition: 0.3s ease;
+}
+
+.services-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+
+/* ============================= */
+/* ОСНОВНОЙ КОНТЕЙНЕР */
+/* ============================= */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+/* ============================= */
+/* TAB НАВИГАЦИЯ */
+/* ============================= */
+
+.tabs {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 44px;
+  background: #f4f7fb;
+  border-bottom: 1px solid #e6e6e6;
+  z-index: 1000;
+}
+
+.tab {
+  flex: 1;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 17px;     /* было 15 */
+  letter-spacing: 0.3px;
+  color: #7a8a9a;
+  background: none;
+  border: none;
+  position: relative;
+}
+
+
+.tab.active {
+  color: #00a4c7;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  width: 40%;
+  height: 3px;
+  background: #00a4c7;
+  border-radius: 3px 3px 0 0;
+}
+
+/* ============================= */
+/* КОНТЕНТ */
+/* ============================= */
+
+
+/* ============================= */
+/* КАРТОЧКИ */
+/* ============================= */
+
+
+
+  .card {
+  background: white;
+  margin-bottom: 2px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: 1px solid #dceef5;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+
+/* ============================= */
+/* КАЛЕНДАРЬ */
+/* ============================= */
+
+
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;              /* было 6 */
+  width: 100%;
+}
+
+
+.cal-day-name {
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+}
+
+.cal-day {
+  aspect-ratio: 1 / 1;   /* идеальный квадрат */
+  padding: 0;            /* убираем раздувание */
+  border-radius: 8px;
+  border: none;
+  background: #f2f8fb;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cal-day:hover {
+  background: #d0ecf7;
+}
+
+.cal-day.selected {
+  background: #00a4c7;
+  color: white;
+}
+
+.cal-day.disabled {
+  background: #eee;
+  color: #bbb;
+}
+
+.cal-day.saturday {
+  background: #fff1f2;
+  color: #b54757;
+}
+
+.cal-day.sunday {
+  background: #ffe6e8;
+  color: #a61d2a;
+}
+
+.cal-day.disabled,
+.cal-day.disabled.saturday,
+.cal-day.disabled.sunday {
+  background: #eee !important;
+  color: #bbb !important;
+}
+
+/* выбранный будний */
+.cal-day.selected:not(.saturday):not(.sunday) {
+  background: #00a4c7;
+  color: white;
+}
+
+/* выбранная суббота */
+.cal-day.saturday.selected {
+  background: #ffd6da;
+  color: #a61d2a;
+}
+
+/* выбранное воскресенье */
+.cal-day.sunday.selected {
+  background: #ffc2c8;
+  color: #a61d2a;
+}
+
+
+
+/* ============================= */
+/* СЛАЙДЕР ДЛИТЕЛЬНОСТИ */
+/* ============================= */
+
+.step-slider {
+  position: relative;
+  margin-top: 20px;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.step-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #d9eef5;
+  transform: translateY(-50%);
+  border-radius: 4px;
+}
+
+.step-active {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 4px;
+  background: #00a4c7;
+  transform: translateY(-50%);
+  border-radius: 4px;
+  transition: width 0.25s ease;
+}
+
+.step-point {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  background: white;
+  border: 2px solid #00a4c7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #00a4c7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.step-point.active {
+  background: #00a4c7;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* ============================= */
+/* КНОПКИ */
+/* ============================= */
+
+.fixed-bottom {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 20;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: #00a4c7;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.primary-btn:hover {
+  background: #008fae;
+}
+
+
+
+/* ============================= */
+/* LOADER */
+/* ============================= */
+
+.loader {
+  text-align: center;
+  padding: 40px 0;
+  color: #777;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #d9eef5;
+  border-top: 3px solid #00a4c7;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================= */
+/* РАСПИСАНИЕ */
+/* ============================= */
+
+.doctor-block {
+  margin-bottom: 12px;
+}
+
+.doctor-header {
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slot {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  touch-action: pan-y;
+}
+
+.slot-active {
+  background: #e6f8fb;
+  border: 1px solid #bfeaf4;  /* чуть насыщеннее */
+  border-left: 4px solid #00a4c7;
+}
+
+.slot-cancelled {
+  background: #ffecec;
+  border: 1px solid #f5bcbc;
+  border-left: 4px solid #d9534f;
+}
+
+.slot-moved {
+  background: #fff8e1;
+  border: 1px solid #fde68a;     /* сначала общий */
+  border-left: 4px solid #f59e0b; /* потом перезаписываем левую сторону */
+}
+
+.slot-moved .meta-right {
+  color: #f59e0b;   /* тот же жёлтый, что у полоски */
+  font-weight: 600;
+}
+
+.slot:hover {
+  transform: translateY(-2px);
+}
+/* ============================= */
+/* ВЫБОР ВРАЧА */
+/* ============================= */
+
+.doctor-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doctor-select-wrapper {
+  flex: 1;
+}
+
+.doctor-select-wrapper select {
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+/* Toggle Мои / Все */
+
+.doctor-toggle {
+  display: flex;
+  background: #f0f6f8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #6b7b8c;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background: #00a4c7;
+  color: white;
+}
+
+.filter-summary {
+  padding: 12px 14px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.filter-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.filter-values {
+  font-size: 12px;
+  color: #7a8a9a;
+
+  white-space: nowrap;        /* ВАЖНО */
+  overflow: hidden;           /* ВАЖНО */
+  text-overflow: ellipsis;    /* если не помещается — ... */
+}
+.filter-panel {
+  margin-top: 12px;
+  overflow: hidden;
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+}
+
+.filter-panel.collapsing {
+  max-height: 0;
+  opacity: 0;
+}
+
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #00a4c7;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.toggle-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #ccc;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+  background: #00a4c7;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+/* Заголовок календаря */
+.calendar-title {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+/* Свернутый календарь */
+
+
+
+.calendar-collapsed button {
+  background: none;
+  border: none;
+  font-size: 22px;      /* было 18 */
+  width: 34px;          /* было 28 */
+  height: 34px;         /* было 28 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00a4c7;
+  cursor: pointer;
+}
+.calendar-collapsed button:hover {
+  background: #e6f8fb;
+  border-radius: 8px;
+}
+
+.collapsed-title.saturday,
+.collapsed-title.sunday {
+  color: #d9534f;
+}
+.calendar-wrapper {
+  padding: 8px 10px;
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;   /* ← добавь */
+}
+
+
+.calendar-wrapper.compact .calendar-collapsed {
+  height: 36px;
+  padding: 0 8px;
+}
+
+
+.selected-date {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.selected-date.saturday,
+.selected-date.sunday {
+  color: #d9534f;
+}
+
+
+
+
+
+.selected-date.saturday,
+.selected-date.sunday {
+  color: #d9534f;
+}
+
+.slot-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.star {
+  font-size: 16px;
+  margin-left: 6px;
+}
+
+.star.red {
+  color: #d9534f;
+}
+
+.star.green {
+  color: #28a745;
+}
+
+.past-label {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.slot-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.meta-left {
+  color: #999;
+}
+
+.meta-right {
+  font-weight: 500;
+}
+
+/* Цвета статусов */
+
+.slot-active .meta-right {
+    color: #00a4c7;
+}
+
+.slot-cancelled .meta-right {
+  color: #d9534f;
+}
+
+.slot-default .meta-right {
+  color: #4caf50;
+}
+
+/* Завершённый визит */
+.slot-default {
+  background: #f0faf4;
+  border: 1px solid #cfe9da;
+  border-left: 4px solid #4caf50;
+}
+
+/* ===== DOCTOR GROUPING ===== */
+
+.doctor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.doctor-header .arrow {
+  font-size: 18px;
+  transition: transform 0.25s ease;
+  color: #00a4c7;
+}
+
+.doctor-header .arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* АНИМАЦИЯ */
+
+.slots {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+
+.slots.open {
+  max-height: 2000px; /* большое значение */
+  opacity: 1;
+}
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.cal-day.selected {
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.saturday {
+  color: #dc2626;
+}
+
+.sunday {
+  color: #dc2626;
+}
+.cal-day.pressing {
+  background: #e5e7eb;
+  transform: scale(0.96);
+  transition: 0.1s;
+}
+
+.empty-state {
+  text-align: center;
+  opacity: 0.6;
+  font-size: 14px;
+  padding: 20px;
+}
+.fatal-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f4f7fb;
+}
+
+.fatal-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  max-width: 280px;
+}
+
+.fatal-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.fatal-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2d3d;
+}
+
+
+.cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.cal-header button { background: #e3f2f7; border: none; border-radius: 8px; padding: 6px 12px; font-size: 18px; }
+.cal-title { font-weight: 600; font-size: 16px; text-transform: capitalize; }
+.calendar-collapsed { display: flex; align-items: center; justify-content: space-between; height: 38px; /* фиксируем компактную высоту */ padding: 0 8px; /* уменьшаем отступы */ }
+.collapsed-title { flex: 1; text-align: center; font-weight: 600; font-size: 13px; /* было 14 */ line-height: 1; }
+.calendar-wrapper.compact { padding: 0; }
+.full-header { display: flex; align-items: center; justify-content: space-between; }
+.nav-btn { background: none; border: none; font-size: 20px; color: #00a4c7; cursor: pointer; }
+.calendar-hidden { display: none; }
+
+/* ============================= */
+/* MODAL BOTTOM SHEET */
+/* ============================= */
+
+
+
+.visit-overlay {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 2000;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease;
+}
+
+.visit-container {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.visit-header {
+  margin-bottom: 20px;
+}
+
+.visit-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.visit-status {
+  font-size: 13px;
+  margin-top: 4px;
+  color: #00a4c7;
+}
+
+.visit-section {
+  background: #f8fbfd;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.visit-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.visit-row.total {
+  font-weight: 600;
+}
+
+.link {
+  color: #00a4c7;
+  cursor: pointer;
+}
+
+.visit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.danger-btn {
+  background: #ff5c5c;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.secondary-btn {
+  background: #e6f8fb;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.service-item {
+  margin-bottom: 8px;
+}
+
+.hidden {
+  display: none;
+}
+/* ============================= */
+/* VISIT LOADER */
+/* ============================= */
+
+.visit-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.visit-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #e6f2f6;
+  border-top: 4px solid #00a4c7;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  animation: visitSpin 0.8s linear infinite;
+}
+
+@keyframes visitSpin {
+  to { transform: rotate(360deg); }
+}
+
+.visit-loading-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #00a4c7;
+  text-align: center;
+}
+
+/* ============================= */
+/* VISIT CONTAINER */
+/* ============================= */
+
+
+#createOverlay .visit-container {
+  padding-top: 6px;
+}
+
+/* ============================= */
+/* STATUS (самый верх справа) */
+/* ============================= */
+
+.visit-status-absolute {
+  position: absolute;
+  top: 6px;
+  right: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.visit-status-absolute.upcoming {
+  background: #e6f8fb;
+  color: #00a4c7;
+  border: 1px solid #00a4c7;
+}
+
+.visit-status-absolute.refused {
+  background: #ffecec;
+  color: #d9534f;
+  border: 1px solid #d9534f;
+}
+
+.visit-status-absolute.completed {
+  background: #e8f5e9;
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+/* ============================= */
+/* TITLE */
+/* ============================= */
+
+.visit-title-center {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  margin-top: 28px;
+  margin-bottom: 12px;   /* ← добавили отступ вниз */
+}
+
+.visit-type-center {
+  text-align: center;
+  font-size: 14px;
+  color: #6c757d;
+  margin-bottom: 20px;  /* было 14 */
+}
+
+/* ============================= */
+/* MAIN INFO */
+/* ============================= */
+
+.visit-date {
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: capitalize;
+}
+
+.visit-time {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.visit-row.right {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* ============================= */
+/* MOVE BLOCK */
+/* ============================= */
+
+.move-header {
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.move-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: 0.3s ease;
+}
+
+.move-content.open {
+  max-height: 300px;
+  margin-top: 8px;
+}
+
+/* ============================= */
+/* SERVICES */
+/* ============================= */
+
+/* ============================= */
+/* SERVICES */
+/* ============================= */
+
+.services-header {
+  padding: 20px 16px 14px 16px;   /* больше сверху */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  border-bottom: 1px solid #e6e6e6;
+  position: relative;
+}
+.services-header .patient-close,
+.services-header .close-btn {
+  margin-top: 4px;
+}
+
+.services-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 0;
+  margin-top: 12px;
+}
+
+.services-content.open {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+/* стрелка */
+
+.services-arrow {
+  transition: transform 0.3s ease;
+}
+
+.services-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* каждая услуга */
+
+.service-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;              /* расстояние между услугами */
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.service-row:last-child {
+  border-bottom: none;
+}
+
+.service-name {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.service-price {
+  font-weight: 500;
+}
+
+/* итог */
+
+.services-total {
+  margin-top: 16px;             /* расстояние от услуг */
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+  font-weight: 700;             /* жирная сумма */
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ============================= */
+/* PATIENT CENTERED NAME */
+/* ============================= */
+
+.patient-name-centered {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #00a4c7;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.patient-name-centered:hover {
+  opacity: 0.8;
+}
+
+.visit-star {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+.visit-star.red {
+  color: #d9534f;
+}
+
+.visit-star.green {
+  color: #28a745;
+}
+.move-details {
+  margin-top: 10px;
+}
+.move-open-visit {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #00a4c7;
+  cursor: pointer;
+  text-align: center;
+}
+
+.move-open-visit:hover {
+  text-decoration: underline;
+}
+/* ============================= */
+/* SWIPE TO CLOSE VISIT */
+/* ============================= */
+
+.visit-container {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  will-change: transform;
+}
+
+.visit-container.swiping {
+  transition: none;
+}
+
+.visit-container.closing-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.visit-container.closing-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+
+/* ============================= */
+/* CANCEL VISIT */
+/* ============================= */
+
+.cancel-container {
+  padding-top: 36px;
+}
+
+.cancel-info {
+  margin-top: 18px;
+  margin-bottom: 22px;
+}
+
+.cancel-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.cancel-label {
+  display: block;
+  font-weight: 600;
+  margin: 14px 0 6px 0;
+  font-size: 14px;
+}
+
+.cancel-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e0e6ed;
+  font-size: 14px;
+  background: white;
+  margin-bottom: 12px;
+}
+
+.cancel-select:focus {
+  outline: none;
+  border-color: #00a4c7;
+  box-shadow: 0 0 0 2px rgba(0,164,199,0.15);
+}
+
+.cancel-textarea {
+  width: 100%;
+  box-sizing: border-box;   /* ВАЖНО */
+  min-height: 90px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e1e5ea;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  transition: 0.2s ease;
+  background: #fff;
+}
+
+.cancel-textarea:focus {
+  border-color: #00a4c7;
+  box-shadow: 0 0 0 2px rgba(0,164,199,0.1);
+}
+
+
+.danger-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Нажатие кнопок */
+.pressable {
+  transition: 0.15s ease;
+}
+
+.pressable:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+.btn-disabled {
+  background: #ffb3b3 !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-active {
+  background: #ff5c5c !important;
+  opacity: 1;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-active:active {
+  transform: scale(0.96);
+}
+
+.cancel-error {
+  font-size: 13px;
+  color: #d9534f;
+  margin-top: 8px;
+  opacity: 0;
+  transition: 0.2s ease;
+  white-space: pre-line;
+}
+
+.cancel-error.visible {
+  opacity: 1;
+}
+
+.input-error {
+  border-color: #d9534f !important;
+  box-shadow: 0 0 0 2px rgba(217,83,79,0.1);
+}
+
+
+.longpress-active .slot {
+
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.longpress-active .slot-lifted {
+ 
+  opacity: 1 !important;
+}
+
+
+  
+
+.hint-left,
+.hint-right {
+  animation: pulseHint 1.2s infinite;
+}
+
+@keyframes pulseHint {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+
+
+/* ============================= */
+/* LONG PRESS OVERLAY */
+/* ============================= */
+
+.longpress-overlay {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 1500; /* выше tabs */
+  pointer-events: none;
+}
+
+/* поднятый слот */
+.slot-lifted {
+  position: relative;
+  z-index: 2000;
+  transform: scale(1.05);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  background: white !important;
+}
+
+/* подсказка */
+.longpress-hint {
+  position: fixed;
+  top: 60px; /* ниже Telegram header */
+  left: 0;
+  right: 0;
+  z-index: 2500;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hint-wrapper {
+  width: 92%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hint-left,
+.hint-right {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+}
+.hint-left {
+  color: #fff;
+  background: rgba(255, 77, 79, 0.9);
+  box-shadow: 0 6px 18px rgba(255, 77, 79, 0.3);
+}
+.hint-right {
+  color: #fff;
+  background: rgba(0, 164, 199, 0.9);
+  box-shadow: 0 6px 18px rgba(0, 164, 199, 0.3);
+}
+
+.fab-button {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #00a4c7;
+  color: white;
+  font-size: 30px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.2);
+  z-index: 3000;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.fab-button:active {
+  transform: scale(0.95);
+}
+
+/* ============================= */
+/* CREATE VISIT SHEET */
+/* ============================= */
+
+.create-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+  z-index: 3000;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease;
+}
+
+.create-sheet {
+  background: #f4f7fb;
+  width: 100%;
+  max-height: 95vh;
+  border-radius: 20px 20px 0 0;
+  padding: 16px;
+  overflow-y: auto;
+  transform: translateY(100%);
+  animation: slideUp 0.35s cubic-bezier(.2,.9,.3,1.1) forwards;
+}
+
+@keyframes slideUp {
+  to { transform: translateY(0); }
+}
+
+.create-sheet.closing {
+  animation: slideDown 0.25s ease forwards;
+}
+
+@keyframes slideDown {
+  to { transform: translateY(100%); }
+}
+.create-sheet::before {
+  content: "";
+  width: 40px;
+  height: 4px;
+  background: #d0d7de;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto 12px;
+}
+.create-fullscreen {
+  position: fixed;
+  inset: 0;
+  background: #f4f7fb;
+  z-index: 4000;
+  overflow-y: auto;
+}
+
+.create-container {
+ max-width: 600px;
+  margin: 0 auto;
+  padding: 0 16px;
+  padding-bottom: 50px;
+}
+
+.create-header {
+  margin-top: 0;
+}
+.create-header {
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 8px;
+  position: relative;
+  justify-content: center; /* центрируем заголовок */
+  padding: 6px 0 10px 0;   /* меньше верхний отступ */
+}
+
+.create-title {
+  font-weight: 600;
+  font-size: 17px;
+  text-align: center;
+  margin: 0;  
+}
+
+.create-close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  font-weight: 600;
+  color: #00a4c7;   /* ← медицинский цвет */
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #00a4c7;
+  cursor: pointer;
+}
+
+
+
+.doctor-select-modern {
+  position: relative;
+}
+.filter-card {
+  border: 1px solid #dceef5;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+
+
+/* Когда фильтр свернут */
+.filter-card:has(.filter-panel.collapsing) {
+  padding: 4px 8px;          /* меньше воздуха */
+  padding-bottom: 4px; 
+  border-radius: 10px;
+}
+
+/* Уменьшаем внутренние отступы */
+.filter-card:has(.filter-panel.collapsing) .filter-header {
+  margin-bottom: 2px;
+}
+
+.filter-card:has(.filter-panel.collapsing) .filter-values {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.filter-card:has(.filter-panel.collapsing) .filter-panel {
+  display: none;
+}
+#createOverlay {
+  background: #f4f7fb;
+}
+
+#createOverlay .visit-container {
+  background: transparent;
+}
+
+#createOverlay .visit-container {
+  padding: 6px 16px 16px 16px;
+}
+.visit-status-absolute.moved {
+ background: #fff8e1;  /* тот же фон что у slot-moved */
+  color: #f59e0b;        /* тот же цвет текста */
+  border: 1px solid #FCD34D;
+}
+
+.slot-past {
+  background: #eee;
+  color: #999;
+  border-left: 4px solid #ccc;
+  pointer-events: none;
+}
+
+.slot.selected {
+  background: #00a4c7;
+  color: white;
+}
+.slot-busy {
+  background: #ffecec;
+  border: 1px solid #f5bcbc;
+  border-left: 4px solid #d9534f;
+  color: #b54757;
+  pointer-events: none;
+}
+
+/* Свободный */
+.slot-free {
+  background: #e6f8fb;
+  border: 1px solid #bfeaf4;
+  border-left: 4px solid #00a4c7;
+}
+
+/* Занятый (будущее) */
+.slot-busy {
+  background: #ffecec;
+  border: 1px solid #f5bcbc;
+  border-left: 4px solid #d9534f;
+}
+
+/* Прошлый свободный */
+
+
+/* Прошлый занятый */
+
+/* Подпись */
+.slot-label {
+  font-size: 11px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+/* Прошлый свободный */
+.slot-past-free {
+  background: #f2f2f2;
+  border: 1px solid #dcdcdc;   /* ← добавили рамку */
+  border-left: 4px solid #bdbdbd;
+  color: #8c8c8c;
+}
+
+/* Прошлый + была запись */
+.slot-past-busy {
+  background: #f5f5f5;
+  border: 1px solid #e0b4b4;   /* ← мягкая красная рамка */
+  border-left: 4px solid #d9534f;
+  color: #6b6b6b;
+}
+
+
+
+
+
+
+/* ============================= */
+/* PATIENT SELECT SHEET */
+/* ============================= */
+/* ============================= */
+/* PATIENT SELECT SHEET */
+/* ============================= */
+
+.patient-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 4000;
+}
+
+.patient-container {
+  background: #f4f7fb;
+  width: 100%;
+  max-width: 600px;
+  max-height: 92vh;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: patientSlideUp 0.25s ease;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@keyframes patientSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.patient-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.patient-title {
+  font-size: 17px;
+}
+
+.patient-close {
+  font-size: 20px;
+  cursor: pointer;
+  color: #00a4c7;
+}
+
+.patient-search-block {
+  padding: 16px;
+}
+
+#patientSearchInput {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #dceef5;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+#patientSearchInput:focus {
+  border-color: #00a4c7;
+  box-shadow: 0 0 0 2px rgba(0,164,199,0.15);
+}
+
+.patient-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 90px 16px;
+}
+
+.patient-card {
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.15s ease;
+  border: 1px solid #e6f2f6;
+}
+
+.patient-card:hover {
+  background: #e6f8fb;
+}
+
+.patient-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.patient-birth {
+  font-size: 14px;
+  color: #7a8a9a;
+}
+
+.patient-bottom {
+  padding: 16px;
+  border-top: 1px solid #e6e6e6;
+  background: #f4f7fb;
+}
+.patient-container {
+  margin: 0 auto;
+}
+.services-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.services-sheet {
+  background: #f4f7fb;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s ease;
+}
+
+
+
+.services-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.service-item-select {
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  border: 1px solid #e6f2f6;
+  transition: 0.2s;
+}
+
+.service-item-select.selected {
+  background: #e6f8fb;
+  border-color: #00a4c7;
+}
+
+.services-bottom {
+  padding: 16px;
+  border-top: 1px solid #e6e6e6;
+  background: #f4f7fb;
+}
+
+.selected-service {
+  background: #e6f8fb;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.patient-search-block select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #dceef5;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  background: white;
+}
+
+.patient-search-block select:focus {
+  border-color: #00a4c7;
+  box-shadow: 0 0 0 2px rgba(0,164,199,0.15);
+}
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #dceef5;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  background: white;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-input:focus {
+  border-color: #00a4c7;
+  box-shadow: 0 0 0 2px rgba(0,164,199,0.15);
+}
+
+/* Красивый select */
+select.form-input {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%2300a4c7' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548l4.484 4.484 4.484-4.484 1.032 1.032-5.516 5.516-5.516-5.516z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Убираем системные стрелки */
+select.form-input::-ms-expand {
+  display: none;
+}
+
+/* Чтобы date выглядел так же */
+
+.patient-search-block label {
+  display: block;
+  font-weight: 600;
+  margin: 14px 0 6px 0;
+  font-size: 14px;
+}
+/* ============================= */
+/* CREATE PATIENT COMPACT STYLE */
+/* ============================= */
+
+.form-input.compact {
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  height: 44px;
+}
+
+select.form-input,
+input[type="date"].form-input {
+  height: 44px;
+}
+
+/* placeholder мягче */
+.form-input::placeholder {
+  color: #9aa6b2;
+  font-size: 14px;
+}
+/* два поля в строку */
+.row-2 {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.row-2 .form-input {
+  margin-bottom: 0;
+}
+
+/* уменьшаем отступы формы */
+.patient-search-block {
+  padding: 12px 14px;
+}
+
+.patient-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-search-block {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.patient-bottom {
+  position: sticky;
+  bottom: 0;
+  background: #f4f7fb;
+}
+.placeholder-select {
+  color: #9aa6b2;
+}
+
+.placeholder-select.valid {
+  color: #1f2d3d;
+}
+
+/* Плейсхолдер для даты */
+
+#newBirthDate:not(:placeholder-shown) {
+  color: #1f2d3d;
+}
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 12px;
+  color: #7a8a9a;
+  font-weight: 500;
+  margin-left: 4px;
+}
+/* Две колонки */
+.row-two {
+  display: flex;
+  gap: 10px;
+}
+
+/* Каждый блок занимает 50% */
+.row-two .field-group {
+  flex: 1;
+}
+
+/* Центрируем подпись */
+.field-label.center {
+  text-align: center;
+  font-size: 12px;
+  color: #7a8a9a;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+/* Компактные поля */
+.form-input.compact {
+  height: 44px;
+  padding: 10px 14px;
+  font-size: 15px;
+}
+.duplicate-card {
+  border: 2px solid #ffe082;
+  background: #fffdf5;
+}
+
+.duplicate-card:hover {
+  background: #fff3cd;
+}
+.visit-warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+.hidden {
+  display: none !important;
+}

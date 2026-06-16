@@ -9,6 +9,8 @@ import path from 'path';
 import { getTemplates, updateTemplate, createTemplate, deleteTemplate } from './src/api/template.controller.js';
 import { renderTemplate } from './src/common/template.util.js';
 import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
+import miniappRoutes from "./src/api/miniapp.routes.js";
+import misRoutes from "./src/api/mis.routes.js";
 
 
 startMaxBot();
@@ -23,8 +25,11 @@ const prisma = new PrismaClient();
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
+app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));
 
+app.use("/miniapp", misRoutes);
+app.use("/miniapp", miniappRoutes);
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
