@@ -28,6 +28,12 @@ import { openCreateVisit } from "./js/createVisit.js";
 
 console.log("WINDOW MAX:", window.MAX);
 
+document.body.innerHTML += `
+  <div style="position:fixed;top:0;left:0;background:#000;color:#0f0;padding:10px;z-index:9999">
+    MAX: ${typeof window.MAX}
+  </div>
+`;
+
 
 // ===============================
 // DOM
