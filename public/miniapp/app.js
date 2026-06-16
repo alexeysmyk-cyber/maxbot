@@ -28,19 +28,21 @@ import { openCreateVisit } from "./js/createVisit.js";
 
 console.log("WINDOW MAX:", window.WebApp);
 
-if (window.WebApp) {
+function isRunningInMAX() {
+  return !!window.WebApp &&
+         typeof window.WebApp.initData !== 'undefined';
+}
+
+if (isRunningInMAX()) {
   document.body.innerHTML += `
     <div style="position:fixed;top:0;left:0;background:green;color:white;padding:10px;z-index:9999">
-      ✅ RUNNING IN MAX
+      ✅ REAL MAX WEBAPP
     </div>
   `;
-
-  console.log("WebApp:", window.WebApp);
-
 } else {
   document.body.innerHTML += `
     <div style="position:fixed;top:0;left:0;background:red;color:white;padding:10px;z-index:9999">
-      ❌ NOT IN MAX
+      ❌ NOT REAL MAX
     </div>
   `;
 }
