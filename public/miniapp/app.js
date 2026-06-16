@@ -26,13 +26,26 @@ import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 
 
-
-
 function isRunningInMAX() {
+  return !!window.WebApp &&
+         !!window.WebApp.initData &&
+         window.WebApp.initData.length > 0;
+}
+
+if (!isRunningInMAX()) {
+  document.body.innerHTML = `
+    <div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif">
+      <h2>❌ Доступ запрещён</h2>
+    </div>
+  `;
+  throw new Error("ACCESS DENIED");
+}
+
+/*function isRunningInMAX() {
   return !!window.WebApp &&
          typeof window.WebApp.initData !== 'undefined';
 }
-
+*/
 
 // ===============================
 // DOM
