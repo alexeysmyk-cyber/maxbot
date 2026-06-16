@@ -15,12 +15,6 @@ let gestureLocked = false;
 let gestureType = null; // "horizontal" | "vertical"
 
 
-
-
-
-
-
-
 import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
@@ -133,15 +127,17 @@ async function renderVisits() {
 
 
 
- let response;
+let response;
 
 try {
+
+  console.log("🚀 SEND MIS_ID:", window.MIS_ID);
 
   response = await fetchWithTimeout('/miniapp/doctors', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      
+      mis_id: window.MIS_ID
     })
   }, 2000);
 
@@ -150,14 +146,13 @@ try {
   console.warn("Doctors request timeout, retrying...");
 
   try {
-    console.log("🚀 SEND MIS_ID:", window.MIS_ID);
     response = await fetch('/miniapp/doctors', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    mis_id: window.MIS_ID
-  })
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mis_id: window.MIS_ID
+      })
+    });
   } catch (err2) {
     content.innerHTML = `<div class="card">Ошибка загрузки врачей</div>`;
     return;
