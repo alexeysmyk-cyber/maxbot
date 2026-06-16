@@ -704,37 +704,19 @@ function attachEvents() {
 // ===============================
 async function init() {
 
-  const isLocal = window.location.hostname === "localhost";
   const isMax = isRunningInMAX();
 
   // ===============================
-  // ❌ НЕ MAX → СРАЗУ БЛОК
+  // ❌ НЕ MAX → БЛОК
   // ===============================
-  if (!isMax && !isLocal) {
+  if (!isMax) {
     document.body.innerHTML = `
       <div style="text-align:center;padding:50px">
-        <h2>❌ Доступ только через MAX</h2>
+        <h2>❌ Доступ запрещён</h2>
       </div>
     `;
     return;
   }
-
-  // ===============================
-  // 🧪 LOCAL → тестовый режим
-  // ===============================
-  if (isLocal && !isMax) {
-    console.log("🧪 LOCAL MODE");
-
-    window.MIS_ID = 46493;
-
-    attachEvents();
-    renderVisits();
-    return;
-  }
-    
-
-
-
 
   // ===============================
   // ✅ MAX → получаем user
@@ -750,7 +732,11 @@ async function init() {
   console.log("STEP 1 USER:", maxUser);
 
   if (!maxUser) {
-    document.body.innerHTML = "❌ Ошибка получения пользователя MAX";
+    document.body.innerHTML = `
+      <div style="text-align:center;padding:50px">
+        <h2>❌ Ошибка авторизации</h2>
+      </div>
+    `;
     return;
   }
 
@@ -759,9 +745,7 @@ async function init() {
   // ===============================
   const res = await fetch('/miniapp/auth', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       max_id: maxUser.id
     })
@@ -772,7 +756,11 @@ async function init() {
   console.log("STEP 2 AUTH:", data);
 
   if (!data.ok) {
-    document.body.innerHTML = "❌ Нет доступа";
+    document.body.innerHTML = `
+      <div style="text-align:center;padding:50px">
+        <h2>❌ Нет доступа</h2>
+      </div>
+    `;
     return;
   }
 
