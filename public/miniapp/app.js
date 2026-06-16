@@ -717,32 +717,37 @@ function attachEvents() {
 // ===============================
 async function init() {
 
-  // 1. получаем пользователя из MAX
+  const isLocal = window.location.hostname === "localhost";
+  const isMax = isRunningInMAX();
+
+  // ===============================
+  // 1. НЕ MAX → fallback
+  // ===============================
+  if (!isMax && !isLocal) {
+    console.log("⚠️ OUTSIDE MAX");
+
+    window.MIS_ID = 46493;
+
+    attachEvents();
+    renderVisits();
+    return;
+  }
+
+  // ===============================
+  // 2. MAX → получаем user
+  // ===============================
   const maxUser = await getMaxUser();
 
   console.log("STEP 1 USER:", maxUser);
 
- /* if (!maxUser) {
-    document.body.innerHTML = "❌ Открывайте только через MAX";
+  if (!maxUser) {
+    document.body.innerHTML = "❌ Нет пользователя MAX";
     return;
-  }*/
-const isLocal = window.location.hostname === "localhost";
-const isMax = isRunningInMAX();
+  }
 
-if (!isMax && !isLocal) {
-  console.log("⚠️ OPENED OUTSIDE MAX");
-
-  // fallback
-  window.MIS_ID = 46493;
-
-  attachEvents();
-  renderVisits();
-  return;
-}
-
-
-
-  // 2. отправляем в backend
+  // ===============================
+  // 3. AUTH
+  // ===============================
   const res = await fetch('/miniapp/auth', {
     method: 'POST',
     headers: {
@@ -762,16 +767,19 @@ if (!isMax && !isLocal) {
     return;
   }
 
-  // 3. сохраняем MIS ID
+  // ===============================
+  // 4. MIS ID
+  // ===============================
   window.MIS_ID = data.mis_id;
 
   console.log("STEP 3 MIS_ID:", window.MIS_ID);
 
-  // 4. запускаем приложение
+  // ===============================
+  // 5. START APP
+  // ===============================
   attachEvents();
   renderVisits();
 }
-
 if (isRunningInMAX()) {
   const user = window.WebApp.initDataUnsafe?.user;
 
