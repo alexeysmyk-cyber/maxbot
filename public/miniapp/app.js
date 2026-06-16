@@ -782,6 +782,47 @@ if (!isMax && !isLocal) {
   renderVisits();
 }
 
+if (window.MAX) {
+  window.MAX.getUser().then(user => {
+    document.body.innerHTML += `
+      <div style="
+        position:fixed;
+        top:0;
+        left:0;
+        background:black;
+        color:white;
+        padding:10px;
+        z-index:9999;
+      ">
+        USER: ${JSON.stringify(user)}
+      </div>
+    `;
+  });
+} else {
+  document.body.innerHTML += `
+    <div style="
+      position:fixed;
+      top:0;
+      left:0;
+      background:red;
+      color:white;
+      padding:10px;
+      z-index:9999;
+    ">
+      MAX NOT FOUND
+    </div>
+  `;
+}
+
+
+
+
+
+
+
+
+
+
 init();
 
 window.setMainDateAndReload = function (dateString) {
