@@ -747,6 +747,56 @@ document.getElementById('main').style.display = 'block';
 
   console.log("STEP 1 USER:", maxUser);
 
+  const res = await fetch('/miniapp/auth', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    max_id: maxUser.id
+  })
+});
+
+const data = await res.json();
+
+// ===============================
+// ❌ НЕТ В БАЗЕ
+// ===============================
+if (!data.ok) {
+  document.body.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      text-align:center;
+      font-family:sans-serif;
+    ">
+      <h2>❌ Вы не авторизованы в боте клиники</h2>
+    </div>
+  `;
+  return;
+}
+
+// ===============================
+// 🟡 ПАЦИЕНТ
+// ===============================
+if (data.role === 'PATIENT') {
+  document.body.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      text-align:center;
+      font-family:sans-serif;
+    ">
+      <h2>🟡 Модуль записи на визиты в разработке</h2>
+    </div>
+  `;
+  return;
+}
+
+console.log("STEP 2 AUTH:", data);
+
   if (!maxUser) {
     document.body.innerHTML = `
       <div style="text-align:center;padding:50px">

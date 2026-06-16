@@ -30,6 +30,54 @@ app.use('/uploads', express.static(path.resolve('uploads')));
 
 app.use("/miniapp", misRoutes);
 app.use("/miniapp", miniappRoutes);
+app.post('/miniapp/auth', async (req, res) => {
+  try {
+    const { max_id } = req.body;
+
+    console.log("📥 AUTH REQUEST:", max_id);
+
+    if (!max_id) {
+      return res.json({ ok: false });
+    }
+
+    // 🔥 ищем пользователя в БД
+    const user = await prisma.user.findFirst({
+      where: {
+        maxId: String(max_id)
+      }
+    });
+
+    console.log("👤 DB USER:", user);
+
+    // ❌ нет пользователя
+    if (!user) {
+      return res.json({ ok: false });
+    }
+
+    // 🟡 пациент
+    if (user.type === 'PATIENT') {
+      return res.json({
+        ok: true,
+        role: 'PATIENT'
+      });
+    }
+
+    // ✅ сотрудник
+    return res.json({
+      ok: true,
+      role: 'EMPLOYEE',
+      mis_id: user.misId
+    });
+
+  } catch (e) {
+    console.error("AUTH ERROR:", e);
+    res.json({ ok: false });
+  }
+});
+
+
+
+
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
