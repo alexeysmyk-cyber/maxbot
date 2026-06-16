@@ -5,14 +5,15 @@ import qs from "querystring";
 const router = express.Router();
 
 // 🔥 ТВОЙ MIS ID
-const { mis_id } = req.body;
+
 
 // ===============================
 // ВРАЧИ
 // ===============================
 router.post("/doctors", async (req, res) => {
   try {
-
+    const { mis_id } = req.body;
+    console.log("🔥 REQ MIS_ID:", mis_id);
     const body = qs.stringify({
       api_key: process.env.API_KEY
     });
