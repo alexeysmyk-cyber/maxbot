@@ -1,8 +1,12 @@
 import express from "express";
 import axios from "axios";
 import qs from "querystring";
+import { PrismaClient } from '@prisma/client';
+
+
 
 const router = express.Router();
+const prisma = new PrismaClient();
 
 // 🔥 ТВОЙ MIS ID
 
