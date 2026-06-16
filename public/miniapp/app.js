@@ -150,7 +150,7 @@ try {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    max_id: maxUser.id
+    mis_id: window.MIS_ID
   })
 });
   } catch (err2) {

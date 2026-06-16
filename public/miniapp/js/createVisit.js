@@ -313,7 +313,7 @@ async function loadDoctorsForCreate() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      
+       mis_id: window.MIS_ID
     })
   });
 
