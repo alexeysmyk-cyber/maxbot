@@ -6,27 +6,31 @@
   <title>МИС</title>
 
   <link rel="stylesheet" href="style.css" />
-
   <script src="https://st.max.ru/js/max-web-app.js"></script>
 </head>
 <body>
 
-   <div id="app">
+  <!-- 🔥 загрузочный экран -->
+  <div id="app">
     ⏳ Проверка доступа...
   </div>
 
-  <script type="module" src="app.js"></script>
+  <!-- 🔥 основной UI (скрыт!) -->
+  <div id="main" style="display:none">
 
-  <div class="tabs">
-    <button id="visitsTab" class="tab active">Визиты</button>
-    <button id="scheduleTab" class="tab">Расписание</button>
+    <div class="tabs">
+      <button id="visitsTab" class="tab active">Визиты</button>
+      <button id="scheduleTab" class="tab">Расписание</button>
+    </div>
+
+    <div class="app">
+      <div id="content"></div>
+    </div>
+
   </div>
 
-  <div class="app">
-    <div id="content"></div>
-  </div>
-
+  <!-- ✅ один раз -->
   <script type="module" src="app.js"></script>
+
 </body>
-
 </html>

@@ -717,6 +717,9 @@ function attachEvents() {
 // ===============================
 async function init() {
 
+  document.getElementById('app').style.display = 'none';
+document.getElementById('main').style.display = 'block';
+
   const isMax = isRunningInMAX();
 
   // ===============================
