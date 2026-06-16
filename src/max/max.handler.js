@@ -289,21 +289,11 @@ const roleLabel = role?.name || user.activeRole || user.type;
   const buttons = [];
 
  if (user.activeRole !== 'PATIENT') {
-await ctx.api.sendMessageToUser(ctx.user.id, {
-  text: "Открыть",
-  reply_markup: {
-    inline_keyboard: [
-      [
-        {
-          text: "📅 Расписание",
-          web_app: {
-            url: "https://maxbot.sredaclinic.ru/public/miniapp/index.html"
-          }
-        }
-      ]
-    ]
-  }
-});
+  buttons.push([
+    Keyboard.button.callback('💰 Создать счёт', 'create_invoice'),
+    Keyboard.button.webApp('🔗 Открыть приложение', 'https://maxbot.sredaclinic.ru/public/miniapp/index.html')
+  ]);
+  
 }
 
   buttons.push([
