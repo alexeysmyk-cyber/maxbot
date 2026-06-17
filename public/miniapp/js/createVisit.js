@@ -296,8 +296,6 @@ selectedDate = new Date();
 loadCreateSchedule();
 
 
-
-
   
 }
 

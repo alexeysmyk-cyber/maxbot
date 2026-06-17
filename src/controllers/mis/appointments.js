@@ -17,7 +17,19 @@ exports.getAppointments = async (req, res) => {
 
   try {
 
-    const { doctorId, date } = req.body;
+    const { max_id, doctorId, date } = req.body;
+
+const user = await prisma.user.findFirst({
+  where: {
+    vk_id: String(max_id)
+  }
+});
+
+if (!user) {
+  return res.status(403).json({ error: "NO_ACCESS" });
+}
+
+const mis_id = user.mis_id;
 
     if (!date) {
       return res.status(400).json({ error: "No date" });
