@@ -800,3 +800,5 @@ function normalizeDateTime(str) {
 
   return `${dd}.${mm}.${yyyy} ${hh}:${min}`;
 }
+
+

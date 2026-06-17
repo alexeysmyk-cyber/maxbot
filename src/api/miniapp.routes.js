@@ -8,8 +8,38 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// 🔥 ТВОЙ MIS ID
+async function authMiddleware(req, res, next) {
+  try {
+    const { max_id } = req.body;
+    console.log("BODY:", req.body);
 
+    console.log("📥 MAX AUTH:", max_id);
+
+    if (!max_id) {
+      return res.status(401).json({ error: "NO_MAX_ID" });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { vk_id: String(max_id) }
+    });
+
+    console.log("👤 DB USER:", user);
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
+
+    // 👇 КЛЮЧЕВОЕ
+    req.user = user;
+
+    next();
+
+  } catch (e) {
+    console.error("AUTH MIDDLEWARE ERROR:", e);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+}
+router.use(authMiddleware);
 
 // ===============================
 // ВРАЧИ

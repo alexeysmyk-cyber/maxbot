@@ -265,7 +265,7 @@ function showSuccessModal(text) {
 
   overlay.innerHTML = `
     <div class="visit-container" style="max-width:300px;text-align:center">
-
+style="max-width:300px;text-align:center;margin:auto"
       <div style="font-size:40px;margin-bottom:10px;">
         ❌
       </div>
