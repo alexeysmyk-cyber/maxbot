@@ -353,7 +353,18 @@ container.innerHTML = `
 document
   .getElementById("createDoctorSelect")
   ?.addEventListener("change", () => {
-  filterScheduleByDoctor();
+
+    // 🔥 СБРОС УСЛУГ
+    window.selectedServices = [];
+
+    // 🔥 чистим UI если открыт confirm
+    const servicesBlock = document.getElementById("selectedServicesBlock");
+    if (servicesBlock) servicesBlock.innerHTML = "";
+
+    const totalRow = document.getElementById("totalPriceRow");
+    if (totalRow) totalRow.style.display = "none";
+
+    filterScheduleByDoctor();
 });
   
 }

@@ -5,9 +5,16 @@ import qs from "querystring";
 export async function getServices(req, res) {
   try {
 
+    const { user_id } = req.body;
 
+    console.log("🔥 SERVICES FOR DOCTOR:", user_id);
 
-const user_id = 43347; // твой MIS ID
+    if (!user_id) {
+      return res.status(400).json({
+        error: 1,
+        message: "user_id is required"
+      });
+    }
 
     const body = qs.stringify({
       api_key: process.env.API_KEY,
@@ -17,16 +24,12 @@ const user_id = 43347; // твой MIS ID
     const url =
       process.env.BASE_URL.replace(/\/$/, "") + "/getServices";
 
-    const response = await axios.post(
-      url,
-      body,
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        timeout: 8000
-      }
-    );
+    const response = await axios.post(url, body, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      timeout: 8000
+    });
 
     const data = response.data;
 
@@ -51,5 +54,5 @@ const user_id = 43347; // твой MIS ID
       message: "Server error"
     });
   }
-};
+}
 

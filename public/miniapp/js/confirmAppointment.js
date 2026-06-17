@@ -1,4 +1,4 @@
-let selectedServices = [];
+window.selectedServices = [];
 
 export function openConfirmAppointment(patient, slot, options = {}) {
 const existing = document.querySelector(".create-fullscreen");
@@ -13,7 +13,7 @@ if (existing) {
   const defaultServices = options.defaultServices || [];
 
   
-selectedServices = [];
+window.selectedServices = [];
 
 let doctorChanged = false;
 
@@ -34,7 +34,7 @@ if (isMove && oldVisit) {
     }));
   } else {
     // Врач изменён — очищаем услуги
-    selectedServices = [];
+    window.selectedServices = [];
   }
 }
 
@@ -206,7 +206,7 @@ if (isMove) {
   if (cancelBtn) {
 cancelBtn.addEventListener("click", () => {
 
-  selectedServices = [];
+  window.selectedServices = [];
 overlay.remove();
 
 const createOverlay = document.getElementById("createOverlay");
@@ -226,7 +226,7 @@ if (!createOverlay) {
 document.getElementById("closeConfirm")
   .addEventListener("click", () => {
 
-    selectedServices = [];
+    window.selectedServices = [];
 overlay.remove();
 
 if (previousOverlay) {
@@ -244,7 +244,7 @@ if (!createOverlay) {
 
 document.getElementById("addServiceBtn")
   .addEventListener("click", () => {
-    openSelectServices(slot.user_id);
+    openSelectServices(slot.doctor_id || slot.user_id);
   });
 
 document.getElementById("confirmCreateBtn")
@@ -635,7 +635,9 @@ async function loadServices(doctorId) {
       return;
     }
 
-    const services = data.data || [];
+    const services = Array.isArray(data.data)
+  ? data.data
+  : data.data?.services || [];
 
 container.innerHTML = services.map(s => `
   <div class="service-item-select" 
@@ -668,7 +670,7 @@ container.querySelectorAll(".service-item-select")
         el.classList.remove("selected");
       } else {
         if (!service) return;
-       selectedServices.push({
+       window.selectedServices.push({
   id: service.service_id || service.id,
   name: service.title || service.name,
   price: service.value || service.price || 0
