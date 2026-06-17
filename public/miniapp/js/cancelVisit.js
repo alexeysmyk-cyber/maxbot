@@ -154,6 +154,8 @@ export function openCancelModal(visit, parentOverlay) {
     });
   }
 
+
+
   addPressEffect(confirmBtn);
   addPressEffect(closeBtn);
 
@@ -221,7 +223,7 @@ export function openCancelModal(visit, parentOverlay) {
 
 
           
-        alert("Визит успешно отменён");
+        
         
 const visitDate = visit.time_start.split(" ")[0];
 
@@ -232,6 +234,9 @@ const visitDate = visit.time_start.split(" ")[0];
   if (parentOverlay) {
     parentOverlay.remove();
   }
+
+showSuccessModal("Визит успешно отменён");
+
 
 if (window.reloadSchedule) {
   window.reloadSchedule(visitDate);
@@ -252,4 +257,35 @@ if (window.reloadSchedule) {
 
   });
 
+}
+function showSuccessModal(text) {
+
+  const overlay = document.createElement("div");
+  overlay.className = "visit-overlay";
+
+  overlay.innerHTML = `
+    <div class="visit-container" style="max-width:300px;text-align:center">
+
+      <div style="font-size:40px;margin-bottom:10px;">
+        ❌
+      </div>
+
+      <div style="font-size:16px;font-weight:600;margin-bottom:20px;">
+        ${text}
+      </div>
+
+      <button class="primary-btn pressable" id="successOkBtn">
+        OK
+      </button>
+
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const btn = overlay.querySelector("#successOkBtn");
+
+  btn.addEventListener("click", () => {
+    overlay.remove();
+  });
 }
