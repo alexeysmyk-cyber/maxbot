@@ -790,7 +790,7 @@ if (data.role === 'PATIENT') {
   document.body.innerHTML = `
     <div style="
       display:flex;
-      justify-content:center;
+      justify-content:center;  
       align-items:center;
       height:100vh;
       text-align:center;
@@ -801,6 +801,7 @@ if (data.role === 'PATIENT') {
   `;
   return;
 }
+
 
 console.log("STEP 2 AUTH:", data);
 

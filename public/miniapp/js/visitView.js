@@ -424,6 +424,7 @@ function attachMoveLinks(overlay) {
 
       content.classList.add("open");
 
+      
       try {
 
         const response = await fetch("/miniapp/appointment-by-id", {
