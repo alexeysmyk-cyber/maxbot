@@ -752,7 +752,7 @@ async function init() {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-  max_id: maxUser.id
+   initData: window.WebApp.initData
 })
 });
 
