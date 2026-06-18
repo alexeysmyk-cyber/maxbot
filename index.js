@@ -23,7 +23,30 @@ console.log('ENV SECRET:', process.env.MIS_WEBHOOK_SECRET);
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(express.json({ limit: '20mb' }));
+app.use(express.json({
+  limit: '20mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+
+// Ниже только для откладки потом удалить 
+
+app.use((req, res, next) => {
+  if (req.rawBody) {
+    console.log("✅ RAW BODY OK:", req.rawBody.length);
+  } else {
+    console.log("❌ RAW BODY MISSING");
+  }
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log("HEADERS:", req.headers);
+  next();
+});
+// Выше только для откладки  потом удалить 
+
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));
@@ -76,8 +99,6 @@ app.post('/miniapp/auth', async (req, res) => {
 });
 
 
-
-
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -110,7 +131,6 @@ app.get('/api/templates',basicAuth, getTemplates);
 app.post('/api/templates/update',basicAuth, updateTemplate);
 app.post('/api/templates/create',basicAuth, createTemplate);
 app.post('/api/templates/delete', basicAuth, deleteTemplate);
-
 app.post('/api/templates/preview', basicAuth, (req, res) => {
   const { text } = req.body;
 
