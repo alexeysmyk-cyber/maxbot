@@ -767,21 +767,52 @@ function waitForWebApp() {
     }, 50);
   });
 }
+
+
 async function init() {
 
   await waitForWebApp(); // 🔥 ВАЖНО
 
   console.log("WebApp READY:", window.WebApp.initData);
 
-  const res = await fetch('/miniapp/auth', {
+console.log("🔥 CALL AUTH");
+
+let res;
+
+try {
+  res = await fetch('/miniapp/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       initData: window.WebApp.initData
     })
   });
+} catch (e) {
+  console.error("❌ FETCH AUTH ERROR:", e);
+  return;
+}
 
-  const data = await res.json();
+console.log("🔥 AUTH STATUS:", res.status);
+
+let data;
+
+try {
+  data = await res.json();
+} catch (e) {
+  console.error("❌ AUTH JSON ERROR:", e);
+  return;
+}
+
+console.log("🔥 AUTH RESPONSE:", data);
+
+if (!data.ok) {
+  console.error("❌ AUTH NOT OK");
+  return;
+}
+
+const data = await res.json();
+
+console.log("🔥 AUTH RESPONSE:", data);
 
   if (!data.ok) return;
 
@@ -791,8 +822,6 @@ async function init() {
   attachEvents();
   renderVisits();
 }
-
-
 
 
 
