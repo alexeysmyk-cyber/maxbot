@@ -157,7 +157,7 @@ try {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    mis_id: window.MIS_ID
+     initData: window.WebApp.initData
   })
 });
   } catch (err2) {
