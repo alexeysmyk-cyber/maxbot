@@ -737,26 +737,24 @@ function attachEvents() {
 
 // ===============================
 
-function waitForWebApp() {
-  return new Promise(resolve => {
-    const interval = setInterval(() => {
-      if (window.WebApp && window.WebApp.initData) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 50);
-  });
-}
-
-
 async function init() {
 
   console.log("🔥 INIT START");
 
-  // Ждём WebApp
-  await waitForWebApp();
+  // Ждём WebApp ОДИН раз
+  const isMaxReady = await waitForWebApp();
 
-  // Проверка запуска в MAX
+  // Если не MAX (например браузер)
+  if (!isMaxReady) {
+    document.body.innerHTML = `
+      <div style="display:flex;justify-content:center;align-items:center;height:100vh">
+        <h2>❌ Откройте приложение через MAX</h2>
+      </div>
+    `;
+    return;
+  }
+
+  // Доп. защита (можно оставить)
   if (!isRunningInMAX()) {
     document.body.innerHTML = `
       <div style="display:flex;justify-content:center;align-items:center;height:100vh">
@@ -810,7 +808,7 @@ async function init() {
   }
 
   // ===============================
-  // SUCCESS → показываем UI
+  // SUCCESS
   // ===============================
   document.getElementById("app").style.display = "none";
   document.getElementById("main").style.display = "block";
@@ -821,7 +819,6 @@ async function init() {
 
   renderVisits();
 }
-
 
 
 init();
