@@ -32,17 +32,15 @@ console.log("🚀 CALL /miniapp/appointments");
   initData: window.WebApp.initData
 })
     });
-    console.log("FULL BODY:", req.body);
-
+   
     if (!response.ok) {
       throw new Error("HTTP_ERROR");
     }
 
     const data = await response.json();
 
-    if (data.error && data.error !== 0) {
+if (data.error && data.error !== 0) {
   console.warn("MIS ERROR:", data);
-  return { data: [] };
 }
 
     return data;
