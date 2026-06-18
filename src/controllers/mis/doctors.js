@@ -22,11 +22,6 @@ const mis_id = user.mis_id;
 console.log("🔥 REAL MIS_ID:", mis_id);
 
 
-
-    if (!tgUser) {
-      return res.status(403).send("User not found in DB");
-    }
-
     if (!mis_id) {
       return res.status(403).send("No MIS ID assigned");
     }
