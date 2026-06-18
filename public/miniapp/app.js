@@ -122,6 +122,20 @@ function setActive(tab) {
 // VISITS PAGE
 // ===============================
 async function renderVisits() {
+console.log("RENDER START");
+
+if (!window.WebApp) {
+  console.error("❌ WebApp NOT READY");
+  return;
+}
+
+if (!window.WebApp.initData) {
+  console.error("❌ initData EMPTY");
+  return;
+}
+
+console.log("✅ initData OK");
+
 
 console.log("RENDER VISITS START");
 
