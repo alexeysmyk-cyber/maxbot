@@ -336,6 +336,10 @@ doctorSelect.addEventListener("change", () => {
   
 
 const scheduleContainer = document.getElementById("scheduleContainer");
+const calendarEl = document.getElementById("calendar");
+const calendarWrapper = calendarEl?.parentElement;
+
+
 if (!scheduleContainer) return;
 
 const scheduleWrapper = scheduleContainer.parentElement;
@@ -462,15 +466,33 @@ const editFiltersBtn = document.getElementById("editFiltersBtn");
 
 scheduleContainer.addEventListener("scroll", () => {
 
-  // 🔥 блокируем свайп даты на 800 мс
   swipeBlockedUntil = Date.now() + 800;
 
+  // ===============================
+  // ФИЛЬТРЫ
+  // ===============================
   if (
     scheduleContainer.scrollTop > 10 &&
     !filterPanel.classList.contains("collapsing")
   ) {
     filterPanel.classList.add("collapsing");
     editFiltersBtn.innerText = "Изменить";
+  }
+
+  // ===============================
+  // КАЛЕНДАРЬ
+  // ===============================
+  if (
+    calendarWrapper &&
+    !calendarWrapper.classList.contains("compact") // открыт
+  ) {
+
+    // 🔥 имитируем клик по заголовку (он сам делает collapse)
+    const title = calendarEl.querySelector(".collapsed-title");
+
+    if (title) {
+      title.click();
+    }
   }
 
 });
