@@ -139,11 +139,6 @@ console.log("CONTENT:", content);
 console.log("initData:", window.WebApp?.initData);
 
 
-//if (!window.MIS_ID) {
-//  console.error("❌ MIS_ID НЕ УСТАНОВЛЕН");
-//  content.innerHTML = `<div class="card">Ошибка авторизации</div>`;
-//  return;
-//}
 
 
   content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
