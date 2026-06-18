@@ -306,19 +306,20 @@ loadCreateSchedule();
 
 async function loadDoctorsForCreate() {
 
- 
- response = await fetch('/miniapp/doctors', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    initData: window.WebApp.initData
-  })
-});
+  const response = await fetch('/miniapp/doctors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      initData: window.WebApp.initData
+    })
+  });
 
   const data = await response.json();
+  console.log("DOCTORS RESPONSE:", data);
+
   const container = document.getElementById("doctorContainer");
 
-  if (!response.ok || data.error) {
+  if (!response.ok) {
     container.innerHTML = "Ошибка загрузки врачей";
     return;
   }
@@ -335,38 +336,39 @@ async function loadDoctorsForCreate() {
     );
   }
 
-container.innerHTML = `
-  <div class="doctor-row">
-    <div class="doctor-select-wrapper">
-      <select id="createDoctorSelect">
-        ${allowedDoctors.map(d => `
-<option value="${d.id}"
-  ${String(d.id) === String(currentDoctorId) ? "selected" : ""}>
-  ${d.name}
-</option>
-        `).join("")}
-      </select>
+  if (allowedDoctors.length === 0) {
+    container.innerHTML = "Нет доступных врачей";
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="doctor-row">
+      <div class="doctor-select-wrapper">
+        <select id="createDoctorSelect">
+          ${allowedDoctors.map(d => `
+            <option value="${d.id}"
+              ${String(d.id) === String(currentDoctorId) ? "selected" : ""}>
+              ${d.name}
+            </option>
+          `).join("")}
+        </select>
+      </div>
     </div>
-  </div>
-`;
+  `;
 
-document
-  .getElementById("createDoctorSelect")
-  ?.addEventListener("change", () => {
+  document
+    .getElementById("createDoctorSelect")
+    ?.addEventListener("change", () => {
+      window.selectedServices = [];
 
-    // 🔥 СБРОС УСЛУГ
-    window.selectedServices = [];
+      const servicesBlock = document.getElementById("selectedServicesBlock");
+      if (servicesBlock) servicesBlock.innerHTML = "";
 
-    // 🔥 чистим UI если открыт confirm
-    const servicesBlock = document.getElementById("selectedServicesBlock");
-    if (servicesBlock) servicesBlock.innerHTML = "";
+      const totalRow = document.getElementById("totalPriceRow");
+      if (totalRow) totalRow.style.display = "none";
 
-    const totalRow = document.getElementById("totalPriceRow");
-    if (totalRow) totalRow.style.display = "none";
-
-    filterScheduleByDoctor();
-});
-  
+      filterScheduleByDoctor();
+    });
 }
 
 
