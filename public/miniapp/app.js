@@ -782,10 +782,14 @@ if (!data.ok) {
 
 console.log("STEP E OK TRUE");
 
+
 if (data.role === 'PATIENT') {
   console.log("STEP F PATIENT");
   return;
 }
+
+document.getElementById("app").style.display = "none";
+document.getElementById("main").style.display = "block";
 
 console.log("STEP G BEFORE RENDER");
 
