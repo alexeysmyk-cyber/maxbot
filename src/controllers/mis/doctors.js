@@ -11,18 +11,23 @@ let doctorsCache = {
 export async function getDoctors(req, res) {
   try {
 
+    const user = req.user;
 
- const tgUser = {
-  mis_id: req.body.mis_id
-};
+if (!user || !user.mis_id) {
+  return res.status(403).send("No MIS ID assigned");
+}
 
-console.log("🔥 REQ MIS_ID:", req.body.mis_id);
+const mis_id = user.mis_id;
+
+console.log("🔥 REAL MIS_ID:", mis_id);
+
+
 
     if (!tgUser) {
       return res.status(403).send("User not found in DB");
     }
 
-    if (!tgUser.mis_id) {
+    if (!mis_id) {
       return res.status(403).send("No MIS ID assigned");
     }
 
@@ -36,7 +41,7 @@ console.log("🔥 REQ MIS_ID:", req.body.mis_id);
 
       const responseData = buildDoctorsResponse(
         doctorsCache.data,
-        tgUser.mis_id
+        mis_id
       );
 
       if (!responseData) {
@@ -80,7 +85,7 @@ console.log("FIRST USER:", users[0]);
       expires: Date.now() + 60 * 1000
     };
 
-    const responseData = buildDoctorsResponse(users, tgUser.mis_id);
+    const responseData = buildDoctorsResponse(users, mis_id);
 
     if (!responseData) {
       return res.status(403).send("Access denied");
