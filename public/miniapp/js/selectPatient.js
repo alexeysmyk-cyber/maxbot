@@ -129,17 +129,21 @@ let lastSearchTime = 0;
 
 async function searchPatients(params, onSelect, retry = false) {
 
-  const resultsContainer = document.getElementById("patientResults");
+   console.log("🔵 ENTER searchPatients", params, "retry:", retry);
 
+  const resultsContainer = document.getElementById("patientResults");
+console.log("🟡 BEFORE THROTTLE", lastSearchTime);
   const now = Date.now();
 
   // защита от частых запросов (1 запрос в секунду)
   if (now - lastSearchTime < 1000) {
+console.log("⛔ THROTTLED");
+
     return;
   }
 
   lastSearchTime = now;
-
+console.log("🟢 AFTER THROTTLE PASSED");
   resultsContainer.innerHTML = `
     <div class="loader">
       <div class="spinner"></div>
@@ -147,10 +151,14 @@ async function searchPatients(params, onSelect, retry = false) {
   `;
 
   try {
-
+console.log("🟣 BEFORE waitForWebApp");
+const webApp = await waitForWebApp();
+console.log("🟣 AFTER waitForWebApp", webApp);
     const webApp = await waitForWebApp();
     console.log("INIT DATA:", window.WebApp);
 
+
+console.log("🟠 BEFORE FETCH", params);
 const response = await fetch("/miniapp/get-patient", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -159,10 +167,11 @@ const response = await fetch("/miniapp/get-patient", {
     initData: webApp.initData 
   })
 });
+console.log("🟠 FETCH DONE");
 
     // если сервер вернул HTML (502)
     const text = await response.text();
-
+console.log("🟤 RAW RESPONSE:", text);
     if (!response.ok || text.startsWith("<!DOCTYPE")) {
 
       if (!retry) {
@@ -192,7 +201,7 @@ if (!Array.isArray(patients)) {
 
 renderResults(patients, onSelect);
 
-  } catch (err) {
+  } catch (err) {   console.error("🔴 ERROR:", err);
 
     if (!retry) {
       console.log("🔁 Retry after network error...");
