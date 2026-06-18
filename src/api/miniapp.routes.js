@@ -149,31 +149,35 @@ router.post("/create-appointment", async (req, res) => {
 async function proxy(req, res, method) {
   try {
 
-const { initData, date, ...rest } = req.body;
+    const { initData, date, ...rest } = req.body;
 
-const payload = {
-  api_key: process.env.API_KEY,
-  ...rest
-};
+    let payload = {
+      api_key: process.env.API_KEY,
+      ...rest
+    };
 
-if (method === "getAppointments" && date) {
-  payload.visit_date = date;
-}
+    // 🔥 ВОТ КЛЮЧЕВОЕ
+    if (method === "getAppointments" && date) {
+      payload.date_from = date + " 00:01";
+      payload.date_to = date + " 23:59";
+    }
 
-const body = qs.stringify(payload);
+    const body = qs.stringify(payload);
 
-console.log("BODY TO MIS:", payload);
+    console.log("BODY TO MIS:", payload);
+
     const url = process.env.BASE_URL + "/" + method;
 
     const response = await axios.post(url, body, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     });
 
-    res.json(response.data);
-
     console.log("📦 MIS RESPONSE:", response.data);
 
+    res.json(response.data);
+
   } catch (e) {
+    console.log("❌ PROXY ERROR:", e.message);
     res.status(500).json({ error: "ERROR" });
   }
 }
