@@ -34,6 +34,8 @@ function cleanExpiredScheduleCache() {
 
 
 
+
+
 // автоочистка раз в минуту
 setInterval(() => {
   cleanExpiredCache();
@@ -373,5 +375,30 @@ async function proxy(req, res, method) {
     res.status(500).json({ error: "ERROR" });
   }
 }
+
+function formatDate(dateInput) {
+
+  if (!dateInput) return null;
+
+  // если уже строка
+  if (typeof dateInput === "string") {
+    if (dateInput.includes(".")) {
+      return dateInput;
+    }
+  }
+
+  const d = new Date(dateInput);
+
+  if (isNaN(d.getTime())) {
+    return null;
+  }
+
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+
+  return `${dd}.${mm}.${yyyy}`;
+}
+
 
 export default router;
