@@ -177,6 +177,47 @@ router.post("/get-patient", async (req, res) => {
   }
 });
 
+router.post("/get-services", async (req, res) => {
+  try {
+    console.log("🔥 GET SERVICES HIT");
+    console.log("BODY:", req.body);
+
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        error: 1,
+        message: "user_id is required"
+      });
+    }
+
+    const payload = {
+      api_key: process.env.API_KEY,
+      user_id
+    };
+
+    console.log("➡️ TO MIS:", payload);
+
+    const response = await axios.post(
+      process.env.BASE_URL + "/getServices",
+      qs.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }
+    );
+
+    console.log("⬅️ FROM MIS:", response.data);
+
+    res.json(response.data);
+
+  } catch (e) {
+    console.log("❌ GET SERVICES ERROR:", e.message);
+    res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
+
 router.post("/create-appointment", async (req, res) => {
   proxy(req, res, "createAppointment");
 });

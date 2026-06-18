@@ -523,7 +523,7 @@ if (moved_from) {
 });
 
 
-router.post("/get-services", misController.getServices);
+//router.post("/get-services", misController.getServices);
 
 export default router;
 

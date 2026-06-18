@@ -621,6 +621,8 @@ async function openSelectServices(doctorId) {
 }
 async function loadServices(doctorId) {
 
+  console.log("🔥 LOAD SERVICES doctorId:", doctorId);
+
   const container = document.getElementById("servicesList");
   if (!container) return;
 
