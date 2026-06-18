@@ -430,7 +430,7 @@ function attachMoveLinks(overlay) {
         const response = await fetch("/miniapp/appointment-by-id", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ appointment_id: id })
+          body: JSON.stringify({ appointment_id: id,  initData: window.WebApp.initData})
         });
 
         const data = await response.json();

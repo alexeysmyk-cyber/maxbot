@@ -186,7 +186,7 @@ export function openCancelModal(visit, parentOverlay) {
         body: JSON.stringify({
           appointment_id: visit.id,
           reason,
-          comment
+          comment, initData: window.WebApp.initData
         })
       });
 
