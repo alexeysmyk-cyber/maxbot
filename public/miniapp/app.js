@@ -27,14 +27,6 @@ function isRunningInMAX() {
          window.WebApp.initData.length > 0;
 }
 
-if (!isRunningInMAX()) {
-  document.body.innerHTML = `
-    <div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif">
-      <h2>❌ Доступ запрещён</h2>
-    </div>
-  `;
-  throw new Error("ACCESS DENIED");
-}
 
 /*function isRunningInMAX() {
   return !!window.WebApp &&
@@ -759,9 +751,21 @@ function waitForWebApp() {
 
 async function init() {
 
+
+
    console.log("🔥 INIT START");
 
   await waitForWebApp(); // 🔥 ВАЖНО
+
+
+  if (!isRunningInMAX()) {
+    document.body.innerHTML = `
+      <div style="display:flex;justify-content:center;align-items:center;height:100vh">
+        <h2>❌ Доступ запрещён</h2>
+      </div>
+    `;
+    return;
+  }
 
   console.log("WebApp READY:", window.WebApp.initData);
 
