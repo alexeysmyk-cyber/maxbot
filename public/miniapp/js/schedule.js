@@ -392,7 +392,7 @@ e.stopPropagation();
         isLongPress = true;
         activateLongPressMode(slot);
 
-      }, 600);
+      }, 800);
 
     });
 
@@ -414,11 +414,18 @@ slot.addEventListener("touchmove", (e) => {
   }
 
   // если это long press — двигаем слот
-  if (isLongPress) {
-    e.stopPropagation();
-    e.preventDefault();
-    slot.style.transform = `translateX(${diffX}px)`;
+if (isLongPress) {
+
+  // 👉 если движение ВЕРТИКАЛЬНОЕ — НЕ мешаем scroll
+  if (Math.abs(diffY) > Math.abs(diffX)) {
+    return;
   }
+
+  e.stopPropagation();
+  e.preventDefault();
+
+  slot.style.transform = `translateX(${diffX}px)`;
+}
 });
 
 
