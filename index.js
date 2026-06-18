@@ -10,7 +10,7 @@ import { getTemplates, updateTemplate, createTemplate, deleteTemplate } from './
 import { renderTemplate } from './src/common/template.util.js';
 import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
 import miniappRoutes from "./src/api/miniapp.routes.js";
-import misRoutes from "./src/api/mis.routes.js";
+
 
 
 startMaxBot();

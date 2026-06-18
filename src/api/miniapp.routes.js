@@ -32,10 +32,6 @@ function cleanExpiredScheduleCache() {
 }
 
 
-
-
-
-
 // автоочистка раз в минуту
 setInterval(() => {
   cleanExpiredCache();
@@ -162,10 +158,6 @@ isDirector
   }
 });
 
-// ===============================
-// ВСЕ ОСТАЛЬНОЕ ПРОСТО ПРОКСИ
-// ===============================
-
 router.post("/appointments", async (req, res) => {
 console.log("📥 DATE FROM FRONT:", req.body.date);
   try {
@@ -250,9 +242,67 @@ console.log("📥 DATE FROM FRONT:", req.body.date);
 
 });
 
-
 router.post("/get-schedule", async (req, res) => {
-  proxy(req, res, "getSchedule");
+  try {
+
+    const { date } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ error: "NO_DATE" });
+    }
+
+    const now = Date.now();
+
+    // CACHE CHECK
+    if (
+      scheduleCache[date] &&
+      scheduleCache[date].expires > now
+    ) {
+      console.log("📦 SCHEDULE CACHE HIT:", date);
+      return res.json(scheduleCache[date].data);
+    }
+
+    const body = {
+      api_key: process.env.API_KEY,
+      date_from: date + " 00:01",
+      date_to: date + " 23:59",
+      step: 15,
+      show_past: true,
+      show_busy: true
+    };
+
+    const url =
+      process.env.BASE_URL.replace(/\/$/, "") + "/getSchedule";
+
+const response = await axios.post(
+  url,
+  qs.stringify(body),
+  {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    timeout: 8000
+  }
+);
+
+    if (!response.data || response.data.error !== 0) {
+      return res.status(500).json({ error: "MIS_ERROR" });
+    }
+
+    // SAVE CACHE
+    scheduleCache[date] = {
+      data: response.data,
+      expires: now + 60 * 1000
+    };
+
+    console.log("💾 SAVE CACHE:", date);
+
+    return res.json(response.data);
+
+  } catch (err) {
+    console.log("getSchedule error:", err.message);
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
 });
 
 router.post("/get-patient", async (req, res) => {
@@ -337,44 +387,215 @@ router.post("/get-services", async (req, res) => {
 });
 
 router.post("/create-appointment", async (req, res) => {
-  proxy(req, res, "createAppointment");
-});
 
-
-async function proxy(req, res, method) {
   try {
 
-    const { initData, date, ...rest } = req.body;
+    const {
+      patient_id,
+      first_name,
+      last_name,
+      third_name,
+      birth_date,
+      mobile,
+      gender,
+      email,
+      doctor_id,
+      time_start,
+      time_end,
+      room,
+      services,
+      moved_from
+    } = req.body;
 
-    let payload = {
-      api_key: process.env.API_KEY,
-      ...rest
-    };
-
-    // 🔥 ВОТ КЛЮЧЕВОЕ
-    if (method === "getAppointments" && date) {
-      payload.date_from = date + " 00:01";
-      payload.date_to = date + " 23:59";
+    if (!doctor_id || !time_start || !time_end) {
+      return res.status(400).json({ error: "NO_REQUIRED_FIELDS" });
     }
 
-    const body = qs.stringify(payload);
+    const body = {
+      api_key: process.env.API_KEY,
+      clinic_id: 2997,
+      doctor_id,
+      time_start,
+      time_end,
+      room: room || "",
+      source: 1090,
+      is_handled: true
+    };
 
-    console.log("BODY TO MIS:", payload);
-
-    const url = process.env.BASE_URL + "/" + method;
-
-    const response = await axios.post(url, body, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }
-    });
-
-
-    res.json(response.data);
-
-  } catch (e) {
-    console.log("❌ PROXY ERROR:", e.message);
-    res.status(500).json({ error: "ERROR" });
-  }
+    // ===============================
+    // ЕСЛИ СУЩЕСТВУЮЩИЙ ПАЦИЕНТ
+    // ===============================
+    if (patient_id) {
+      body.patient_id = patient_id;
+    }
+    else {
+      body.first_name = first_name;
+      body.last_name = last_name;
+      body.third_name = third_name || "";
+      body.birth_date = birth_date;
+      body.mobile = mobile;
+      body.gender = gender;
+      body.email = email || "";
+    }
+if (moved_from) {
+  body.moved_from = moved_from;
 }
+    // услуги
+//    if (services && services.length) {
+//      body.services = JSON.stringify(
+//        services.map(id => ({ service_id: id }))
+//      );
+//    }
+
+    if (services && services.length) {
+  services.forEach((id, index) => {
+    body[`services[${index}][service_id]`] = id;
+  });
+}
+
+    const url =
+      process.env.BASE_URL.replace(/\/$/, "") + "/createAppointment";
+
+    const response = await axios.post(
+      url,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        validateStatus: () => true
+      }
+    );
+
+    if (!response.data || typeof response.data !== "object") {
+      return res.status(502).json({ error: "MIS_INVALID_RESPONSE" });
+    }
+
+    if (response.data.error !== 0) {
+      return res.status(400).json(response.data);
+    }
+
+    // 🧹 очищаем кэш
+    for (const key in appointmentsCache) delete appointmentsCache[key];
+    for (const key in scheduleCache) delete scheduleCache[key];
+
+    return res.json(response.data);
+
+  } catch (err) {
+
+    console.log("Create appointment error:",
+      err.response?.data || err.message
+    );
+
+    return res.status(500).json({
+      error: "SERVER_ERROR"
+    });
+  }
+});
+router.post("/cancel-appointment", async (req, res) => {
+
+  try {
+
+    const { appointment_id, comment, reason, moved_to, is_handled } = req.body;
+
+    if (!appointment_id) {
+      return res.status(400).json({ error: "NO_ID" });
+    }
+
+    const body = {
+      api_key: process.env.API_KEY,
+      appointment_id,
+      source: 1090,
+      is_handled: is_handled === true
+    };
+
+    // 🔹 Если это перенос
+    if (moved_to) {
+      body.moved_to = moved_to;
+    }
+
+    // 🔹 Если это обычная отмена
+    if (reason) {
+      body.cancel_reason = reason;
+      body.comment = comment || "";
+    }
+
+    const url =
+      process.env.BASE_URL.replace(/\/$/, "") + "/cancelAppointment";
+
+    const response = await axios.post(
+      url,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        validateStatus: () => true
+      }
+    );
+
+    if (!response.data || typeof response.data !== "object") {
+      return res.status(502).json({ error: "MIS_INVALID_RESPONSE" });
+    }
+
+    // 🧹 ЧИСТИМ КЭШ
+    for (const key in appointmentsCache) delete appointmentsCache[key];
+    for (const key in scheduleCache) delete scheduleCache[key];
+
+    return res.status(response.status).json(response.data);
+
+  } catch (err) {
+
+    console.log("Cancel error:", err.response?.data || err.message);
+
+    return res.status(500).json({
+      error: "SERVER_ERROR",
+      message: err.message
+    });
+  }
+
+});
+router.post("/appointment-by-id", async (req, res) => {
+
+  try {
+
+    const { appointment_id } = req.body;
+
+    if (!appointment_id) {
+      return res.status(400).json({ error: "NO_ID" });
+    }
+
+    const body = {
+      api_key: process.env.API_KEY,
+      appointment_id
+    };
+
+    const url =
+      process.env.BASE_URL.replace(/\/$/, "") + "/getAppointments";
+
+    const response = await axios.post(
+      url,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }
+    );
+
+    if (!response.data || response.data.error !== 0) {
+      return res.status(500).json({ error: "MIS_ERROR" });
+    }
+
+    return res.json(response.data);
+
+  } catch (err) {
+    console.log("Appointment-by-id error:", err.message);
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
+
+});
+
 
 function formatDate(dateInput) {
 
@@ -398,6 +619,15 @@ function formatDate(dateInput) {
   const yyyy = d.getFullYear();
 
   return `${dd}.${mm}.${yyyy}`;
+}
+function normalizePhone(phone) {
+  let digits = phone.replace(/\D/g, "");
+
+  if (digits.startsWith("7")) {
+    digits = "8" + digits.slice(1);
+  }
+
+  return digits;
 }
 
 
