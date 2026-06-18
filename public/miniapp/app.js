@@ -761,8 +761,10 @@ async function init() {
 })
 });
 
-const data = await res.json();
+console.log("AUTH STATUS:", res.status);
 
+const data = await res.json();
+console.log("AUTH DATA:", data);
 
 // ===============================
 // ❌ НЕТ В БАЗЕ

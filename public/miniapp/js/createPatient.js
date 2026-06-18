@@ -310,7 +310,8 @@ nextBtn.addEventListener("click", async () => {
       body: JSON.stringify({
         last_name: lastName.value.trim(),
         first_name: firstName.value.trim(),
-        mobile: phoneDigits
+        mobile: phoneDigits,
+         initData: window.WebApp.initData
       })
     });
 

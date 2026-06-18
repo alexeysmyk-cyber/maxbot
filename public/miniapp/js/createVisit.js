@@ -427,7 +427,7 @@ async function loadCreateSchedule() {
   const response = await fetch("/miniapp/get-schedule", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ date }) // doctor_id можно убрать вообще
+    body: JSON.stringify({ date,  initData: window.WebApp.initData }) // doctor_id можно убрать вообще
   });
 
 const data = await response.json();
@@ -721,7 +721,7 @@ try {
   const response = await fetch("/miniapp/appointments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ date })
+    body: JSON.stringify({ date,  initData: window.WebApp.initData })
   });
 
   const data = await response.json();

@@ -27,7 +27,7 @@ console.log("🚀 CALL /miniapp/appointments");
     const response = await fetch("/miniapp/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({body,  initData: window.WebApp.initData})
     });
 
     if (!response.ok) {
@@ -89,7 +89,8 @@ export async function loadSchedule({
 console.log("📤 SEND DATE:", date);
 
     const data = await fetchWithRetry({
-      date
+      date,
+      initData: window.WebApp.initData
     });
 
     // если уже ушёл новый запрос — этот игнорируем
@@ -448,7 +449,7 @@ if (diff > threshold) {
   fetch("/miniapp/appointment-by-id", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ appointment_id: appointmentId })
+    body: JSON.stringify({ appointment_id: appointmentId,  initData: window.WebApp.initData})
   })
   .then(res => res.json())
   .then(data => {

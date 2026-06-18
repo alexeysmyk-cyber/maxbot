@@ -289,7 +289,10 @@ async function createAppointmentRequest() {
     const response = await fetch("/miniapp/create-appointment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(createBody)
+      body: JSON.stringify({
+        createBody,
+       initData: window.WebApp.initData
+    })
     });
 
     const data = await response.json();
@@ -342,7 +345,8 @@ async function createAppointmentRequest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         appointment_id: oldVisit.id,
-        moved_to: newVisitId
+        moved_to: newVisitId,
+         initData: window.WebApp.initData
       })
     });
 
@@ -625,7 +629,7 @@ async function loadServices(doctorId) {
     const response = await fetch("/miniapp/get-services", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: doctorId })
+      body: JSON.stringify({ user_id: doctorId,  initData: window.WebApp.initData })
     });
 
     const data = await response.json();

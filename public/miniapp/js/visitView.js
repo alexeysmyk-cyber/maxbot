@@ -35,7 +35,7 @@ async function loadVisit(id, overlay) {
     const response = await fetch("/miniapp/appointment-by-id", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ appointment_id: id }),
+      body: JSON.stringify({ appointment_id: id,  initData: window.WebApp.initData }),
       signal: controller.signal
     });
 
@@ -424,7 +424,7 @@ function attachMoveLinks(overlay) {
 
       content.classList.add("open");
 
-      
+
       try {
 
         const response = await fetch("/miniapp/appointment-by-id", {
