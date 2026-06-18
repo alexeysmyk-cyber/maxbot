@@ -769,7 +769,7 @@ async function init() {
   if (!isMaxReady) {
     document.body.innerHTML = `
       <div style="display:flex;justify-content:center;align-items:center;height:100vh">
-        <h2>❌ Откройте приложение через MAX</h2>
+        <h2>❌ Доступ запрещен</h2>
       </div>
     `;
     return;

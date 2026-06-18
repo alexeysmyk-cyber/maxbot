@@ -4,6 +4,11 @@ import qs from "querystring";
 import { PrismaClient } from '@prisma/client';
 
 
+function hasFullAccess(roleNames = []) {
+  return roleNames.some(r =>
+    ["admin", "maxbot-app"].includes(r)
+  );
+}
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -66,9 +71,11 @@ router.post("/doctors", async (req, res) => {
 
 
   try {
-      console.log("DOCTORS BODY:", req.body);
-console.log("DOCTORS USER:", req.user);
+
 const user = req.user;
+
+
+
     if (!user) {
       return res.status(403).json({ error: "NO_ACCESS" });
     }
@@ -87,18 +94,29 @@ const user = req.user;
     });
 
     const users = response.data.data;
+const currentMisUser = users.find(
+  u => String(u.id) === String(mis_id)
+);
+
+console.log("CURRENT MIS USER:", currentMisUser);
+const roleNames = currentMisUser?.role_names || [];
+const isDirector = hasFullAccess(roleNames);
+
+console.log("ROLE NAMES:", roleNames);
+console.log("IS DIRECTOR:", isDirector);
+
 
     const doctors = users
-      .filter(u => (u.role || []).includes("16354"))
-      .map(u => ({
-        id: u.id,
-        name: u.name
-      }));
+  .filter(u => (u.role_names || []).includes("doctor"))
+  .map(u => ({
+    id: u.id,
+    name: u.name
+  }));
 
     res.json({
       doctors,
       currentDoctorId: mis_id,
-isDirector: false // временно
+isDirector
     });
 
   } catch (e) {
@@ -126,46 +144,6 @@ router.post("/get-patient", async (req, res) => {
 router.post("/create-appointment", async (req, res) => {
   proxy(req, res, "createAppointment");
 });
-
-//Временно убираем
-/*router.post('/auth', async (req, res) => {
-  const { initData } = req.body;
-
-if (!initData) {
-  return res.json({ ok: false });
-}
-
-const params = new URLSearchParams(initData);
-const userStr = params.get("user");
-
-if (!userStr) {
-  return res.json({ ok: false });
-}
-
-const parsedUser = JSON.parse(userStr);
-const max_id = parsedUser.id;
-
-  const user = await prisma.user.findFirst({
-    where: { vk_id: String(max_id) }
-  });
-
-  if (!user) {
-    return res.json({ ok: false });
-  }
-
-  if (user.type === 'PATIENT') {
-    return res.json({
-      ok: true,
-      role: 'PATIENT'
-    });
-  }
-
-  return res.json({
-    ok: true,
-    role: 'EMPLOYEE',
-    mis_id: user.mis_id
-  });
-});*/
 
 
 async function proxy(req, res, method) {
