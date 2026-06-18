@@ -4,6 +4,42 @@ import qs from "querystring";
 import { PrismaClient } from '@prisma/client';
 
 
+// =====================================================
+// CACHE FOR APPOINTMENTS
+// =====================================================
+const appointmentsCache = {};
+const scheduleCache = {};
+
+// очистка просроченного кэша
+function cleanExpiredCache() {
+  const now = Date.now();
+
+  for (const key in appointmentsCache) {
+    if (appointmentsCache[key].expires <= now) {
+      delete appointmentsCache[key];
+    }
+  }
+}
+
+function cleanExpiredScheduleCache() {
+  const now = Date.now();
+
+  for (const key in scheduleCache) {
+    if (scheduleCache[key].expires <= now) {
+      delete scheduleCache[key];
+    }
+  }
+}
+
+
+
+
+// автоочистка раз в минуту
+setInterval(() => {
+  cleanExpiredCache();
+  cleanExpiredScheduleCache();
+}, 60 * 1000);
+
 function hasFullAccess(roleNames = []) {
   return roleNames.some(r =>
     ["admin", "maxbot-app"].includes(r)
@@ -129,9 +165,89 @@ isDirector
 // ===============================
 
 router.post("/appointments", async (req, res) => {
-    console.log("🔥 REAL APPOINTMENTS HIT");
-  proxy(req, res, "getAppointments");
+console.log("📥 DATE FROM FRONT:", req.body.date);
+  try {
+
+    const { date } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ error: "NO_DATE" });
+    }
+
+    cleanExpiredCache();
+
+    const now = Date.now();
+
+    // =====================================================
+    // CHECK CACHE
+    // =====================================================
+    if (
+      appointmentsCache[date] &&
+      appointmentsCache[date].expires > now
+    ) {
+      console.log("📦 CACHE HIT for date:", date);
+      return res.json(appointmentsCache[date].data);
+    }
+
+    // =====================================================
+    // FETCH FROM MIS
+    // =====================================================
+    const formattedDate = formatDate(date);
+
+    if (!formattedDate) {
+  return res.status(400).json({ error: "INVALID_DATE" });
+}
+    const body = {
+      api_key: process.env.API_KEY,
+      date_from: formattedDate + " 00:01",
+      date_to: formattedDate + " 23:59"
+    };
+
+    const url =
+      process.env.BASE_URL.replace(/\/$/, "") + "/getAppointments";
+    console.log("🚀 CALLING MIS getAppointments for date:", date);
+    const response = await axios.post(
+      url,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        timeout: 8000 // защита от зависаний MIS
+      }
+    );
+
+    if (
+  !response.data ||
+  typeof response.data !== "object" ||
+  response.data.error !== 0
+) {
+      console.log("MIS getAppointments error:", response.data);
+      return res.status(502).json({ error: "MIS_ERROR" });
+    }
+
+    // =====================================================
+    // SAVE CACHE (30 секунд)
+    // =====================================================
+    appointmentsCache[date] = {
+      data: response.data,
+      expires: now + 30 * 1000
+    };
+
+    return res.json(response.data);
+
+  } catch (err) {
+
+    console.log(
+      "Appointments error:",
+      err.response?.data || err.message
+    );
+
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
+
 });
+
 
 router.post("/get-schedule", async (req, res) => {
   proxy(req, res, "getSchedule");

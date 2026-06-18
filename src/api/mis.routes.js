@@ -58,7 +58,7 @@ router.post("/schedule", getSchedule);
 // =====================================================
 // 📌 ПОЛУЧЕНИЕ ВИЗИТОВ (getAppointments)
 // =====================================================
-router.post("/appointments", async (req, res) => {
+/*router.post("/appointments", async (req, res) => {
 
   console.log("📥 DATE FROM FRONT:", req.body.date);
   try {
@@ -141,7 +141,7 @@ router.post("/appointments", async (req, res) => {
     return res.status(500).json({ error: "SERVER_ERROR" });
   }
 
-});
+});*/
 
 
 
