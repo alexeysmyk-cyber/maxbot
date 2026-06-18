@@ -19,6 +19,7 @@ import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 
+console.log("🔥 APP JS LOADED");
 
 function isRunningInMAX() {
   return !!window.WebApp &&
@@ -770,6 +771,8 @@ function waitForWebApp() {
 
 
 async function init() {
+
+   console.log("🔥 INIT START");
 
   await waitForWebApp(); // 🔥 ВАЖНО
 
