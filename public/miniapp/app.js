@@ -140,13 +140,14 @@ try {
 
   console.log("🚀 SEND MIS_ID:", window.MIS_ID);
 
-  response = await fetchWithTimeout('/miniapp/doctors', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      mis_id: window.MIS_ID
-    })
-  }, 2000);
+
+response = await fetchWithTimeout('/miniapp/doctors', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    initData: window.WebApp.initData
+  })
+}, 2000);
 
 } catch (err) {
 
