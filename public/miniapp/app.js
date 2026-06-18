@@ -123,11 +123,11 @@ function setActive(tab) {
 // ===============================
 async function renderVisits() {
 
-if (!window.MIS_ID) {
-  console.error("❌ MIS_ID НЕ УСТАНОВЛЕН");
-  content.innerHTML = `<div class="card">Ошибка авторизации</div>`;
-  return;
-}
+//if (!window.MIS_ID) {
+//  console.error("❌ MIS_ID НЕ УСТАНОВЛЕН");
+//  content.innerHTML = `<div class="card">Ошибка авторизации</div>`;
+//  return;
+//}
 
 
   content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
@@ -825,7 +825,7 @@ console.log("STEP 2 AUTH:", data);
   // ===============================
 
   console.log("STEP 3 MIS_ID:", window.MIS_ID);
-console.log("INIT DONE, MIS_ID:", window.MIS_ID);
+
   // ===============================
   // 🚀 APP
   // ===============================
