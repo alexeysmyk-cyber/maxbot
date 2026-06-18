@@ -27,8 +27,12 @@ console.log("🚀 CALL /miniapp/appointments");
     const response = await fetch("/miniapp/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({body,  initData: window.WebApp.initData})
+      body: JSON.stringify({
+  ...body,
+  initData: window.WebApp.initData
+})
     });
+    console.log("FULL BODY:", req.body);
 
     if (!response.ok) {
       throw new Error("HTTP_ERROR");
