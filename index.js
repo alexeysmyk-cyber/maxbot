@@ -52,7 +52,7 @@ app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));
 
 //app.use("/miniapp", misRoutes);
-app.use("/miniapp", miniappRoutes);
+
 app.post('/miniapp/auth', async (req, res) => {
   try {
     const { initData } = req.body;
@@ -109,6 +109,8 @@ app.post('/miniapp/auth', async (req, res) => {
     res.json({ ok: false });
   }
 });
+app.use("/miniapp", miniappRoutes);
+
 
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
