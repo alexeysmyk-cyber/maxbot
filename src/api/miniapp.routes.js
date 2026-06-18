@@ -32,7 +32,7 @@ const parsedUser = JSON.parse(userStr);
 const max_id = parsedUser.id;
 
 
-    console.log("BODY:", req.body);
+   
 
     console.log("📥 MAX AUTH:", max_id);
 
@@ -138,7 +138,43 @@ router.post("/get-schedule", async (req, res) => {
 });
 
 router.post("/get-patient", async (req, res) => {
-  proxy(req, res, "getPatient");
+  try {
+    console.log("🔥 MINIAPP GET PATIENT HIT");
+    console.log("BODY:", req.body);
+
+    const { mobile, last_name } = req.body;
+
+    if (!mobile && !last_name) {
+      return res.status(400).json({ error: "NO_DATA" });
+    }
+
+    const payload = {
+      api_key: process.env.API_KEY
+    };
+
+    if (mobile) payload.mobile = mobile;
+    if (last_name) payload.last_name = last_name;
+
+    console.log("➡️ TO MIS:", payload);
+
+    const response = await axios.post(
+      process.env.BASE_URL + "/getPatient",
+      qs.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }
+    );
+
+    console.log("⬅️ FROM MIS:", response.data);
+
+    return res.json(response.data);
+
+  } catch (e) {
+    console.log("❌ GET PATIENT ERROR:", e.message);
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
 });
 
 router.post("/create-appointment", async (req, res) => {
@@ -172,7 +208,6 @@ async function proxy(req, res, method) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     });
 
-    console.log("📦 MIS RESPONSE:", response.data);
 
     res.json(response.data);
 
