@@ -30,23 +30,7 @@ app.use(express.json({
   }
 }));
 
-/* Ниже только для откладки потом удалить 
 
-app.use((req, res, next) => {
-  if (req.rawBody) {
-    console.log("✅ RAW BODY OK:", req.rawBody.length);
-  } else {
-    console.log("❌ RAW BODY MISSING");
-  }
-  next();
-});
-
-app.use((req, res, next) => {
-  console.log("HEADERS:", req.headers);
-  next();
-});
- Выше только для откладки  потом удалить 
-*/
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));

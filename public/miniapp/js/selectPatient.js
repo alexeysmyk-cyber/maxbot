@@ -159,7 +159,7 @@ console.log("🟢 AFTER THROTTLE PASSED");
 console.log("🟣 BEFORE waitForWebApp");
 const webApp = await waitForWebApp();
 console.log("🟣 AFTER waitForWebApp", webApp);
-    const webApp = await waitForWebApp();
+
     console.log("INIT DATA:", window.WebApp);
 
 
