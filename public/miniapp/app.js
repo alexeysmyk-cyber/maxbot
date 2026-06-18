@@ -152,18 +152,22 @@ try {
 
   console.warn("Doctors request timeout, retrying...");
 
-  try {
-    response = await fetch('/miniapp/doctors', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-     initData: window.WebApp.initData
-  })
-});
-  } catch (err2) {
-    content.innerHTML = `<div class="card">Ошибка загрузки врачей</div>`;
-    return;
-  }
+try {
+  response = await fetch('/miniapp/doctors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      initData: window.WebApp.initData
+    })
+  });
+
+  const data = await response.json();
+  console.log("DOCTORS RESPONSE:", data);
+
+} catch (err2) {
+  content.innerHTML = `<div class="card">Ошибка загрузки врачей</div>`;
+  return;
+}
 }
 
 
