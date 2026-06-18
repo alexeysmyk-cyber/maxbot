@@ -1,4 +1,4 @@
-window.selectedServices = [];
+
 
 export function openConfirmAppointment(patient, slot, options = {}) {
 const existing = document.querySelector(".create-fullscreen");
@@ -13,7 +13,9 @@ if (existing) {
   const defaultServices = options.defaultServices || [];
 
   
-window.selectedServices = [];
+if (!window.selectedServices) {
+  window.selectedServices = [];
+}
 
 let doctorChanged = false;
 
@@ -27,7 +29,7 @@ if (isMove && oldVisit) {
 
   if (!doctorChanged && defaultServices.length) {
     // Врач тот же — переносим услуги
-    selectedServices = defaultServices.map(s => ({
+    window.selectedServices = defaultServices.map(s => ({
       id: s.service_id || s.id,
       name: s.title || s.name,
       price: s.value || s.price
@@ -195,7 +197,7 @@ ${isMove ? `
   document.body.appendChild(overlay);
 
 // 🔥 если перенос — сразу показать услуги
-if (isMove && selectedServices.length) {
+if (isMove && window.selectedServices.length) {
   renderSelectedServices();
   updateTotalPrice();
 }
@@ -244,7 +246,7 @@ if (!createOverlay) {
 
 document.getElementById("addServiceBtn")
   .addEventListener("click", () => {
-    openSelectServices(slot.doctor_id || slot.user_id);
+    openSelectServices(slot.user_id);
   });
 
 document.getElementById("confirmCreateBtn")
@@ -278,7 +280,7 @@ async function createAppointmentRequest() {
       time_start: normalizeDateTime(slot.time_start),
       time_end: normalizeDateTime(slot.time_end),
       room: slot.room,
-      services: selectedServices.map(s => s.id)
+     services: window.selectedServices.map(s => s.id)
     };
 
     // если перенос — добавляем moved_from
@@ -290,7 +292,7 @@ async function createAppointmentRequest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        createBody,
+        ...createBody,
        initData: window.WebApp.initData
     })
     });
@@ -402,17 +404,24 @@ async function createAppointmentRequest() {
 
 function retryCreate() {
 
+  const savedServices = options.selectedServices || [];
+
+if (savedServices.length) {
+  window.selectedServices = savedServices;
+}
+
   const existing = document.querySelector(".create-fullscreen");
   if (existing) {
     existing.remove();
   }
 
-  openConfirmAppointment(patient, slot, {
-    previousOverlay,
-    mode: isMove ? "move" : undefined,
-    oldVisit,
-    defaultServices
-  });
+ openConfirmAppointment(patient, slot, {
+  previousOverlay,
+  mode: isMove ? "move" : undefined,
+  oldVisit,
+  defaultServices,
+  selectedServices: window.selectedServices
+});
 }
 
 }
@@ -665,7 +674,7 @@ container.querySelectorAll(".service-item-select")
   s => String(s.service_id || s.id) === String(id)
 );
 
-      const existing = selectedServices.find(
+     const existing = window.selectedServices.find(
         s => String(s.id) === String(id)
       );
 
@@ -694,7 +703,7 @@ updateTotalPrice();
   container.innerHTML = "Ошибка соединения";
 }
 // подсветка уже выбранных
-selectedServices.forEach(s => {
+window.selectedServices.forEach(s => {
   const el = container.querySelector(`[data-id="${s.id}"]`);
   if (el) el.classList.add("selected");
 });
@@ -707,7 +716,7 @@ function renderSelectedServices() {
 
   const container = document.getElementById("selectedServicesBlock");
 
-  if (!selectedServices.length) {
+ if (!window.selectedServices.length) {
     container.innerHTML = "";
     return;
   }
@@ -724,7 +733,7 @@ function renderSelectedServices() {
       el.addEventListener("click", () => {
 
         const id = el.dataset.id;
-        selectedServices = selectedServices.filter(x => x.id != id);
+        window.selectedServices = window.selectedServices.filter(x => x.id != id);
         renderSelectedServices();
         updateTotalPrice();
 
@@ -747,7 +756,7 @@ function updateTotalPrice() {
     return;
   }
 
-  const total = selectedServices.reduce((sum, s) => {
+  const total = window.selectedServices.reduce((sum, s) => {
     return sum + Number(s.price || 0);
   }, 0);
 
