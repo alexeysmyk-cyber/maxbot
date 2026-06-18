@@ -742,78 +742,40 @@ function attachEvents() {
 }
 
 // ===============================
+
+function waitForWebApp() {
+  return new Promise(resolve => {
+    const interval = setInterval(() => {
+      if (window.WebApp && window.WebApp.initData) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 50);
+  });
+}
 async function init() {
 
+  await waitForWebApp(); // 🔥 ВАЖНО
 
-  const isMax = isRunningInMAX();
-
-  // ===============================
-  // ❌ НЕ MAX → БЛОК
-  // ===============================
-  if (!isMax) {
-    document.body.innerHTML = `
-      <div style="text-align:center;padding:50px">
-        <h2>❌ Доступ запрещён</h2>
-      </div>
-    `;
-    return;
-  }
-
-  // ===============================
-  // ✅ MAX → получаем user
-  // ===============================
-  let maxUser = null;
-
-  for (let i = 0; i < 10; i++) {
-    maxUser = window.WebApp?.initDataUnsafe?.user;
-    if (maxUser) break;
-    await new Promise(r => setTimeout(r, 100));
-  }
-
-  console.log("STEP 1 USER:", maxUser);
+  console.log("WebApp READY:", window.WebApp.initData);
 
   const res = await fetch('/miniapp/auth', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    initData: window.WebApp.initData
-  })
-});
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      initData: window.WebApp.initData
+    })
+  });
 
-console.log("STEP A STATUS:", res.status);
+  const data = await res.json();
 
-let data;
+  if (!data.ok) return;
 
-try {
-  data = await res.json();
-  console.log("STEP B DATA:", data);
-} catch (e) {
-  console.error("STEP B JSON ERROR:", e);
-  return;
-}
+  document.getElementById("app").style.display = "none";
+  document.getElementById("main").style.display = "block";
 
-console.log("STEP C AFTER JSON");
-
-if (!data.ok) {
-  console.log("STEP D NOT OK");
-  return;
-}
-
-console.log("STEP E OK TRUE");
-
-
-if (data.role === 'PATIENT') {
-  console.log("STEP F PATIENT");
-  return;
-}
-
-document.getElementById("app").style.display = "none";
-document.getElementById("main").style.display = "block";
-
-console.log("STEP G BEFORE RENDER");
-
-attachEvents();
-renderVisits();
+  attachEvents();
+  renderVisits();
 }
 
 
