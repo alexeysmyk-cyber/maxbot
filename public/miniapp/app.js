@@ -206,7 +206,7 @@ console.log("RESPONSE STATUS:", response.status);
 }
 
 
-  const data = await response.json();
+ 
 
   if (!response.ok || data.error) {
     content.innerHTML = `<div class="card">Ошибка доступа</div>`;
@@ -813,12 +813,12 @@ if (!data.ok) {
   return;
 }
 
-const doctordata = await res.json();
+console.log("🔥 AUTH RESPONSE:", data);
 
-console.log("🔥 AUTH RESPONSE:", doctordata);
-
-  if (!doctordata.ok) return;
-
+if (!data.ok) {
+  console.error("❌ AUTH NOT OK");
+  return;
+}
   document.getElementById("app").style.display = "none";
   document.getElementById("main").style.display = "block";
 
