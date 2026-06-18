@@ -164,6 +164,8 @@ console.log("BODY TO MIS:", cleanBody);
 
     res.json(response.data);
 
+    console.log("📦 MIS RESPONSE:", response.data);
+
   } catch (e) {
     res.status(500).json({ error: "ERROR" });
   }
