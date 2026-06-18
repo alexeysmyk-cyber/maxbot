@@ -149,11 +149,13 @@ router.post("/create-appointment", async (req, res) => {
 async function proxy(req, res, method) {
   try {
 
-    const body = qs.stringify({
-      api_key: process.env.API_KEY,
-      ...req.body
-    });
+    const { initData, ...cleanBody } = req.body;
 
+const body = qs.stringify({
+  api_key: process.env.API_KEY,
+  ...cleanBody
+});
+console.log("BODY TO MIS:", cleanBody);
     const url = process.env.BASE_URL + "/" + method;
 
     const response = await axios.post(url, body, {
