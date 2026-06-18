@@ -26,7 +26,7 @@ if (!userStr) {
 const parsedUser = JSON.parse(userStr);
 const max_id = parsedUser.id;
 
-console.log("✅ MIDDLEWARE MAX_ID:", max_id);
+
     console.log("BODY:", req.body);
 
     console.log("📥 MAX AUTH:", max_id);
@@ -62,6 +62,8 @@ router.use(authMiddleware);
 // ===============================
 router.post("/doctors", async (req, res) => {
 
+  console.log("🔥 DOCTORS HIT");
+
 
   try {
       console.log("DOCTORS BODY:", req.body);
@@ -71,7 +73,7 @@ const user = req.user;
       return res.status(403).json({ error: "NO_ACCESS" });
     }
 
-    const mis_id = user.misId;
+    const mis_id = user.mis_id;
 
     console.log("🔥 REAL MIS_ID:", mis_id);
     const body = qs.stringify({

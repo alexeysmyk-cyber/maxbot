@@ -141,13 +141,13 @@ try {
  
 
 
-response = await fetchWithTimeout('/miniapp/doctors', {
+response = await fetch('/miniapp/doctors', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     initData: window.WebApp.initData
   })
-}, 2000);
+});
 
 } catch (err) {
 
