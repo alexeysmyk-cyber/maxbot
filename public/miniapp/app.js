@@ -760,16 +760,20 @@ async function init() {
    initData: window.WebApp.initData
 })
 });
+console.log("STEP A: RESPONSE RECEIVED");
 
 console.log("AUTH STATUS:", res.status);
 
 const data = await res.json();
-console.log("AUTH DATA:", data);
+
+console.log("STEP B: JSON PARSED", data);
 
 // ===============================
 // ❌ НЕТ В БАЗЕ
 // ===============================
 if (!data.ok) {
+ console.log("STEP C: NOT OK");
+
   document.body.innerHTML = `
     <div style="
       display:flex;
@@ -784,9 +788,10 @@ if (!data.ok) {
   `;
   return;
 }
-window.MIS_ID = data.mis_id;
 
-console.log("✅ MIS_ID SET:", window.MIS_ID);
+//window.MIS_ID = data.mis_id;
+
+//console.log("✅ MIS_ID SET:", window.MIS_ID);
 // ===============================
 // 🟡 ПАЦИЕНТ
 // ===============================
@@ -807,7 +812,6 @@ if (data.role === 'PATIENT') {
 }
 
 
-console.log("STEP 2 AUTH:", data);
 
   if (!maxUser) {
     document.body.innerHTML = `
@@ -827,6 +831,9 @@ console.log("STEP 2 AUTH:", data);
   
   document.getElementById('app').style.display = 'none';
 document.getElementById('main').style.display = 'block';
+
+console.log("STEP D: BEFORE RENDER VISITS");
+
   attachEvents();
   renderVisits();
 }
