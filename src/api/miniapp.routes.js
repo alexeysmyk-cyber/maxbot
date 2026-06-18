@@ -149,13 +149,20 @@ router.post("/create-appointment", async (req, res) => {
 async function proxy(req, res, method) {
   try {
 
-    const { initData, ...cleanBody } = req.body;
+const { initData, date, ...rest } = req.body;
 
-const body = qs.stringify({
+const payload = {
   api_key: process.env.API_KEY,
-  ...cleanBody
-});
-console.log("BODY TO MIS:", cleanBody);
+  ...rest
+};
+
+if (method === "getAppointments" && date) {
+  payload.visit_date = date;
+}
+
+const body = qs.stringify(payload);
+
+console.log("BODY TO MIS:", payload);
     const url = process.env.BASE_URL + "/" + method;
 
     const response = await axios.post(url, body, {
