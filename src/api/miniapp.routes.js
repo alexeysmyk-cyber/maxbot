@@ -61,7 +61,11 @@ router.use(authMiddleware);
 // ВРАЧИ
 // ===============================
 router.post("/doctors", async (req, res) => {
+
+
   try {
+      console.log("DOCTORS BODY:", req.body);
+console.log("DOCTORS USER:", req.user);
 const user = req.user;
     if (!user) {
       return res.status(403).json({ error: "NO_ACCESS" });
