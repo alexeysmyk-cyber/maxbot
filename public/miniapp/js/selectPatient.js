@@ -6,6 +6,8 @@ import { openCreatePatient } from "./createPatient.js";
 
 let searchTimeout = null;
 
+console.log("🔥 PATIENT FILE LOADED");
+
 export function openSelectPatient(onSelect) {
 
   const overlay = document.createElement("div");
