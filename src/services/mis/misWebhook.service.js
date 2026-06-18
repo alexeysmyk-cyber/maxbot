@@ -5,7 +5,7 @@ import { getAppointmentWithRetry } from './mis.service.js';
 export async function handleMisWebhook(req, bot) {
 
   
-console.log('📦 RAW BODY:', req.body);
+
 
   const secret =
     req.query?.secret ||
