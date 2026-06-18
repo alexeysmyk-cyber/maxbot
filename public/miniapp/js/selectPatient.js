@@ -59,6 +59,7 @@ export function openSelectPatient(onSelect) {
 
   input.addEventListener("input", (e) => {
     const value = e.target.value.trim();
+      console.log("🟢 INPUT EVENT:", value);
     handleSearch(value, onSelect);
   });
 }
@@ -68,6 +69,7 @@ export function openSelectPatient(onSelect) {
 ================================ */
 
 function handleSearch(value, onSelect) {
+  console.log("🟡 HANDLE SEARCH:", value);
 
   clearTimeout(searchTimeout);
 
@@ -93,7 +95,7 @@ function handleSearch(value, onSelect) {
 
   // если русские буквы → фамилия
   if (/^[А-Яа-яЁё]+$/.test(value)) {
-
+console.log("🔤 NAME DETECTED:", value);
     if (value.length < 3) return;
 
     searchTimeout = setTimeout(() => {
@@ -128,6 +130,7 @@ function normalizePhone(phone) {
 let lastSearchTime = 0;
 
 async function searchPatients(params, onSelect, retry = false) {
+  console.log("🔵 ENTER searchPatients", params);
 
    console.log("🔵 ENTER searchPatients", params, "retry:", retry);
 
