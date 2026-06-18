@@ -138,7 +138,7 @@ let response;
 
 try {
 
-  console.log("🚀 SEND MIS_ID:", window.MIS_ID);
+ 
 
 
 response = await fetchWithTimeout('/miniapp/doctors', {
@@ -764,9 +764,6 @@ async function init() {
 const data = await res.json();
 
 
-
-console.log("✅ MIS_ID SET:", window.MIS_ID);
-
 // ===============================
 // ❌ НЕТ В БАЗЕ
 // ===============================
@@ -820,12 +817,6 @@ console.log("STEP 2 AUTH:", data);
   }
 
  
-
-  // ===============================
-  // 🧠 MIS
-  // ===============================
-
-  console.log("STEP 3 MIS_ID:", window.MIS_ID);
 
   // ===============================
   // 🚀 APP

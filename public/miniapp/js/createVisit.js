@@ -307,13 +307,13 @@ loadCreateSchedule();
 async function loadDoctorsForCreate() {
 
  
-  const response = await fetch("/miniapp/doctors", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-       mis_id: window.MIS_ID
-    })
-  });
+ response = await fetch('/miniapp/doctors', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    initData: window.WebApp.initData
+  })
+});
 
   const data = await response.json();
   const container = document.getElementById("doctorContainer");

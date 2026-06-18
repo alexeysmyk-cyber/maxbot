@@ -30,7 +30,7 @@ app.use(express.json({
   }
 }));
 
-// Ниже только для откладки потом удалить 
+/* Ниже только для откладки потом удалить 
 
 app.use((req, res, next) => {
   if (req.rawBody) {
@@ -45,8 +45,8 @@ app.use((req, res, next) => {
   console.log("HEADERS:", req.headers);
   next();
 });
-// Выше только для откладки  потом удалить 
-
+ Выше только для откладки  потом удалить 
+*/
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));
@@ -57,29 +57,28 @@ app.post('/miniapp/auth', async (req, res) => {
   try {
     const { initData } = req.body;
 
-if (!initData) {
-  return res.json({ ok: false });
-}
+    if (!initData) {
+      console.log("❌ NO initData");
+      return res.json({ ok: false });
+    }
 
-const params = new URLSearchParams(initData);
-const userStr = params.get("user");
+    const params = new URLSearchParams(initData);
+    const userStr = params.get("user");
 
-if (!userStr) {
-  return res.json({ ok: false });
-}
+    if (!userStr) {
+      console.log("❌ NO user in initData");
+      return res.json({ ok: false });
+    }
 
-const parsedUser = JSON.parse(userStr);
-const max_id = parsedUser.id;
+    const parsedUser = JSON.parse(userStr);
+    const max_id = parsedUser.id;
 
-console.log("✅ AUTH MAX_ID:", max_id);
-
-    console.log("📥 AUTH REQUEST:", max_id);
+    console.log("✅ AUTH MAX_ID:", max_id);
 
     if (!max_id) {
       return res.json({ ok: false });
     }
 
-    // 🔥 ищем пользователя в БД
     const user = await prisma.user.findFirst({
       where: {
         vk_id: String(max_id)
@@ -88,12 +87,10 @@ console.log("✅ AUTH MAX_ID:", max_id);
 
     console.log("👤 DB USER:", user);
 
-    // ❌ нет пользователя
     if (!user) {
       return res.json({ ok: false });
     }
 
-    // 🟡 пациент
     if (user.type === 'PATIENT') {
       return res.json({
         ok: true,
@@ -101,11 +98,10 @@ console.log("✅ AUTH MAX_ID:", max_id);
       });
     }
 
-    // ✅ сотрудник
     return res.json({
       ok: true,
       role: 'EMPLOYEE',
-      mis_id: user.misId
+      mis_id: user.mis_id   // ✅ ВАЖНО
     });
 
   } catch (e) {
@@ -113,7 +109,6 @@ console.log("✅ AUTH MAX_ID:", max_id);
     res.json({ ok: false });
   }
 });
-
 
 // ===== ENV =====
 const ADMIN_LOGIN = process.env.ADMIN_LOGIN;
