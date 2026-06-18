@@ -151,7 +151,7 @@ async function searchPatients(params, onSelect, retry = false) {
     const response = await fetch("/miniapp/get-patient", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...params, initData })
+      body: JSON.stringify({ ...params, initData: window.WebApp.initData })
     });
 
     // если сервер вернул HTML (502)
