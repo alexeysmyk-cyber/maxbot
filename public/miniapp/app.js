@@ -751,13 +751,12 @@ function waitForWebApp() {
 
 async function init() {
 
+  console.log("🔥 INIT START");
 
+  // Ждём WebApp
+  await waitForWebApp();
 
-   console.log("🔥 INIT START");
-
-  await waitForWebApp(); // 🔥 ВАЖНО
-
-
+  // Проверка запуска в MAX
   if (!isRunningInMAX()) {
     document.body.innerHTML = `
       <div style="display:flex;justify-content:center;align-items:center;height:100vh">
@@ -767,53 +766,59 @@ async function init() {
     return;
   }
 
-  console.log("WebApp READY:", window.WebApp.initData);
+  console.log("✅ WebApp READY:", window.WebApp.initData);
 
-console.log("🔥 CALL AUTH");
+  // ===============================
+  // AUTH
+  // ===============================
+  console.log("🔥 CALL AUTH");
 
-let res;
+  let res;
 
-try {
-  res = await fetch('/miniapp/auth', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      initData: window.WebApp.initData
-    })
-  });
-} catch (e) {
-  console.error("❌ FETCH AUTH ERROR:", e);
-  return;
-}
+  try {
+    res = await fetch('/miniapp/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        initData: window.WebApp.initData
+      })
+    });
+  } catch (e) {
+    console.error("❌ FETCH AUTH ERROR:", e);
+    document.body.innerHTML = `<div class="card">Ошибка соединения</div>`;
+    return;
+  }
 
-console.log("🔥 AUTH STATUS:", res.status);
+  console.log("🔥 AUTH STATUS:", res.status);
 
-let data;
+  let data;
 
-try {
-  data = await res.json();
-} catch (e) {
-  console.error("❌ AUTH JSON ERROR:", e);
-  return;
-}
+  try {
+    data = await res.json();
+  } catch (e) {
+    console.error("❌ AUTH JSON ERROR:", e);
+    document.body.innerHTML = `<div class="card">Ошибка сервера</div>`;
+    return;
+  }
 
-console.log("🔥 AUTH RESPONSE:", data);
+  console.log("🔥 AUTH RESPONSE:", data);
 
-if (!data.ok) {
-  console.error("❌ AUTH NOT OK");
-  return;
-}
+  if (!data.ok) {
+    console.error("❌ AUTH NOT OK");
+    document.body.innerHTML = `<div class="card">Ошибка авторизации</div>`;
+    return;
+  }
 
-console.log("🔥 AUTH RESPONSE:", data);
-
-if (!data.ok) {
-  console.error("❌ AUTH NOT OK");
-  return;
-}
+  // ===============================
+  // SUCCESS → показываем UI
+  // ===============================
   document.getElementById("app").style.display = "none";
   document.getElementById("main").style.display = "block";
 
   attachEvents();
+
+  console.log("🔥 START RENDER VISITS");
+
   renderVisits();
 }
 
