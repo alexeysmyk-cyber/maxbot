@@ -737,6 +737,27 @@ function attachEvents() {
 
 // ===============================
 
+function waitForWebApp(timeout = 2000) {
+  return new Promise(resolve => {
+    const start = Date.now();
+
+    const interval = setInterval(() => {
+      if (window.WebApp && window.WebApp.initData) {
+        clearInterval(interval);
+        resolve(true);
+      }
+
+      // ⛔ если не MAX — выходим через таймаут
+      if (Date.now() - start > timeout) {
+        clearInterval(interval);
+        resolve(false);
+      }
+
+    }, 50);
+  });
+}
+
+
 async function init() {
 
   console.log("🔥 INIT START");
@@ -819,6 +840,7 @@ async function init() {
 
   renderVisits();
 }
+
 
 
 init();
