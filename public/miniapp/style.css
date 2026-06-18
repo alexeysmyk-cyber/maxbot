@@ -595,6 +595,8 @@ body {
 }
 .calendar-wrapper {
   padding: 8px 10px;
+  transition: all 0.25s ease;
+  will-change: transform, opacity;
 }
 .calendar-header {
   display: flex;

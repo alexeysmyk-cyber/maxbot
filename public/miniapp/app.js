@@ -463,16 +463,18 @@ const editFiltersBtn = document.getElementById("editFiltersBtn");
 // ===============================
 // SMOOTH AUTO CLOSE FILTER ON SCROLL
 // ===============================
-
+let calendarClosing = false;
 scheduleContainer.addEventListener("scroll", () => {
 
   swipeBlockedUntil = Date.now() + 800;
 
+  const currentScroll = scheduleContainer.scrollTop;
+
   // ===============================
-  // ФИЛЬТРЫ
+  // ФИЛЬТРЫ (оставляем как есть)
   // ===============================
   if (
-    scheduleContainer.scrollTop > 10 &&
+    currentScroll > 10 &&
     !filterPanel.classList.contains("collapsing")
   ) {
     filterPanel.classList.add("collapsing");
@@ -480,18 +482,29 @@ scheduleContainer.addEventListener("scroll", () => {
   }
 
   // ===============================
-  // КАЛЕНДАРЬ
+  // КАЛЕНДАРЬ (УЛУЧШЕННЫЙ UX)
   // ===============================
   if (
+    currentScroll > 40 && // 🔥 позже срабатывает
     calendarWrapper &&
-    !calendarWrapper.classList.contains("compact") // открыт
+    !calendarWrapper.classList.contains("compact") &&
+    !calendarClosing // 🔥 защита от повторов
   ) {
 
-    // 🔥 имитируем клик по заголовку (он сам делает collapse)
+    calendarClosing = true;
+
     const title = calendarEl.querySelector(".collapsed-title");
 
     if (title) {
-      title.click();
+      setTimeout(() => {
+        title.click();
+
+        // 🔥 через время разрешаем снова
+        setTimeout(() => {
+          calendarClosing = false;
+        }, 400);
+
+      }, 120); // 🔥 мягкая задержка
     }
   }
 
