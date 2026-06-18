@@ -399,7 +399,7 @@ e.stopPropagation();
     // ===============================
     // TOUCH MOVE
     // ===============================
-/*slot.addEventListener("touchmove", (e) => {
+slot.addEventListener("touchmove", (e) => {
 
   const currentX = e.touches[0].clientX;
   const currentY = e.touches[0].clientY;
@@ -426,7 +426,7 @@ if (isLongPress) {
 
   slot.style.transform = `translateX(${diffX}px)`;
 }
-});*/
+});
 
 
 

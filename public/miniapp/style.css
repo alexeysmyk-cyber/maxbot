@@ -49,6 +49,7 @@ body {
   flex-direction: column;
   overflow: hidden;              /* убираем scroll отсюда */
   padding-top: 6px;
+   min-height: 0; 
 }
 #scheduleContainer {
   flex: 1;                       /* занимает всё оставшееся место */
@@ -95,7 +96,7 @@ body {
 .app {
   display: flex;
   flex-direction: column;
- height: 100%; 
+ height: 100vh;
   padding: 0 16px;
   box-sizing: border-box;
 }
