@@ -51,7 +51,7 @@ app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use('/uploads', express.static(path.resolve('uploads')));
 
-app.use("/miniapp", misRoutes);
+//app.use("/miniapp", misRoutes);
 app.use("/miniapp", miniappRoutes);
 app.post('/miniapp/auth', async (req, res) => {
   try {
