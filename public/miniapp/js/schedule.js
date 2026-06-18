@@ -27,7 +27,7 @@ console.log("🚀 CALL /miniapp/appointments");
     const response = await fetch("/miniapp/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+   body: JSON.stringify({
   ...body,
   initData: window.WebApp.initData
 })
@@ -40,9 +40,10 @@ console.log("🚀 CALL /miniapp/appointments");
 
     const data = await response.json();
 
-    if (data.error !== 0) {
-      throw new Error("MIS_ERROR");
-    }
+    if (data.error && data.error !== 0) {
+  console.warn("MIS ERROR:", data);
+  return { data: [] };
+}
 
     return data;
 
@@ -94,13 +95,12 @@ console.log("📤 SEND DATE:", date);
 
     const data = await fetchWithRetry({
       date,
-      initData: window.WebApp.initData
-    });
+      });
 
     // если уже ушёл новый запрос — этот игнорируем
     if (requestId !== currentRequestId) return;
 
-    let visits = data.data || [];
+    let visits = (data && data.data) ? data.data : [];
 
     // ===== ФИЛЬТРАЦИЯ ПО ВРАЧУ (фронт) =====
     if (!showAll && doctorId) {
