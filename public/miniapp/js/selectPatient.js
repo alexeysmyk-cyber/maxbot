@@ -9,6 +9,7 @@ let searchTimeout = null;
 console.log("🔥 PATIENT FILE LOADED");
 
 export function openSelectPatient(onSelect) {
+  console.log("🔥 openSelectPatient OPEN");
 
   const overlay = document.createElement("div");
   overlay.id = "patientOverlay";
@@ -44,6 +45,8 @@ export function openSelectPatient(onSelect) {
 
   document.body.appendChild(overlay);
 
+  console.log("🔥 OVERLAY ADDED");
+
   // закрытие
   document
     .getElementById("closePatient")
@@ -58,6 +61,8 @@ export function openSelectPatient(onSelect) {
 
   // поле поиска
   const input = document.getElementById("patientSearchInput");
+
+  console.log("🔥 INPUT FOUND:", input);
 
   input.addEventListener("input", (e) => {
     const value = e.target.value.trim();
