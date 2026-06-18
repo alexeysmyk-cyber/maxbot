@@ -813,11 +813,11 @@ if (!data.ok) {
   return;
 }
 
-const data = await res.json();
+const doctordata = await res.json();
 
-console.log("🔥 AUTH RESPONSE:", data);
+console.log("🔥 AUTH RESPONSE:", doctordata);
 
-  if (!data.ok) return;
+  if (!doctordata.ok) return;
 
   document.getElementById("app").style.display = "none";
   document.getElementById("main").style.display = "block";
