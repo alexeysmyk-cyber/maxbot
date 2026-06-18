@@ -123,6 +123,11 @@ function setActive(tab) {
 // ===============================
 async function renderVisits() {
 
+console.log("RENDER VISITS START");
+
+const content = document.getElementById("content");
+console.log("CONTENT:", content);
+
   console.log("WebApp:", window.WebApp);
 console.log("initData:", window.WebApp?.initData);
 
@@ -166,7 +171,17 @@ try {
     })
   });
 
-  const data = await response.json();
+  let data;
+
+try {
+  data = await response.json();
+} catch (e) {
+  console.error("❌ JSON ERROR:", e);
+  content.innerHTML = `<div class="card">Ошибка ответа сервера</div>`;
+  return;
+}
+console.log("RESPONSE STATUS:", response.status);
+
   console.log("DOCTORS RESPONSE:", data);
 
 } catch (err2) {
