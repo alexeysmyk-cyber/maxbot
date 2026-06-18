@@ -126,6 +126,7 @@ async function renderVisits() {
   console.log("WebApp:", window.WebApp);
 console.log("initData:", window.WebApp?.initData);
 
+
 //if (!window.MIS_ID) {
 //  console.error("❌ MIS_ID НЕ УСТАНОВЛЕН");
 //  content.innerHTML = `<div class="card">Ошибка авторизации</div>`;
