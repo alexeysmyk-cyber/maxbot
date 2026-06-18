@@ -55,7 +55,23 @@ app.use("/miniapp", misRoutes);
 app.use("/miniapp", miniappRoutes);
 app.post('/miniapp/auth', async (req, res) => {
   try {
-    const { max_id } = req.body;
+    const { initData } = req.body;
+
+if (!initData) {
+  return res.json({ ok: false });
+}
+
+const params = new URLSearchParams(initData);
+const userStr = params.get("user");
+
+if (!userStr) {
+  return res.json({ ok: false });
+}
+
+const parsedUser = JSON.parse(userStr);
+const max_id = parsedUser.id;
+
+console.log("✅ AUTH MAX_ID:", max_id);
 
     console.log("📥 AUTH REQUEST:", max_id);
 

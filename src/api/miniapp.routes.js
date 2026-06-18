@@ -10,7 +10,23 @@ const prisma = new PrismaClient();
 
 async function authMiddleware(req, res, next) {
   try {
-    const { max_id } = req.body;
+    const { initData } = req.body;
+
+if (!initData) {
+  return res.status(401).json({ error: "NO_INIT_DATA" });
+}
+
+const params = new URLSearchParams(initData);
+const userStr = params.get("user");
+
+if (!userStr) {
+  return res.status(401).json({ error: "NO_USER" });
+}
+
+const parsedUser = JSON.parse(userStr);
+const max_id = parsedUser.id;
+
+console.log("✅ MIDDLEWARE MAX_ID:", max_id);
     console.log("BODY:", req.body);
 
     console.log("📥 MAX AUTH:", max_id);
@@ -46,15 +62,7 @@ router.use(authMiddleware);
 // ===============================
 router.post("/doctors", async (req, res) => {
   try {
-
-    const { max_id } = req.body;
-
-    const user = await prisma.user.findFirst({
-      where: {
-        vk_id: String(max_id)
-      }
-    });
-
+const user = req.user;
     if (!user) {
       return res.status(403).json({ error: "NO_ACCESS" });
     }
@@ -112,8 +120,24 @@ router.post("/get-patient", async (req, res) => {
 router.post("/create-appointment", async (req, res) => {
   proxy(req, res, "createAppointment");
 });
-router.post('/auth', async (req, res) => {
-  const { max_id } = req.body;
+
+//Временно убираем
+/*router.post('/auth', async (req, res) => {
+  const { initData } = req.body;
+
+if (!initData) {
+  return res.json({ ok: false });
+}
+
+const params = new URLSearchParams(initData);
+const userStr = params.get("user");
+
+if (!userStr) {
+  return res.json({ ok: false });
+}
+
+const parsedUser = JSON.parse(userStr);
+const max_id = parsedUser.id;
 
   const user = await prisma.user.findFirst({
     where: { vk_id: String(max_id) }
@@ -135,7 +159,9 @@ router.post('/auth', async (req, res) => {
     role: 'EMPLOYEE',
     mis_id: user.mis_id
   });
-});
+});*/
+
+
 async function proxy(req, res, method) {
   try {
 
