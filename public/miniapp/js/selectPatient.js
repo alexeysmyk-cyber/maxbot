@@ -161,11 +161,9 @@ console.log("🟢 AFTER THROTTLE PASSED");
   `;
 
   try {
-console.log("🟣 BEFORE waitForWebApp");
-const webApp = await waitForWebApp();
-console.log("🟣 AFTER waitForWebApp", webApp);
+const initData = window.WebApp?.initData;
 
-    console.log("INIT DATA:", window.WebApp);
+console.log("INIT DATA:", initData);
 
 
 console.log("🟠 BEFORE FETCH", params);
@@ -174,7 +172,7 @@ const response = await fetch("/miniapp/get-patient", {
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ 
     ...params, 
-    initData: webApp.initData 
+    initData: initData
   })
 });
 console.log("🟠 FETCH DONE");

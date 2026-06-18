@@ -737,20 +737,19 @@ function attachEvents() {
 
 // ===============================
 
-function waitForWebApp(timeout = 2000) {
+export function waitForWebApp(timeout = 2000) {
   return new Promise(resolve => {
     const start = Date.now();
 
     const interval = setInterval(() => {
       if (window.WebApp && window.WebApp.initData) {
         clearInterval(interval);
-        resolve(true);
+        resolve(window.WebApp); // 🔥 ВАЖНО
       }
 
-      // ⛔ если не MAX — выходим через таймаут
       if (Date.now() - start > timeout) {
         clearInterval(interval);
-        resolve(false);
+        resolve(null); // 🔥 лучше null
       }
 
     }, 50);
