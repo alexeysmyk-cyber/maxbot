@@ -757,85 +757,40 @@ async function init() {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-   initData: window.WebApp.initData
-})
+    initData: window.WebApp.initData
+  })
 });
-console.log("STEP A: RESPONSE RECEIVED");
 
-console.log("AUTH STATUS:", res.status);
+console.log("STEP A STATUS:", res.status);
 
-const data = await res.json();
+let data;
 
-console.log("STEP B: JSON PARSED", data);
+try {
+  data = await res.json();
+  console.log("STEP B DATA:", data);
+} catch (e) {
+  console.error("STEP B JSON ERROR:", e);
+  return;
+}
 
-// ===============================
-// ❌ НЕТ В БАЗЕ
-// ===============================
+console.log("STEP C AFTER JSON");
+
 if (!data.ok) {
- console.log("STEP C: NOT OK");
-
-  document.body.innerHTML = `
-    <div style="
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      text-align:center;
-      font-family:sans-serif;
-    ">
-      <h2>❌ Вы не авторизованы в боте клиники</h2>
-    </div>
-  `;
+  console.log("STEP D NOT OK");
   return;
 }
 
-//window.MIS_ID = data.mis_id;
+console.log("STEP E OK TRUE");
 
-//console.log("✅ MIS_ID SET:", window.MIS_ID);
-// ===============================
-// 🟡 ПАЦИЕНТ
-// ===============================
 if (data.role === 'PATIENT') {
-  document.body.innerHTML = `
-    <div style="
-      display:flex;
-      justify-content:center;  
-      align-items:center;
-      height:100vh;
-      text-align:center;
-      font-family:sans-serif;
-    ">
-      <h2>🟡 Модуль записи на визиты в разработке</h2>
-    </div>
-  `;
+  console.log("STEP F PATIENT");
   return;
 }
 
+console.log("STEP G BEFORE RENDER");
 
-
-  if (!maxUser) {
-    document.body.innerHTML = `
-      <div style="text-align:center;padding:50px">
-        <h2>❌ Ошибка авторизации</h2>
-      </div>
-    `;
-    return;
-  }
-
- 
-
-  // ===============================
-  // 🚀 APP
-  // ===============================
-
-  
-  document.getElementById('app').style.display = 'none';
-document.getElementById('main').style.display = 'block';
-
-console.log("STEP D: BEFORE RENDER VISITS");
-
-  attachEvents();
-  renderVisits();
+attachEvents();
+renderVisits();
 }
 
 
