@@ -796,21 +796,16 @@ async function init() {
 
   // Если не MAX (например браузер)
   if (!isMaxReady) {
-    document.body.innerHTML = `
-      <div style="display:flex;justify-content:center;align-items:center;height:100vh">
-        <h2>❌ Доступ запрещен</h2>
-      </div>
-    `;
+    renderAccessDenied();
+throw new Error("BLOCKED");
+
     return;
   }
 
   // Доп. защита (можно оставить)
   if (!isRunningInMAX()) {
-    document.body.innerHTML = `
-      <div style="display:flex;justify-content:center;align-items:center;height:100vh">
-        <h2>❌ Доступ запрещён</h2>
-      </div>
-    `;
+    renderAccessDenied();
+throw new Error("BLOCKED");
     return;
   }
 
@@ -851,11 +846,10 @@ async function init() {
 
   console.log("🔥 AUTH RESPONSE:", data);
 
-  if (!data.ok) {
-    console.error("❌ AUTH NOT OK");
-    document.body.innerHTML = `<div class="card">Ошибка авторизации</div>`;
-    return;
-  }
+ if (!data.ok) {
+  renderAccessDenied();
+  return;
+}
 
   // ===============================
   // SUCCESS
@@ -922,3 +916,27 @@ if (container) {
 
 };
 
+function renderAccessDenied() {
+  document.body.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      font-family:sans-serif;
+      text-align:center;
+      padding:20px;
+    ">
+      <div>
+        <div style="font-size:48px;margin-bottom:20px">🔒</div>
+        <h2 style="margin-bottom:10px">
+          Доступ ограничен
+        </h2>
+        <div style="color:#666">
+          Авторизуйтесь через бот MAX<br/>
+          клиники «Среда»
+        </div>
+      </div>
+    </div>
+  `;
+}
