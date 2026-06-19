@@ -174,7 +174,13 @@ try {
     data = await response.json();
 
   } catch (err2) {
-    content.innerHTML = `<div class="card">Ошибка загрузки врачей</div>`;
+      renderAccessDeniedNoMax({
+    title: "Ошибка",
+    text: "Не удалось загрузить данные",
+    icon: "⚠️",
+    buttonText: "Обновить",
+    buttonAction: () => location.reload()
+  });
     return;
   }
 }
@@ -182,17 +188,27 @@ try {
 
  
 
-  if (!response.ok || data.error) {
-    content.innerHTML = `<div class="card">Ошибка доступа</div>`;
-    return;
-  }
+if (!response.ok || data.error) {
+
+  renderAccessDeniedNoMax({
+    text: data?.message || "Обратитесь к администрации",
+    icon: "🔒"
+  });
+
+  return;
+}
 
   const { doctors = [], isDirector = false, currentDoctorId = null } = data;
 
-  if (!doctors.length) {
-    content.innerHTML = `<div class="card">Нет врачей</div>`;
-    return;
-  }
+if (!doctors.length) {
+
+  renderAccessDeniedNoMax({
+    text: "Нет доступных врачей",
+    icon: "⚠️"
+  });
+
+  return;
+}
 
   // ===============================
   // HTML
@@ -796,7 +812,11 @@ async function init() {
 
   // Если не MAX (например браузер)
   if (!isMaxReady) {
-    renderAccessDeniedNoMax();
+   renderAccessDeniedNoMax({
+  text: "Доступ только через WebApp бота MAX",
+  icon: "❌",
+  
+});
 throw new Error("BLOCKED");
 
     return;
@@ -804,7 +824,11 @@ throw new Error("BLOCKED");
 
   // Доп. защита (можно оставить)
   if (!isRunningInMAX()) {
-    renderAccessDeniedNoMax();
+      renderAccessDeniedNoMax({
+  text: "Доступ только через WebApp бота MAX",
+  icon: "❌",
+  
+});
 throw new Error("BLOCKED");
     return;
   }
@@ -945,7 +969,14 @@ function renderAccessDenied() {
     </div>
   `;
 }
-function renderAccessDeniedNoMax() {
+function renderAccessDeniedNoMax({
+  title = "Доступ закрыт",
+  text = "Обратитесь к администрации",
+  icon = "❌",
+  buttonText = null,
+  buttonAction = null
+} = {}) {
+
   document.body.innerHTML = `
     <div style="
       display:flex;
@@ -955,19 +986,48 @@ function renderAccessDeniedNoMax() {
       font-family:sans-serif;
       text-align:center;
       padding:20px;
+      background:#f4f7fb;
     ">
-      <div>
-        <div style="font-size:48px;margin-bottom:20px">❌</div>
+      <div style="
+        background:white;
+        border-radius:16px;
+        padding:24px;
+        max-width:320px;
+        width:100%;
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      ">
+        <div style="font-size:48px;margin-bottom:16px">${icon}</div>
+
         <h2 style="margin-bottom:10px">
-          Доступ закрыт
+          ${title}
         </h2>
-        <div style="color:#666">
-          Доступ только через <br/>
-          WebApp бота MAX <br/>
-          </div>
+
+        <div style="color:#666;margin-bottom:20px">
+          ${text}
+        </div>
+
+        ${buttonText ? `
+          <button id="accessBtn" style="
+            width:100%;
+            padding:12px;
+            border-radius:12px;
+            border:none;
+            background:#00a4c7;
+            color:white;
+            font-weight:600;
+            cursor:pointer;
+          ">
+            ${buttonText}
+          </button>
+        ` : ``}
       </div>
     </div>
   `;
+
+  if (buttonText && buttonAction) {
+    document.getElementById("accessBtn")
+      ?.addEventListener("click", buttonAction);
+  }
 }
 function renderPatientStub() {
   document.body.innerHTML = `
