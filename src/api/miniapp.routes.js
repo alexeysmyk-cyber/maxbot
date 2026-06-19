@@ -133,25 +133,84 @@ const currentMisUser = users.find(
 );
 
 console.log("CURRENT MIS USER:", currentMisUser);
+
+
 const roleNames = currentMisUser?.role_names || [];
-const isDirector = hasFullAccess(roleNames);
+const access = resolveAccess(roleNames);
 
-console.log("ROLE NAMES:", roleNames);
-console.log("IS DIRECTOR:", isDirector);
+console.log("ACCESS:", access);
 
+let doctors = [];
 
-    const doctors = users
-  .filter(u => (u.role_names || []).includes("doctor"))
-  .map(u => ({
-    id: u.id,
-    name: u.name
-  }));
+// ❌ пользователь не найден в MIS
+if (!currentMisUser) {
+  return res.status(403).json({
+    error: "NO_ACCESS",
+    message: "Пользователь не найден в MIS"
+  });
+}
 
-    res.json({
-      doctors,
-      currentDoctorId: mis_id,
-isDirector
+// 🚫 нет доступа
+if (access.type === "denied") {
+  return res.status(403).json({
+    error: "NO_ACCESS",
+    message: "Обратитесь к администрации"
+  });
+}
+
+// 🧑 пациент
+if (access.type === "patient") {
+  return res.json({
+    doctors: [],
+    currentDoctorId: null,
+    isDirector: false,
+    accessType: "patient"
+  });
+}
+
+// 👨‍⚕️ врач
+if (access.type === "doctor") {
+  const selfDoctor = users.find(
+    u => String(u.id) === String(mis_id)
+  );
+
+  if (!selfDoctor) {
+    return res.status(403).json({
+      error: "NO_ACCESS",
+      message: "Сотрудник не найден в MIS"
     });
+  }
+
+  doctors = [{
+    id: selfDoctor.id,
+    name: selfDoctor.name
+  }];
+}
+
+// 👑 админ
+if (access.type === "admin") {
+  doctors = users
+    .filter(u => (u.role_names || []).includes("doctor"))
+    .map(u => ({
+      id: u.id,
+      name: u.name
+    }));
+}
+
+// защита
+if (!doctors.length) {
+  return res.status(403).json({
+    error: "NO_DOCTORS",
+    message: "Нет доступных врачей"
+  });
+}
+
+res.json({
+  doctors,
+  currentDoctorId: mis_id,
+  isDirector: access.type === "admin",
+  accessType: access.type
+});
 
   } catch (e) {
     res.status(500).json({ error: "ERROR" });
@@ -628,6 +687,21 @@ function normalizePhone(phone) {
   }
 
   return digits;
+}
+function resolveAccess(roleNames = []) {
+  if (roleNames.includes("patient")) {
+    return { type: "patient" };
+  }
+
+  if (roleNames.includes("doctor")) {
+    return { type: "doctor" };
+  }
+
+  if (roleNames.some(r => ["admin", "maxbot-app"].includes(r))) {
+    return { type: "admin" };
+  }
+
+  return { type: "denied" };
 }
 
 
