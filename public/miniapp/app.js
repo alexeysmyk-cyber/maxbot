@@ -851,6 +851,11 @@ throw new Error("BLOCKED");
   return;
 }
 
+if (data.role === 'PATIENT') {
+  renderPatientStub();
+  return;
+}
+
   // ===============================
   // SUCCESS
   // ===============================
@@ -960,6 +965,29 @@ function renderAccessDeniedNoMax() {
           Доступ только через <br/>
           WebApp бота MAX <br/>
           </div>
+      </div>
+    </div>
+  `;
+}
+function renderPatientStub() {
+  document.body.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      font-family:sans-serif;
+      text-align:center;
+      padding:20px;
+    ">
+      <div>
+        <div style="font-size:48px;margin-bottom:20px">🧑‍⚕️</div>
+        <h2 style="margin-bottom:10px">
+          Личный кабинет пациента
+        </h2>
+        <div style="color:#666">
+          В разработке
+        </div>
       </div>
     </div>
   `;
