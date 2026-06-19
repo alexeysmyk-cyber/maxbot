@@ -796,7 +796,7 @@ async function init() {
 
   // Если не MAX (например браузер)
   if (!isMaxReady) {
-    renderAccessDenied();
+    renderAccessDeniedNoMax();
 throw new Error("BLOCKED");
 
     return;
@@ -804,7 +804,7 @@ throw new Error("BLOCKED");
 
   // Доп. защита (можно оставить)
   if (!isRunningInMAX()) {
-    renderAccessDenied();
+    renderAccessDeniedNoMax();
 throw new Error("BLOCKED");
     return;
   }
@@ -936,6 +936,30 @@ function renderAccessDenied() {
           Авторизуйтесь через бот MAX<br/>
           клиники «Среда»
         </div>
+      </div>
+    </div>
+  `;
+}
+function renderAccessDeniedNoMax() {
+  document.body.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      font-family:sans-serif;
+      text-align:center;
+      padding:20px;
+    ">
+      <div>
+        <div style="font-size:48px;margin-bottom:20px">❌</div>
+        <h2 style="margin-bottom:10px">
+          Доступ закрыт
+        </h2>
+        <div style="color:#666">
+          Доступ только через <br/>
+          WebApp бота MAX <br/>
+          </div>
       </div>
     </div>
   `;
