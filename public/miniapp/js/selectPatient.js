@@ -161,19 +161,15 @@ console.log("🟢 AFTER THROTTLE PASSED");
   `;
 
   try {
-const initData = window.WebApp?.initData;
-
-console.log("INIT DATA:", initData);
-
 
 console.log("🟠 BEFORE FETCH", params);
 const response = await fetch("/miniapp/get-patient", {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ 
-    ...params, 
-    initData: initData
-  })
+ headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify(params)
 });
 console.log("🟠 FETCH DONE");
 

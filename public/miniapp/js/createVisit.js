@@ -308,10 +308,11 @@ async function loadDoctorsForCreate() {
 
   const response = await fetch('/miniapp/doctors', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      initData: window.WebApp.initData
-    })
+    headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + localStorage.getItem('token')
+},
+body: JSON.stringify({})
   });
 
   const data = await response.json();
@@ -428,8 +429,11 @@ async function loadCreateSchedule() {
 
   const response = await fetch("/miniapp/get-schedule", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ date,  initData: window.WebApp.initData }) // doctor_id можно убрать вообще
+   headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({ date }) // doctor_id можно убрать вообще
   });
 
 const data = await response.json();
@@ -722,8 +726,11 @@ try {
 
   const response = await fetch("/miniapp/appointments", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ date,  initData: window.WebApp.initData })
+    headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({ date })
   });
 
   const data = await response.json();

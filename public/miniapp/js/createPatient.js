@@ -306,13 +306,15 @@ nextBtn.addEventListener("click", async () => {
 
     const response = await fetch("/miniapp/get-patient", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        last_name: lastName.value.trim(),
-        first_name: firstName.value.trim(),
-        mobile: phoneDigits,
-         initData: window.WebApp.initData
-      })
+      headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({
+  last_name: lastName.value.trim(),
+  first_name: firstName.value.trim(),
+  mobile: phoneDigits
+})
     });
 
     const data = await response.json();

@@ -16,7 +16,7 @@ let gestureType = null; // "horizontal" | "vertical"
 
 
 import { renderCalendar } from './js/calendar.js';
-import { loadSchedule } from "./js/schedule.js";
+
 import { openCreateVisit } from "./js/createVisit.js"; 
 
 console.log("🔥 APP JS LOADED");
@@ -918,7 +918,7 @@ if (data.role === 'PATIENT') {
 
   console.log("🔥 START RENDER VISITS");
 
-  await auth();
+ // await auth();
 
   renderVisits();
 }

@@ -460,8 +460,13 @@ if (diff > threshold) {
 
   fetch("/miniapp/appointment-by-id", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ appointment_id: appointmentId,  initData: window.WebApp.initData})
+   headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({ 
+  appointment_id: appointmentId
+})
   })
   .then(res => res.json())
   .then(data => {

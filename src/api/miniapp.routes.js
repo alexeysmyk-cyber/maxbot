@@ -81,7 +81,15 @@ async function authMiddleware(req, res, next) {
     }
 
     // 👉 можно либо доверять токену:
-    req.user = decoded;
+   const user = await prisma.user.findUnique({
+  where: { id: decoded.id }
+});
+
+if (!user) {
+  return res.status(403).json({ error: "USER_NOT_FOUND" });
+}
+
+req.user = user;
 
     // 👉 или (лучше) подтянуть из БД:
     /*
@@ -116,8 +124,6 @@ router.post("/doctors", async (req, res) => {
   try {
 
 const user = req.user;
-
-
 
     if (!user) {
       return res.status(403).json({ error: "NO_ACCESS" });
@@ -230,6 +236,12 @@ router.post("/appointments", async (req, res) => {
 console.log("📥 DATE FROM FRONT:", req.body.date);
   try {
 
+    const user = req.user;
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
+
     const { date } = req.body;
 
     if (!date) {
@@ -243,10 +255,12 @@ console.log("📥 DATE FROM FRONT:", req.body.date);
     // =====================================================
     // CHECK CACHE
     // =====================================================
-    if (
-      appointmentsCache[date] &&
-      appointmentsCache[date].expires > now
-    ) {
+    const cacheKey = user.id + "_" + date;
+
+if (
+  appointmentsCache[cacheKey] &&
+  appointmentsCache[cacheKey].expires > now
+) {
       console.log("📦 CACHE HIT for date:", date);
       return res.json(appointmentsCache[date].data);
     }
@@ -291,10 +305,10 @@ console.log("📥 DATE FROM FRONT:", req.body.date);
     // =====================================================
     // SAVE CACHE (30 секунд)
     // =====================================================
-    appointmentsCache[date] = {
-      data: response.data,
-      expires: now + 30 * 1000
-    };
+   appointmentsCache[cacheKey] = {
+  data: response.data,
+  expires: now + 30 * 1000
+};
 
     return res.json(response.data);
 
@@ -312,7 +326,11 @@ console.log("📥 DATE FROM FRONT:", req.body.date);
 
 router.post("/get-schedule", async (req, res) => {
   try {
+const user = req.user;
 
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
     const { date } = req.body;
 
     if (!date) {
@@ -322,10 +340,12 @@ router.post("/get-schedule", async (req, res) => {
     const now = Date.now();
 
     // CACHE CHECK
-    if (
-      scheduleCache[date] &&
-      scheduleCache[date].expires > now
-    ) {
+    const cacheKey = user.id + "_" + date;
+
+if (
+  scheduleCache[cacheKey] &&
+  scheduleCache[cacheKey].expires > now
+) {
       console.log("📦 SCHEDULE CACHE HIT:", date);
       return res.json(scheduleCache[date].data);
     }
@@ -358,10 +378,10 @@ const response = await axios.post(
     }
 
     // SAVE CACHE
-    scheduleCache[date] = {
-      data: response.data,
-      expires: now + 60 * 1000
-    };
+    scheduleCache[cacheKey] = {
+  data: response.data,
+  expires: now + 60 * 1000
+};
 
     console.log("💾 SAVE CACHE:", date);
 
@@ -375,6 +395,12 @@ const response = await axios.post(
 
 router.post("/get-patient", async (req, res) => {
   try {
+
+    const user = req.user;
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
     console.log("🔥 MINIAPP GET PATIENT HIT");
     console.log("BODY:", req.body);
 
@@ -415,6 +441,12 @@ router.post("/get-patient", async (req, res) => {
 
 router.post("/get-services", async (req, res) => {
   try {
+
+    const user = req.user;
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
     console.log("🔥 GET SERVICES HIT");
     console.log("BODY:", req.body);
 
@@ -457,6 +489,11 @@ router.post("/get-services", async (req, res) => {
 router.post("/create-appointment", async (req, res) => {
 
   try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
 
     const {
       patient_id,
@@ -563,7 +600,11 @@ if (moved_from) {
 router.post("/cancel-appointment", async (req, res) => {
 
   try {
+const user = req.user;
 
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
     const { appointment_id, comment, reason, moved_to, is_handled } = req.body;
 
     if (!appointment_id) {
@@ -626,7 +667,11 @@ router.post("/cancel-appointment", async (req, res) => {
 router.post("/appointment-by-id", async (req, res) => {
 
   try {
+const user = req.user;
 
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
     const { appointment_id } = req.body;
 
     if (!appointment_id) {

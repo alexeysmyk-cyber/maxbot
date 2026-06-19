@@ -290,11 +290,11 @@ async function createAppointmentRequest() {
 
     const response = await fetch("/miniapp/create-appointment", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...createBody,
-       initData: window.WebApp.initData
-    })
+      headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify(createBody)
     });
 
     const data = await response.json();
@@ -344,12 +344,14 @@ async function createAppointmentRequest() {
 
     const deleteResponse = await fetch("/miniapp/cancel-appointment", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        appointment_id: oldVisit.id,
-        moved_to: newVisitId,
-         initData: window.WebApp.initData
-      })
+     headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({
+  appointment_id: oldVisit.id,
+  moved_to: newVisitId
+})
     });
 
     const deleteData = await deleteResponse.json();
@@ -639,8 +641,13 @@ async function loadServices(doctorId) {
 
     const response = await fetch("/miniapp/get-services", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: doctorId,  initData: window.WebApp.initData })
+      headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({ 
+  user_id: doctorId
+})
     });
 
     const data = await response.json();

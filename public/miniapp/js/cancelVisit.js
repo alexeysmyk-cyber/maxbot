@@ -182,12 +182,15 @@ export function openCancelModal(visit, parentOverlay) {
 
       const response = await fetch("/miniapp/cancel-appointment", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          appointment_id: visit.id,
-          reason,
-          comment, initData: window.WebApp.initData
-        })
+        headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+body: JSON.stringify({
+  appointment_id: visit.id,
+  reason,
+  comment
+})
       });
 
       const status = response.status;

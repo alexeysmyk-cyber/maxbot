@@ -2,10 +2,7 @@ import axios from "axios";
 import qs from "querystring";
 
 // CACHE
-let doctorsCache = {
-  data: null,
-  expires: 0
-};
+let doctorsCache = {};
 
 
 export async function getDoctors(req, res) {
@@ -31,11 +28,13 @@ console.log("🔥 REAL MIS_ID:", mis_id);
     // ===============================
     const now = Date.now();
 
-    if (doctorsCache.data && doctorsCache.expires > now) {
+    const cacheKey = user.id;
+
+if (doctorsCache[cacheKey] && doctorsCache[cacheKey].expires > now) {
       console.log("📦 getUsers CACHE HIT");
 
       const responseData = buildDoctorsResponse(
-        doctorsCache.data,
+        doctorsCache[cacheKey].data,
         mis_id
       );
 
@@ -75,10 +74,10 @@ console.log("FIRST USER:", users[0]);
     // ===============================
     // SAVE CACHE (60 sec)
     // ===============================
-    doctorsCache = {
-      data: users,
-      expires: Date.now() + 60 * 1000
-    };
+    doctorsCache[cacheKey] = {
+  data: users,
+  expires: Date.now() + 60 * 1000
+};
 
     const responseData = buildDoctorsResponse(users, mis_id);
 
