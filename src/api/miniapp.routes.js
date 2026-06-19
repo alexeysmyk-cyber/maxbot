@@ -51,50 +51,51 @@ const prisma = new PrismaClient();
 
 
 async function authMiddleware(req, res, next) {
-  console.log("🔐 AUTH HEADER:", req.headers.authorization);
   try {
-
-    // 1. пробуем JWT
     const authHeader = req.headers.authorization;
 
-    if (authHeader) {
-      const token = authHeader.split(" ")[1];
-
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        return next();
-      } catch (e) {
-        console.log("JWT INVALID");
-      }
+    // ❌ нет токена
+    if (!authHeader) {
+      return res.status(401).json({ error: "NO_TOKEN" });
     }
 
-    // 2. fallback (старый initData — чтобы ничего не сломать)
-    const { initData } = req.body;
-
-    if (!initData) {
-      return res.status(401).json({ error: "NO_AUTH" });
+    // ❌ неправильный формат
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "INVALID_TOKEN_FORMAT" });
     }
 
-    const params = new URLSearchParams(initData);
-    const userStr = params.get("user");
+    const token = authHeader.split(" ")[1];
 
-    if (!userStr) {
-      return res.status(401).json({ error: "NO_USER" });
+    // ❌ нет токена после Bearer
+    if (!token) {
+      return res.status(401).json({ error: "EMPTY_TOKEN" });
     }
 
-    const parsedUser = JSON.parse(userStr);
-    const max_id = parsedUser.id;
+    let decoded;
 
-    const user = await prisma.user.findFirst({
-      where: { vk_id: String(max_id) }
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      console.log("❌ JWT INVALID:", e.message);
+      return res.status(401).json({ error: "INVALID_TOKEN" });
+    }
+
+    // 👉 можно либо доверять токену:
+    req.user = decoded;
+
+    // 👉 или (лучше) подтянуть из БД:
+    /*
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id }
     });
 
     if (!user) {
-      return res.status(403).json({ error: "NO_ACCESS" });
+      return res.status(403).json({ error: "USER_NOT_FOUND" });
     }
 
     req.user = user;
+    */
+
     next();
 
   } catch (e) {
