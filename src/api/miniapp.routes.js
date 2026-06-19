@@ -262,7 +262,7 @@ if (
   appointmentsCache[cacheKey].expires > now
 ) {
       console.log("📦 CACHE HIT for date:", date);
-      return res.json(appointmentsCache[date].data);
+      return res.json(appointmentsCache[cacheKey].data);
     }
 
     // =====================================================
@@ -347,7 +347,7 @@ if (
   scheduleCache[cacheKey].expires > now
 ) {
       console.log("📦 SCHEDULE CACHE HIT:", date);
-      return res.json(scheduleCache[date].data);
+      return res.json(scheduleCache[cacheKey].data);
     }
 
     const body = {
