@@ -10,6 +10,7 @@ import { getTemplates, updateTemplate, createTemplate, deleteTemplate } from './
 import { renderTemplate } from './src/common/template.util.js';
 import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
 import miniappRoutes from "./src/api/miniapp.routes.js";
+import jwt from "jsonwebtoken";
 
 
 
@@ -82,11 +83,22 @@ app.post('/miniapp/auth', async (req, res) => {
       });
     }
 
-    return res.json({
-      ok: true,
-      role: 'EMPLOYEE',
-      mis_id: user.mis_id   // ✅ ВАЖНО
-    });
+    const token = jwt.sign(
+  {
+    id: user.id,
+    vk_id: user.vk_id,
+    mis_id: user.mis_id,
+    type: user.type
+  },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+
+return res.json({
+  ok: true,
+  token,
+  role: user.type
+});
 
   } catch (e) {
     console.error("AUTH ERROR:", e);

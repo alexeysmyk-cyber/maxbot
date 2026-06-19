@@ -2,6 +2,7 @@ import express from "express";
 import axios from "axios";
 import qs from "querystring";
 import { PrismaClient } from '@prisma/client';
+import jwt from "jsonwebtoken";
 
 
 // =====================================================
@@ -47,50 +48,56 @@ function hasFullAccess(roleNames = []) {
 const router = express.Router();
 const prisma = new PrismaClient();
 
+
+
 async function authMiddleware(req, res, next) {
   try {
+
+    // 1. пробуем JWT
+    const authHeader = req.headers.authorization;
+
+    if (authHeader) {
+      const token = authHeader.split(" ")[1];
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        return next();
+      } catch (e) {
+        console.log("JWT INVALID");
+      }
+    }
+
+    // 2. fallback (старый initData — чтобы ничего не сломать)
     const { initData } = req.body;
 
-if (!initData) {
-  return res.status(401).json({ error: "NO_INIT_DATA" });
-}
-
-const params = new URLSearchParams(initData);
-const userStr = params.get("user");
-
-if (!userStr) {
-  return res.status(401).json({ error: "NO_USER" });
-}
-
-const parsedUser = JSON.parse(userStr);
-const max_id = parsedUser.id;
-
-
-   
-
-    console.log("📥 MAX AUTH:", max_id);
-
-    if (!max_id) {
-      return res.status(401).json({ error: "NO_MAX_ID" });
+    if (!initData) {
+      return res.status(401).json({ error: "NO_AUTH" });
     }
+
+    const params = new URLSearchParams(initData);
+    const userStr = params.get("user");
+
+    if (!userStr) {
+      return res.status(401).json({ error: "NO_USER" });
+    }
+
+    const parsedUser = JSON.parse(userStr);
+    const max_id = parsedUser.id;
 
     const user = await prisma.user.findFirst({
       where: { vk_id: String(max_id) }
     });
 
-    console.log("👤 DB USER:", user);
-
     if (!user) {
       return res.status(403).json({ error: "NO_ACCESS" });
     }
 
-    // 👇 КЛЮЧЕВОЕ
     req.user = user;
-
     next();
 
   } catch (e) {
-    console.error("AUTH MIDDLEWARE ERROR:", e);
+    console.error("AUTH ERROR:", e);
     res.status(500).json({ error: "SERVER_ERROR" });
   }
 }

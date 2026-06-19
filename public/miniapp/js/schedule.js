@@ -23,14 +23,16 @@ console.log("🔥 fetchWithRetry CALLED", body);
 
 
   try {
+
 console.log("🚀 CALL /miniapp/appointments");
     const response = await fetch("/miniapp/appointments", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-   body: JSON.stringify({
-  ...body,
-  initData: window.WebApp.initData
-})
+      headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + localStorage.getItem("token")
+},
+  body: JSON.stringify(body)
+
     });
    
     if (!response.ok) {

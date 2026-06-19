@@ -150,12 +150,13 @@ let data;
 
 try {
   response = await fetch('/miniapp/doctors', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      initData: window.WebApp.initData
-    })
-  });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
+  },
+  body: JSON.stringify({})
+})
 
   data = await response.json();
 
@@ -164,12 +165,13 @@ try {
 
   try {
     response = await fetch('/miniapp/doctors', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData: window.WebApp.initData
-      })
-    });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
+  },
+  body: JSON.stringify({})
+})
 
     data = await response.json();
 
@@ -803,9 +805,35 @@ export function waitForWebApp(timeout = 2000) {
 }
 
 
+async function auth() {
+  const res = await fetch("/miniapp/auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      initData: window.WebApp.initData
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.ok && data.token) {
+    localStorage.setItem("token", data.token);
+    return true;
+  }
+
+  return false;
+}
+
+
+
 async function init() {
 
   console.log("🔥 INIT START");
+
+
+
+
+
 
   // Ждём WebApp ОДИН раз
   const isMaxReady = await waitForWebApp();
@@ -889,6 +917,8 @@ if (data.role === 'PATIENT') {
   attachEvents();
 
   console.log("🔥 START RENDER VISITS");
+
+  await auth();
 
   renderVisits();
 }
