@@ -51,6 +51,7 @@ const prisma = new PrismaClient();
 
 
 async function authMiddleware(req, res, next) {
+  console.log("🔐 AUTH HEADER:", req.headers.authorization);
   try {
 
     // 1. пробуем JWT
