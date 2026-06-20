@@ -8,7 +8,8 @@ import { getBot } from './src/max/max.service.js';
 import path from 'path';
 import { getTemplates, updateTemplate, createTemplate, deleteTemplate } from './src/api/template.controller.js';
 import { renderTemplate } from './src/common/template.util.js';
-import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
+import {cleanupUploads} from  './src/jobs/cleanup.js';
+import {cleanupNotifications } from  './src/jobs/cleanup.js';
 import miniappRoutes from "./src/api/miniapp.routes.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -431,13 +432,15 @@ app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
 
-// Чистим uploads
+// Чистим uploads и бд
 // запускаем сразу при старте
 cleanupUploads();
+cleanupNotifications();
 
 // потом раз в сутки
 setInterval(() => {
   cleanupUploads();
+  cleanupNotifications();
 }, 24 * 60 * 60 * 1000);
 
 
