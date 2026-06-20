@@ -721,7 +721,7 @@ async function renderSchedulePage() {
 window.doctorsList = doctors;
 console.log("🔥 DOCTORS LIST SET:", doctors.length);
 
-console.log("👨‍⚕️ userId:", userId);
+
   // ===============================
   // HTML
   // ===============================
