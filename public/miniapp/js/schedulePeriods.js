@@ -18,9 +18,9 @@ export async function loadSchedulePeriods({
         "Authorization": "Bearer " + localStorage.getItem("token")
       },
       body: JSON.stringify({
-        date,
-        user_id: doctorId
-      })
+  date: formatLocalDate(date),
+  user_id: doctorId
+})
     });
 
     const data = await response.json();
@@ -141,7 +141,12 @@ function getMinutes(date) {
 function formatTime(date) {
   return date.toTimeString().slice(0, 5);
 }
-
+function formatLocalDate(date) {
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const yyyy = date.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+}
 
 // ===============================
 // MERGE
