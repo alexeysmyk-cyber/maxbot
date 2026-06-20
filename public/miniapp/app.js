@@ -737,13 +737,6 @@ async function renderSchedulePage() {
   `).join('')}
 
 </select>
-          ${doctors.map(d => `
-            <option value="${d.id}"
-              ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
-              ${d.name}
-            </option>
-          `).join('')}
-        </select>
       </div>
     </div>
 
