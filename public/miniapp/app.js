@@ -725,7 +725,7 @@ async function renderSchedulePage() {
   content.innerHTML = `
     <div class="card doctor-row">
       <div class="doctor-select-wrapper">
-        <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
+<select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
   ${isDirector ? `<option value="all">Все врачи</option>` : ''}
 
@@ -749,11 +749,15 @@ async function renderSchedulePage() {
 
     <div class="card calendar-wrapper collapsed" id="calendarCard">
   <div id="scheduleCalendar"></div>
+  <div id="scheduleContainer"></div>
 </div>
   `;
 const calendarCard = document.getElementById("calendarCard");
 
 calendarCard.addEventListener("click", () => {
+  // если клик по самому календарю — не трогаем
+  if (e.target.closest("#scheduleCalendar")) return;
+
   calendarCard.classList.toggle("collapsed");
 });
   // ===============================
@@ -764,14 +768,6 @@ calendarCard.addEventListener("click", () => {
 // ===============================
 // СЕГОДНЯ ПО УМОЛЧАНИЮ
 // ===============================
-const today = new Date();
-selectedDate = today;
-
-loadSchedulePeriods({
-  container: document.getElementById("scheduleContainer"),
-  date: today,
-  doctorId: document.getElementById("scheduleDoctorSelect").value
-});
 
   renderCalendar(calendarContainer, (date) => {
   selectedDate = date;
@@ -785,6 +781,18 @@ loadSchedulePeriods({
   // 🔥 ВОТ СЮДА ДОБАВЛЯЕМ
   document.getElementById("calendarCard").classList.add("collapsed");
 });
+
+
+const today = new Date();
+selectedDate = today;
+
+loadSchedulePeriods({
+  container: document.getElementById("scheduleContainer"),
+  date: today,
+  doctorId: document.getElementById("scheduleDoctorSelect").value
+});
+
+
 
   // ===============================
   // ВЫБОР ВРАЧА
