@@ -13,6 +13,7 @@ let swipeBlockedUntil = 0;
 
 let gestureLocked = false;
 let gestureType = null; // "horizontal" | "vertical"
+let authToken = null;
 
 
 import { renderCalendar } from './js/calendar.js';
