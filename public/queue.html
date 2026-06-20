@@ -115,7 +115,7 @@
 <table>
   <thead>
     <tr>
-      <th></th>
+      <th> <input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
       <th>ID</th>
       <th>User</th>
       <th>Type</th>
@@ -153,6 +153,8 @@ async function load() {
 }
 
 function render() {
+document.getElementById('selectAll').checked = false;
+
   const table = document.getElementById('table');
   table.innerHTML = '';
 
@@ -176,6 +178,14 @@ function render() {
     `;
 
     table.appendChild(tr);
+  });
+}
+
+function toggleAll(source) {
+  const checkboxes = document.querySelectorAll('#table input[type=checkbox]');
+  
+  checkboxes.forEach(cb => {
+    cb.checked = source.checked;
   });
 }
 
