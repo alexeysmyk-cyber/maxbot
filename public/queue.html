@@ -3,17 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <title>Queue</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input, select, button {
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: #2d7ff9;
+      color: white;
+      border-radius: 4px;
+    }
+
+    button.secondary {
+      background: #999;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    th {
+      background: #fafafa;
+    }
+
+    tr:hover {
+      background: #f0f4ff;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .pending { color: orange; }
+    .sent { color: green; }
+    .failed { color: red; }
+    .skipped { color: gray; }
+    .processing { color: blue; }
+
+    #pagination {
+      margin-top: 15px;
+    }
+
+    #pagination button {
+      margin-right: 5px;
+      background: #eee;
+      color: black;
+    }
+
+    #pagination button.active {
+      background: #2d7ff9;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
 
 <h2>📬 Notification Queue</h2>
 
-<button onclick="removeSelected()">🗑 Delete selected</button>
+<div class="controls">
 
-<br><br>
+  <select id="status">
+    <option value="">Статус (все)</option>
+    <option value="pending">pending</option>
+    <option value="processing">processing</option>
+    <option value="sent">sent</option>
+    <option value="skipped">skipped</option>
+    <option value="failed">failed</option>
+  </select>
 
-<table border="1" cellpadding="8">
+  <input id="type" placeholder="Тип (visit_create)">
+  <input id="userId" placeholder="User ID">
+
+  <button onclick="applyFilters()">🔍 Фильтр</button>
+  <button class="secondary" onclick="resetFilters()">♻️ Сброс</button>
+
+  <button onclick="removeSelected()">🗑 Удалить</button>
+
+</div>
+
+<table>
   <thead>
     <tr>
       <th></th>
@@ -24,22 +123,33 @@
       <th>Status</th>
       <th>Send</th>
       <th>Sent</th>
-      <th>externalId</th>
       <th>Created</th>
     </tr>
   </thead>
   <tbody id="table"></tbody>
 </table>
 
+<div id="pagination"></div>
+
 <script>
 
 let list = [];
+let page = 1;
+let filters = {};
 
 async function load() {
-  const res = await fetch('/api/queue');
-  list = await res.json();
+  const params = new URLSearchParams({
+    page,
+    ...filters
+  });
+
+  const res = await fetch('/api/queue?' + params.toString());
+  const json = await res.json();
+
+  list = json.data;
 
   render();
+  renderPagination(json.pages);
 }
 
 function render() {
@@ -53,26 +163,67 @@ function render() {
       <td><input type="checkbox" value="${n.id}"></td>
       <td>${n.id}</td>
       <td>
-  ${n.user?.name || n.user?.email || '—'}
-  <br>
-  <small>ID: ${n.userId}</small>
-</td>
+        ${n.user?.name || n.user?.email || '—'}
+        <br>
+        <small>ID: ${n.userId}</small>
+      </td>
       <td>${n.type}</td>
       <td>${n.channel}</td>
-      <td>${n.status}</td>
-      <td>${n.sendAt}</td>
-      <td>${n.sentAt}</td>
-      <td>${n.externalId}</td>
-      <td>${new Date(n.createdAt).toLocaleString()}</td>
+      <td class="status ${n.status}">${n.status}</td>
+      <td>${format(n.sendAt)}</td>
+      <td>${format(n.sentAt)}</td>
+      <td>${format(n.createdAt)}</td>
     `;
 
     table.appendChild(tr);
   });
 }
 
+function renderPagination(pages) {
+  const div = document.getElementById('pagination');
+  div.innerHTML = '';
+
+  for (let i = 1; i <= pages; i++) {
+    const btn = document.createElement('button');
+    btn.innerText = i;
+
+    if (i === page) {
+      btn.classList.add('active');
+    }
+
+    btn.onclick = () => {
+      page = i;
+      load();
+    };
+
+    div.appendChild(btn);
+  }
+}
+
+function applyFilters() {
+  filters = {
+    status: document.getElementById('status').value,
+    type: document.getElementById('type').value,
+    userId: document.getElementById('userId').value
+  };
+
+  page = 1;
+  load();
+}
+
+function resetFilters() {
+  document.getElementById('status').value = '';
+  document.getElementById('type').value = '';
+  document.getElementById('userId').value = '';
+
+  filters = {};
+  page = 1;
+
+  load();
+}
+
 async function removeSelected() {
   const checked = [...document.querySelectorAll('input[type=checkbox]:checked')];
-
   const ids = checked.map(c => Number(c.value));
 
   if (!ids.length) {
@@ -91,6 +242,11 @@ async function removeSelected() {
   });
 
   load();
+}
+
+function format(date) {
+  if (!date) return '—';
+  return new Date(date).toLocaleString();
 }
 
 load();

@@ -250,26 +250,42 @@ app.get('/api/roles', basicAuth,async (req, res) => {
 });
 
 app.get('/api/queue', basicAuth, async (req, res) => {
-  const notifications = await prisma.notification.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 100
-  });
+  const page = Number(req.query.page) || 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
 
-  // 🔥 вытаскиваем всех пользователей
+  const { status, type, userId } = req.query;
+
+  const where = {};
+
+  if (status) where.status = status;
+  if (type) where.type = type;
+  if (userId) where.userId = Number(userId);
+
+  const [notifications, total] = await Promise.all([
+    prisma.notification.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.notification.count({ where })
+  ]);
+
   const users = await prisma.user.findMany();
+  const userMap = Object.fromEntries(users.map(u => [u.id, u]));
 
-  // 🔥 делаем map для быстрого поиска
-  const userMap = Object.fromEntries(
-    users.map(u => [u.id, u])
-  );
-
-  // 🔥 "джоиним"
   const result = notifications.map(n => ({
     ...n,
     user: userMap[n.userId] || null
   }));
 
-  res.json(result);
+  res.json({
+    data: result,
+    total,
+    page,
+    pages: Math.ceil(total / limit)
+  });
 });
 app.get('/welcome', async (req, res) => {
   const { token } = req.query;
