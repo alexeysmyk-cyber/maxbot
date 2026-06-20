@@ -16,7 +16,7 @@ function formatDate(date, time) {
 exports.getAppointments = async (req, res) => {
 
   try {
-
+const { date, doctorId } = req.body;
 const user = req.user;
 
 if (!user) {
@@ -29,7 +29,6 @@ if (!user) {
   return res.status(403).json({ error: "NO_ACCESS" });
 }
 
-const mis_id = user.mis_id;
 
     if (!date) {
       return res.status(400).json({ error: "No date" });
