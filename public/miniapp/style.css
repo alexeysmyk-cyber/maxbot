@@ -2013,3 +2013,50 @@ input[type="date"].form-input {
   max-height: 60px;
   overflow: hidden;
 }
+.schedule-line {
+  position: relative;
+  height: 50px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* серый фон */
+.schedule-bg {
+  position: absolute;
+  inset: 0;
+  background: #eef3f7;
+}
+
+/* контейнер бара */
+.schedule-bar-wrapper {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+/* текст над баром */
+.schedule-bar-label {
+  font-size: 11px;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+/* сам бар */
+.schedule-bar {
+  height: 28px;
+  border-radius: 8px;
+  background: #e6f8fb;
+  border: 1px solid #00a4c7;
+}
+
+/* отмена */
+.schedule-bar.cancelled {
+  background: repeating-linear-gradient(
+    45deg,
+    #ffe6e6,
+    #ffe6e6 6px,
+    #ffd6d6 6px,
+    #ffd6d6 12px
+  );
+  border: 1px solid #e57373;
+}

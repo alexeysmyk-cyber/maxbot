@@ -40,6 +40,20 @@ export async function loadSchedulePeriods({
   }
 }
 
+let doctorsMap = {};
+
+if (window.doctorsList) {
+  doctorsMap = {};
+  window.doctorsList.forEach(d => {
+    doctorsMap[String(d.id)] = d.name;
+  });
+}
+
+
+function getDoctorName(id) {
+  return doctorsMap[String(id)] || ("ID " + id);
+}
+
 
 // ===============================
 // RENDER
@@ -82,17 +96,24 @@ const dayItems = data.filter(i => i.date === formattedDate);
 
     const merged = mergeIntervals(grouped[userId]);
 
-    html += `
-      <div class="schedule-row">
-        <div class="schedule-label">
-          ${getDoctorName(userId)}
-        </div>
+html += `
+  <div class="schedule-row">
+    
+    <div class="schedule-label">
+      👨‍⚕️ ${getDoctorName(userId)}
+    </div>
 
-        <div class="schedule-line">
-          ${merged.map(i => renderBar(i)).join("")}
-        </div>
-      </div>
-    `;
+    <div class="schedule-line">
+
+      <!-- 🔥 СЕРЫЙ ФОН НА ВЕСЬ ДЕНЬ -->
+      <div class="schedule-bg"></div>
+
+      ${merged.map(i => renderBar(i)).join("")}
+
+    </div>
+
+  </div>
+`;
   });
 
   container.innerHTML = html;
@@ -117,11 +138,17 @@ function renderBar(item) {
   const width = ((end - start) / total) * 100;
 
   return `
-    <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
-         style="left:${left}%; width:${width}%"
-         data-start="${item.start}"
-         data-end="${item.end}">
-      ${formatTime(item.start)} - ${formatTime(item.end)}
+    <div class="schedule-bar-wrapper"
+         style="left:${left}%; width:${width}%">
+
+      <!-- 🔥 ТЕКСТ НАД БАРОМ -->
+      <div class="schedule-bar-label">
+        ${formatTime(item.start)} - ${formatTime(item.end)}
+      </div>
+
+      <!-- 🔥 САМ БАР -->
+      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"></div>
+
     </div>
   `;
 }
