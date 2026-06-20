@@ -28,6 +28,13 @@ export async function loadSchedulePeriods({
     if (!response.ok || data.error) {
       throw new Error("LOAD_ERROR");
     }
+    // 🔥 ОБНОВЛЯЕМ СПИСОК ВРАЧЕЙ
+if (window.doctorsList) {
+  doctorsMap = {};
+  window.doctorsList.forEach(d => {
+    doctorsMap[String(d.id)] = d.name;
+  });
+}
 
     renderSchedulePeriods(data.data, date, container);
 
@@ -220,12 +227,7 @@ function attachBarEvents() {
 }
 
 
-// ===============================
-// MOCK (потом заменим)
-// ===============================
-function getDoctorName(id) {
-  return "Врач " + id;
-}
+
 
 
 // ===============================
