@@ -11,6 +11,10 @@ import { renderTemplate } from './src/common/template.util.js';
 import { cleanupUploads } from './src/jobs/cleanupUploads.job.js';
 import miniappRoutes from "./src/api/miniapp.routes.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+
+
+
 
 
 
@@ -45,7 +49,17 @@ console.log("🔥 AUTH START");
 console.log("=================================");
 
     const { initData } = req.body;
-    
+
+const isValid = verifyInitData(initData, process.env.MAX_BOT_TOKEN);
+
+console.log("🔐 HASH VALID:", isValid);
+
+if (!isValid) {
+  return res.status(403).json({ ok: false, error: "Invalid hash" });
+}
+
+
+
 console.log("📦 RAW initData:", initData);
 
     if (!initData) {
@@ -429,3 +443,28 @@ setInterval(() => {
 
 app.use('/files', express.static(path.resolve('uploads')));
 app.use('/public', express.static('public'));
+
+function verifyInitData(initData, botToken) {
+  const params = new URLSearchParams(initData);
+
+  const hash = params.get("hash");
+  params.delete("hash");
+
+  // сортируем параметры
+  const dataCheckString = [...params.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}=${value}`)
+    .join("\n");
+
+  const secretKey = crypto
+    .createHash("sha256")
+    .update(botToken)
+    .digest();
+
+  const hmac = crypto
+    .createHmac("sha256", secretKey)
+    .update(dataCheckString)
+    .digest("hex");
+
+  return hmac === hash;
+}
