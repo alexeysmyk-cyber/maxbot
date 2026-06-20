@@ -450,14 +450,14 @@ function verifyInitData(initData, botToken) {
   const hash = params.get("hash");
   params.delete("hash");
 
-  // сортируем параметры
   const dataCheckString = [...params.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
 
+  // 🔥 ВАЖНО: правильный секрет
   const secretKey = crypto
-    .createHash("sha256")
+    .createHmac("sha256", "WebAppData")
     .update(botToken)
     .digest();
 
@@ -465,6 +465,10 @@ function verifyInitData(initData, botToken) {
     .createHmac("sha256", secretKey)
     .update(dataCheckString)
     .digest("hex");
+
+  console.log("📦 DATA CHECK STRING:\n", dataCheckString);
+  console.log("📦 HASH FROM MAX:", hash);
+  console.log("📦 CALCULATED:", hmac);
 
   return hmac === hash;
 }
