@@ -149,11 +149,12 @@ let response;
 let data;
 
 try {
+   console.log("📤 USING TOKEN:", authToken || localStorage.getItem('token'));
   response = await fetch('/miniapp/doctors', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + localStorage.getItem('token')
+    'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
   },
   body: JSON.stringify({})
 })
@@ -164,11 +165,12 @@ try {
   console.warn("Doctors request timeout, retrying...");
 
   try {
+    console.log("📤 USING TOKEN:", authToken || localStorage.getItem('token'));
     response = await fetch('/miniapp/doctors', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + localStorage.getItem('token')
+    'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
   },
   body: JSON.stringify({})
 })
@@ -903,6 +905,8 @@ throw new Error("BLOCKED");
   return;
 }
 
+
+
 if (data.role === 'PATIENT') {
   renderPatientStub();
   return;
@@ -911,6 +915,17 @@ if (data.role === 'PATIENT') {
   // ===============================
   // SUCCESS
   // ===============================
+
+console.log("💾 NEW TOKEN FROM AUTH:", data.token);
+
+// 🔥 ВСЕГДА перезаписываем
+let authToken = null;
+
+if (data.token) {
+  authToken = data.token;
+  localStorage.setItem("token", data.token);
+}
+
   document.getElementById("app").style.display = "none";
   document.getElementById("main").style.display = "block";
 

@@ -292,7 +292,7 @@ async function createAppointmentRequest() {
       method: "POST",
       headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + localStorage.getItem("token")
+  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
 },
 body: JSON.stringify(createBody)
     });
@@ -346,7 +346,7 @@ body: JSON.stringify(createBody)
       method: "POST",
      headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + localStorage.getItem("token")
+  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
 },
 body: JSON.stringify({
   appointment_id: oldVisit.id,
@@ -643,7 +643,7 @@ async function loadServices(doctorId) {
       method: "POST",
       headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + localStorage.getItem("token")
+  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
 },
 body: JSON.stringify({ 
   user_id: doctorId

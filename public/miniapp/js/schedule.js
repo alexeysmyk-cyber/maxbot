@@ -29,7 +29,7 @@ console.log("🚀 CALL /miniapp/appointments");
       method: "POST",
       headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + localStorage.getItem("token")
+  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
 },
   body: JSON.stringify(body)
 
@@ -462,7 +462,7 @@ if (diff > threshold) {
     method: "POST",
    headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + localStorage.getItem("token")
+  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
 },
 body: JSON.stringify({ 
   appointment_id: appointmentId
