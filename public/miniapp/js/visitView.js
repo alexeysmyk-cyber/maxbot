@@ -36,7 +36,7 @@ async function loadVisit(id, overlay) {
       method: "POST",
       headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+  "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify({ 
   appointment_id: id
@@ -436,7 +436,7 @@ function attachMoveLinks(overlay) {
           method: "POST",
           headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+  "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify({ 
   appointment_id: id

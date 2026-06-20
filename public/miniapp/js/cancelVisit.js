@@ -184,7 +184,7 @@ export function openCancelModal(visit, parentOverlay) {
         method: "POST",
         headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+  "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify({
   appointment_id: visit.id,

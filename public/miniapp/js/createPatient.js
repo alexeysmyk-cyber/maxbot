@@ -308,7 +308,7 @@ nextBtn.addEventListener("click", async () => {
       method: "POST",
       headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+ "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify({
   last_name: lastName.value.trim(),

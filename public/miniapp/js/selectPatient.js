@@ -167,7 +167,7 @@ const response = await fetch("/miniapp/get-patient", {
   method: "POST",
  headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+  "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify(params)
 });

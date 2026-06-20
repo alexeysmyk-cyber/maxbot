@@ -431,7 +431,7 @@ async function loadCreateSchedule() {
     method: "POST",
    headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+  "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify({ date }) // doctor_id можно убрать вообще
   });
@@ -728,7 +728,7 @@ try {
     method: "POST",
     headers: {
   "Content-Type": "application/json",
-  "Authorization": "Bearer " + (authToken || localStorage.getItem("token"))
+  "Authorization": "Bearer " + localStorage.getItem("token")
 },
 body: JSON.stringify({ date })
   });
