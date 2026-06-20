@@ -2009,3 +2009,7 @@ input[type="date"].form-input {
   );
   border: 1px solid #e57373;
 }
+.calendar-wrapper.collapsed {
+  max-height: 60px;
+  overflow: hidden;
+}

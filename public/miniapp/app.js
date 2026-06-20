@@ -726,6 +726,17 @@ async function renderSchedulePage() {
     <div class="card doctor-row">
       <div class="doctor-select-wrapper">
         <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
+
+  ${isDirector ? `<option value="all">Все врачи</option>` : ''}
+
+  ${doctors.map(d => `
+    <option value="${d.id}"
+      ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
+      ${d.name}
+    </option>
+  `).join('')}
+
+</select>
           ${doctors.map(d => `
             <option value="${d.id}"
               ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
@@ -736,29 +747,44 @@ async function renderSchedulePage() {
       </div>
     </div>
 
-    <div class="card calendar-wrapper">
-      <div id="scheduleCalendar"></div>
-    </div>
-
-    <div id="scheduleContainer"></div>
+    <div class="card calendar-wrapper collapsed" id="calendarCard">
+  <div id="scheduleCalendar"></div>
+</div>
   `;
+const calendarCard = document.getElementById("calendarCard");
 
+calendarCard.addEventListener("click", () => {
+  calendarCard.classList.toggle("collapsed");
+});
   // ===============================
   // КАЛЕНДАРЬ
   // ===============================
   const calendarContainer = document.getElementById("scheduleCalendar");
 
+// ===============================
+// СЕГОДНЯ ПО УМОЛЧАНИЮ
+// ===============================
+const today = new Date();
+selectedDate = today;
+
+loadSchedulePeriods({
+  container: document.getElementById("scheduleContainer"),
+  date: today,
+  doctorId: document.getElementById("scheduleDoctorSelect").value
+});
+
   renderCalendar(calendarContainer, (date) => {
-    selectedDate = date;
+  selectedDate = date;
 
-    console.log("📅 SELECTED DATE:", date);
-
-    loadSchedulePeriods({
-      container: document.getElementById("scheduleContainer"),
-      date,
-      doctorId: document.getElementById("scheduleDoctorSelect").value
-    });
+  loadSchedulePeriods({
+    container: document.getElementById("scheduleContainer"),
+    date,
+    doctorId: document.getElementById("scheduleDoctorSelect").value
   });
+
+  // 🔥 ВОТ СЮДА ДОБАВЛЯЕМ
+  document.getElementById("calendarCard").classList.add("collapsed");
+});
 
   // ===============================
   // ВЫБОР ВРАЧА

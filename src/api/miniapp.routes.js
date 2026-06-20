@@ -739,6 +739,7 @@ router.post("/schedule-periods", async (req, res) => {
   try {
 
     const { date, user_id } = req.body;
+    const misUserId = user_id === "all" ? null : user_id;
 
     const user = req.user;
 
@@ -771,12 +772,12 @@ router.post("/schedule-periods", async (req, res) => {
     // ===============================
     // ЗАПРОС В MIS
     // ===============================
-    const body = qs.stringify({
-      api_key: process.env.API_KEY,
-      time_start,
-      time_end,
-      user_id
-    });
+   const body = qs.stringify({
+  api_key: process.env.API_KEY,
+  time_start,
+  time_end,
+  ...(misUserId ? { user_id: misUserId } : {})
+});
 
     const url = process.env.BASE_URL + "/getSchedulePeriods";
 

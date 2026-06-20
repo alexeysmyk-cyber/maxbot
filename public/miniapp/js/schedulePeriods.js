@@ -47,7 +47,9 @@ export async function loadSchedulePeriods({
 function renderSchedulePeriods(data, selectedDate, container) {
 
   // фильтр по дню
-  const dayItems = data.filter(i => i.date === selectedDate);
+ const formattedDate = formatLocalDate(selectedDate);
+
+const dayItems = data.filter(i => i.date === formattedDate);
 
   if (!dayItems.length) {
     container.innerHTML = `
