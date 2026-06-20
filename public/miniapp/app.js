@@ -720,88 +720,86 @@ async function renderSchedulePage() {
   const { doctors = [], isDirector = false, currentDoctorId = null } = data;
 
   // ===============================
-  // РЕНДЕР СТРАНИЦЫ
+  // HTML
   // ===============================
   content.innerHTML = `
-  <div class="card doctor-row">
-    <div class="doctor-select-wrapper">
-      <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
+    <div class="card doctor-row">
+      <div class="doctor-select-wrapper">
+        <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
-        ${isDirector ? `<option value="all">Все врачи</option>` : ''}
+          ${isDirector ? `<option value="all">Все врачи</option>` : ''}
 
-        ${doctors.map(d => `
-          <option value="${d.id}"
-            ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
-            ${d.name}
-          </option>
-        `).join('')}
+          ${doctors.map(d => `
+            <option value="${d.id}"
+              ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
+              ${d.name}
+            </option>
+          `).join('')}
 
-      </select>
+        </select>
+      </div>
     </div>
-  </div>
 
-  <div class="card calendar-wrapper collapsed" id="calendarCard">
-    <div id="scheduleCalendar"></div>
-  </div>
+    <div class="card calendar-wrapper">
+      <div id="scheduleCalendar"></div>
+    </div>
 
-  <div id="scheduleContainer"></div>
-`;
-const calendarCard = document.getElementById("calendarCard");
+    <div id="scheduleContainer"></div>
+  `;
 
-calendarCard.addEventListener("click", (e) => {
-  if (e.target.closest("#scheduleCalendar")) return;
-  calendarCard.classList.toggle("collapsed");
-});
   // ===============================
-  // КАЛЕНДАРЬ
+  // ЭЛЕМЕНТЫ
   // ===============================
   const calendarContainer = document.getElementById("scheduleCalendar");
-
-// ===============================
-// СЕГОДНЯ ПО УМОЛЧАНИЮ
-// ===============================
-
-  renderCalendar(calendarContainer, (date) => {
-  selectedDate = date;
-
-  loadSchedulePeriods({
-    container: document.getElementById("scheduleContainer"),
-    date,
-    doctorId: document.getElementById("scheduleDoctorSelect").value
-  });
-
-  // 🔥 ВОТ СЮДА ДОБАВЛЯЕМ
-  document.getElementById("calendarCard").classList.add("collapsed");
-});
-
-
-const today = new Date();
-selectedDate = today;
-
-loadSchedulePeriods({
-  container: document.getElementById("scheduleContainer"),
-  date: today,
-  doctorId: document.getElementById("scheduleDoctorSelect").value
-});
-
-
-
-  // ===============================
-  // ВЫБОР ВРАЧА
-  // ===============================
+  const scheduleContainer = document.getElementById("scheduleContainer");
   const doctorSelect = document.getElementById("scheduleDoctorSelect");
 
+  // ===============================
+  // ДАТА ПО УМОЛЧАНИЮ (СЕГОДНЯ)
+  // ===============================
+  if (!selectedDate) {
+    selectedDate = new Date();
+  }
+
+  // ===============================
+  // КАЛЕНДАРЬ (ТОТ ЖЕ ЧТО В VISITS)
+  // ===============================
+  renderCalendar(
+    calendarContainer,
+    (date) => {
+      selectedDate = new Date(date);
+
+      loadSchedulePeriods({
+        container: scheduleContainer,
+        date: selectedDate,
+        doctorId: doctorSelect.value
+      });
+    },
+    selectedDate
+  );
+
+  // ===============================
+  // ПЕРВАЯ ЗАГРУЗКА
+  // ===============================
+  loadSchedulePeriods({
+    container: scheduleContainer,
+    date: selectedDate,
+    doctorId: doctorSelect.value
+  });
+
+  // ===============================
+  // СМЕНА ВРАЧА
+  // ===============================
   doctorSelect.addEventListener("change", () => {
     if (!selectedDate) return;
 
-    console.log("👨‍⚕️ CHANGE DOCTOR:", doctorSelect.value);
-
     loadSchedulePeriods({
-      container: document.getElementById("scheduleContainer"),
+      container: scheduleContainer,
       date: selectedDate,
       doctorId: doctorSelect.value
     });
   });
+
 }
 
 // ===============================
