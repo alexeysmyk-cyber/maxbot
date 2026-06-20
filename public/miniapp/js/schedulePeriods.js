@@ -47,13 +47,16 @@ if (window.doctorsList) {
   }
 }
 
-let doctorsMap = {};
+function buildDoctorsMap() {
+  const map = {};
 
-if (window.doctorsList) {
-  doctorsMap = {};
-  window.doctorsList.forEach(d => {
-    doctorsMap[String(d.id)] = d.name;
-  });
+  if (window.doctorsList) {
+    window.doctorsList.forEach(d => {
+      map[String(d.id)] = d.name;
+    });
+  }
+
+  return map;
 }
 
 
@@ -67,6 +70,7 @@ function getDoctorName(id) {
 // ===============================
 function renderSchedulePeriods(data, selectedDate, container) {
 
+    const doctorsMap = buildDoctorsMap();
   // фильтр по дню
  const formattedDate = formatLocalDate(selectedDate);
 
@@ -107,7 +111,7 @@ html += `
   <div class="schedule-row">
     
     <div class="schedule-label">
-      👨‍⚕️ ${getDoctorName(userId)}
+      👨‍⚕️ ${doctorsMap[String(userId)] || ("ID " + userId)}
     </div>
 
     <div class="schedule-line">
