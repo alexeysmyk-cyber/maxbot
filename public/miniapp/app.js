@@ -723,34 +723,33 @@ async function renderSchedulePage() {
   // РЕНДЕР СТРАНИЦЫ
   // ===============================
   content.innerHTML = `
-    <div class="card doctor-row">
-      <div class="doctor-select-wrapper">
-<select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
+  <div class="card doctor-row">
+    <div class="doctor-select-wrapper">
+      <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
-  ${isDirector ? `<option value="all">Все врачи</option>` : ''}
+        ${isDirector ? `<option value="all">Все врачи</option>` : ''}
 
-  ${doctors.map(d => `
-    <option value="${d.id}"
-      ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
-      ${d.name}
-    </option>
-  `).join('')}
+        ${doctors.map(d => `
+          <option value="${d.id}"
+            ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
+            ${d.name}
+          </option>
+        `).join('')}
 
-</select>
-      </div>
+      </select>
     </div>
+  </div>
 
-    <div class="card calendar-wrapper collapsed" id="calendarCard">
-  <div id="scheduleCalendar"></div>
+  <div class="card calendar-wrapper collapsed" id="calendarCard">
+    <div id="scheduleCalendar"></div>
+  </div>
+
   <div id="scheduleContainer"></div>
-</div>
-  `;
+`;
 const calendarCard = document.getElementById("calendarCard");
 
-calendarCard.addEventListener("click", () => {
-  // если клик по самому календарю — не трогаем
+calendarCard.addEventListener("click", (e) => {
   if (e.target.closest("#scheduleCalendar")) return;
-
   calendarCard.classList.toggle("collapsed");
 });
   // ===============================
