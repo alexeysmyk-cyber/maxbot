@@ -718,9 +718,8 @@ async function renderSchedulePage() {
   }
 
   const { doctors = [], isDirector = false, currentDoctorId = null } = data;
-window.doctorsList = doctors;
-console.log("🔥 DOCTORS LIST SET:", doctors.length);
 
+window.doctorsList = doctors;
 
   // ===============================
   // HTML

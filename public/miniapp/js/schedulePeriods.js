@@ -2,6 +2,8 @@
 // SCHEDULE PERIODS (TIMELINE)
 // ===============================
 
+let doctorsMap = {};
+
 export async function loadSchedulePeriods({
   date,
   doctorId,
@@ -70,7 +72,7 @@ function getDoctorName(id) {
 // ===============================
 function renderSchedulePeriods(data, selectedDate, container) {
 
-    const doctorsMap = buildDoctorsMap();
+   const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
  const formattedDate = formatLocalDate(selectedDate);
 
@@ -111,7 +113,7 @@ html += `
   <div class="schedule-row">
     
     <div class="schedule-label">
-      👨‍⚕️ ${doctorsMap[String(userId)] || ("ID " + userId)}
+      👨‍⚕️ ${localDoctorsMap[String(userId)] || ("ID " + userId)}
     </div>
 
     <div class="schedule-line">
