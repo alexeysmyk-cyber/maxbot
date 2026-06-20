@@ -52,7 +52,12 @@ const prisma = new PrismaClient();
 
 async function authMiddleware(req, res, next) {
   try {
+
+    console.log("=================================");
+console.log("🔐 AUTH MIDDLEWARE START");
     const authHeader = req.headers.authorization;
+
+    console.log("📦 AUTH HEADER:", authHeader);
 
     // ❌ нет токена
     if (!authHeader) {
@@ -66,6 +71,8 @@ async function authMiddleware(req, res, next) {
 
     const token = authHeader.split(" ")[1];
 
+    console.log("🔑 TOKEN:", token);
+
     // ❌ нет токена после Bearer
     if (!token) {
       return res.status(401).json({ error: "EMPTY_TOKEN" });
@@ -75,6 +82,7 @@ async function authMiddleware(req, res, next) {
 
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("📦 DECODED JWT:", decoded);
     } catch (e) {
       console.log("❌ JWT INVALID:", e.message);
       return res.status(401).json({ error: "INVALID_TOKEN" });
@@ -88,21 +96,15 @@ async function authMiddleware(req, res, next) {
 if (!user) {
   return res.status(403).json({ error: "USER_NOT_FOUND" });
 }
+console.log("👤 USER FROM DB:", user);
+console.log("🧩 USER TYPE:", user?.type);
+console.log("🧩 USER MIS_ID:", user?.mis_id);
 
+console.log("🔐 AUTH OK");
+console.log("=================================");
 req.user = user;
 
-    // 👉 или (лучше) подтянуть из БД:
-    /*
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id }
-    });
 
-    if (!user) {
-      return res.status(403).json({ error: "USER_NOT_FOUND" });
-    }
-
-    req.user = user;
-    */
 
     next();
 
@@ -116,9 +118,18 @@ router.use(authMiddleware);
 // ===============================
 // ВРАЧИ
 // ===============================
+
+
 router.post("/doctors", async (req, res) => {
 
-  console.log("🔥 DOCTORS HIT");
+  console.log("=================================");
+console.log("👨‍⚕️ DOCTORS ENDPOINT");
+
+const user = req.user;
+console.log("👤 USER FROM TOKEN:", user);
+
+const mis_id = user?.mis_id;
+console.log("🆔 MIS_ID:", mis_id);
 
 
   try {
@@ -143,15 +154,27 @@ const user = req.user;
     });
 
     const users = response.data.data;
+
+    console.log("📦 MIS USERS COUNT:", users?.length);
+
 const currentMisUser = users.find(
+
   u => String(u.id) === String(mis_id)
 );
 
-console.log("CURRENT MIS USER:", currentMisUser);
+  console.log("🔍 SEARCH MIS USER BY ID:", mis_id);
+
+console.log("👤 MIS USER FOUND:", currentMisUser);
 
 
 const roleNames = currentMisUser?.role_names || [];
+
+console.log("🎭 ROLE NAMES:", roleNames);
+
 const access = resolveAccess(roleNames);
+
+console.log("🚦 ACCESS RESULT:", access);
+console.log("=================================");
 
 console.log("ACCESS:", access);
 

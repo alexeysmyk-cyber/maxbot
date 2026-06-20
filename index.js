@@ -40,7 +40,13 @@ app.use('/uploads', express.static(path.resolve('uploads')));
 
 app.post('/miniapp/auth', async (req, res) => {
   try {
+console.log("=================================");
+console.log("🔥 AUTH START");
+console.log("=================================");
+
     const { initData } = req.body;
+    
+console.log("📦 RAW initData:", initData);
 
     if (!initData) {
       console.log("❌ NO initData");
@@ -48,6 +54,9 @@ app.post('/miniapp/auth', async (req, res) => {
     }
 
     const params = new URLSearchParams(initData);
+
+    console.log("🔥 INIT PARAMS:", Object.fromEntries(params));
+
     const userStr = params.get("user");
 
     if (!userStr) {
@@ -55,14 +64,30 @@ app.post('/miniapp/auth', async (req, res) => {
       return res.json({ ok: false });
     }
 
-    const parsedUser = JSON.parse(userStr);
-    const max_id = parsedUser.id;
+    console.log("🔥 USER STRING:", userStr);
 
-    console.log("✅ AUTH MAX_ID:", max_id);
+    let parsedUser;
 
-    if (!max_id) {
+    try {
+      parsedUser = JSON.parse(userStr);
+    } catch (e) {
+      console.log("❌ USER PARSE ERROR:", e);
       return res.json({ ok: false });
     }
+
+    console.log("🔥 PARSED USER:", parsedUser);
+
+    const max_id = parsedUser.id;
+
+    console.log("🔥 MAX_ID:", max_id);
+
+    if (!max_id) {
+      console.log("❌ NO MAX_ID");
+      return res.json({ ok: false });
+    }
+
+    // 🔥 ВОТ ГЛАВНАЯ ПРОВЕРКА
+    console.log("🔍 SEARCH USER BY vk_id =", String(max_id));
 
     const user = await prisma.user.findFirst({
       where: {
@@ -70,11 +95,14 @@ app.post('/miniapp/auth', async (req, res) => {
       }
     });
 
-    console.log("👤 DB USER:", user);
+    console.log("👤 DB USER RESULT:", user);
 
     if (!user) {
+      console.log("❌ USER NOT FOUND IN DB");
       return res.json({ ok: false });
     }
+
+    console.log("✅ USER TYPE:", user.type);
 
     if (user.type === 'PATIENT') {
       return res.json({
@@ -84,24 +112,26 @@ app.post('/miniapp/auth', async (req, res) => {
     }
 
     const token = jwt.sign(
-  {
-    id: user.id,
-    vk_id: user.vk_id,
-    mis_id: user.mis_id,
-    type: user.type
-  },
-  process.env.JWT_SECRET,
-  { expiresIn: "7d" }
-);
+      {
+        id: user.id,
+        vk_id: user.vk_id,
+        mis_id: user.mis_id,
+        type: user.type
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-return res.json({
-  ok: true,
-  token,
-  role: user.type
-});
+    console.log("✅ TOKEN CREATED");
+
+    return res.json({
+      ok: true,
+      token,
+      role: user.type
+    });
 
   } catch (e) {
-    console.error("AUTH ERROR:", e);
+    console.error("❌ AUTH ERROR:", e);
     res.json({ ok: false });
   }
 });
