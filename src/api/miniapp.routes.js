@@ -731,6 +731,75 @@ const user = req.user;
   }
 
 });
+router.post("/schedule-periods", async (req, res) => {
+
+  console.log("=================================");
+  console.log("📅 SCHEDULE PERIODS");
+
+  try {
+
+    const { date, user_id } = req.body;
+
+    const user = req.user;
+
+    if (!user || !user.mis_id) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
+
+    // ===============================
+    // ГРАНИЦЫ МЕСЯЦА
+    // ===============================
+    const [day, month, year] = date.split(".");
+
+    const dateObj = new Date(`${year}-${month}-${day}`);
+
+    const start = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
+    const end = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
+
+    const format = (d, time) => {
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      return `${dd}.${mm}.${yyyy} ${time}`;
+    };
+
+    const time_start = format(start, "00:00");
+    const time_end = format(end, "23:59");
+
+    console.log("📅 RANGE:", time_start, time_end);
+
+    // ===============================
+    // ЗАПРОС В MIS
+    // ===============================
+    const body = qs.stringify({
+      api_key: process.env.API_KEY,
+      time_start,
+      time_end,
+      user_id
+    });
+
+    const url = process.env.BASE_URL + "/getSchedulePeriods";
+
+    const response = await axios.post(url, body, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
+
+    const data = response.data;
+
+    if (!data || data.error !== 0) {
+      console.log("❌ MIS ERROR:", data);
+      return res.status(500).json({ error: "MIS_ERROR" });
+    }
+
+    console.log("✅ PERIODS:", data.data.length);
+
+    return res.json(data);
+
+  } catch (e) {
+    console.error("🔥 schedule-periods error:", e.message);
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
+});
 
 
 function formatDate(dateInput) {
