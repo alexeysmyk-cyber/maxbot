@@ -920,7 +920,6 @@ if (data.role === 'PATIENT') {
 console.log("💾 NEW TOKEN FROM AUTH:", data.token);
 
 // 🔥 ВСЕГДА перезаписываем
-let authToken = null;
 
 if (data.token) {
   authToken = data.token;
