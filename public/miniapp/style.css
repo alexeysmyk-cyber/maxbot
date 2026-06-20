@@ -1966,3 +1966,46 @@ input[type="date"].form-input {
 .hidden {
   display: none !important;
 }
+
+
+.schedule-row {
+  margin-bottom: 12px;
+}
+
+.schedule-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.schedule-line {
+  position: relative;
+  height: 36px;
+  background: #f2f8fb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.schedule-bar {
+  position: absolute;
+  top: 4px;
+  height: 28px;
+  border-radius: 8px;
+  background: #e6f8fb;
+  border: 1px solid #00a4c7;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.schedule-bar.cancelled {
+  background: repeating-linear-gradient(
+    45deg,
+    #ffe6e6,
+    #ffe6e6 6px,
+    #ffd6d6 6px,
+    #ffd6d6 12px
+  );
+  border: 1px solid #e57373;
+}

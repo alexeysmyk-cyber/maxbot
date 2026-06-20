@@ -19,6 +19,7 @@ let authToken = null;
 import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
+import { loadSchedulePeriods } from "./js/schedulePeriods.js";
 
 console.log("🔥 APP JS LOADED");
 
@@ -685,6 +686,98 @@ if (container && selectedDate) {
   addFloatingButton();
 }
 
+async function renderSchedulePage() {
+
+  const content = document.getElementById("content");
+
+  content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
+
+  let response;
+  let data;
+
+  try {
+    response = await fetch('/miniapp/doctors', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
+      },
+      body: JSON.stringify({})
+    });
+
+    data = await response.json();
+
+  } catch (err) {
+    content.innerHTML = `<div class="card">Ошибка загрузки</div>`;
+    return;
+  }
+
+  if (!response.ok || data.error) {
+    content.innerHTML = `<div class="card">Нет доступа</div>`;
+    return;
+  }
+
+  const { doctors = [], isDirector = false, currentDoctorId = null } = data;
+
+  // ===============================
+  // РЕНДЕР СТРАНИЦЫ
+  // ===============================
+  content.innerHTML = `
+    <div class="card doctor-row">
+      <div class="doctor-select-wrapper">
+        <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
+          ${doctors.map(d => `
+            <option value="${d.id}"
+              ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
+              ${d.name}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="card calendar-wrapper">
+      <div id="scheduleCalendar"></div>
+    </div>
+
+    <div id="scheduleContainer"></div>
+  `;
+
+  // ===============================
+  // КАЛЕНДАРЬ
+  // ===============================
+  const calendarContainer = document.getElementById("scheduleCalendar");
+
+  renderCalendar(calendarContainer, (date) => {
+    selectedDate = date;
+
+    console.log("📅 SELECTED DATE:", date);
+
+    loadSchedulePeriods({
+      container: document.getElementById("scheduleContainer"),
+      date,
+      doctorId: document.getElementById("scheduleDoctorSelect").value
+    });
+  });
+
+  // ===============================
+  // ВЫБОР ВРАЧА
+  // ===============================
+  const doctorSelect = document.getElementById("scheduleDoctorSelect");
+
+  doctorSelect.addEventListener("change", () => {
+    if (!selectedDate) return;
+
+    console.log("👨‍⚕️ CHANGE DOCTOR:", doctorSelect.value);
+
+    loadSchedulePeriods({
+      container: document.getElementById("scheduleContainer"),
+      date: selectedDate,
+      doctorId: doctorSelect.value
+    });
+  });
+}
+
 // ===============================
 
 let createSheetOpen = false;
@@ -780,9 +873,9 @@ function attachEvents() {
     renderVisits();
   });
 
-  scheduleTab.addEventListener('click', () => {
-    setActive(scheduleTab);
-    renderSchedule();
+  scheduleTab.addEventListener("click", () => {
+  setActive(scheduleTab);
+  renderSchedulePage();
   });
 }
 
