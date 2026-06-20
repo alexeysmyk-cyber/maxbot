@@ -306,70 +306,88 @@ loadCreateSchedule();
 
 async function loadDoctorsForCreate() {
 
-  const response = await fetch('/miniapp/doctors', {
-    method: 'POST',
-    headers: {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
-},
-body: JSON.stringify({})
-  });
-
-  const data = await response.json();
-  console.log("DOCTORS RESPONSE:", data);
+  console.log("🚀 loadDoctorsForCreate START");
 
   const container = document.getElementById("doctorContainer");
 
-  if (!response.ok) {
-    container.innerHTML = "Ошибка загрузки врачей";
-    return;
-  }
+  try {
 
-  const { doctors = [], isDirector, currentDoctorId } = data;
+    const token = localStorage.getItem("token");
+    console.log("🔑 TOKEN:", token);
 
-  let allowedDoctors = [];
-
-  if (isDirector) {
-    allowedDoctors = doctors;
-  } else {
-    allowedDoctors = doctors.filter(d =>
-      String(d.id) === String(currentDoctorId)
-    );
-  }
-
-  if (allowedDoctors.length === 0) {
-    container.innerHTML = "Нет доступных врачей";
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="doctor-row">
-      <div class="doctor-select-wrapper">
-        <select id="createDoctorSelect">
-          ${allowedDoctors.map(d => `
-            <option value="${d.id}"
-              ${String(d.id) === String(currentDoctorId) ? "selected" : ""}>
-              ${d.name}
-            </option>
-          `).join("")}
-        </select>
-      </div>
-    </div>
-  `;
-
-  document
-    .getElementById("createDoctorSelect")
-    ?.addEventListener("change", () => {
-      window.selectedServices = [];
-
-      const servicesBlock = document.getElementById("selectedServicesBlock");
-      if (servicesBlock) servicesBlock.innerHTML = "";
-
-      const totalRow = document.getElementById("totalPriceRow");
-      if (totalRow) totalRow.style.display = "none";
-
-      filterScheduleByDoctor();
+    const response = await fetch('/miniapp/doctors', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({})
     });
+
+    console.log("📡 RESPONSE STATUS:", response.status);
+
+    const data = await response.json();
+    console.log("📦 DOCTORS RESPONSE:", data);
+
+    if (!response.ok) {
+      container.innerHTML = "Ошибка загрузки врачей";
+      return;
+    }
+
+    const { doctors = [], isDirector, currentDoctorId } = data;
+
+    let allowedDoctors = [];
+
+    if (isDirector) {
+      allowedDoctors = doctors;
+    } else {
+      allowedDoctors = doctors.filter(d =>
+        String(d.id) === String(currentDoctorId)
+      );
+    }
+
+    if (allowedDoctors.length === 0) {
+      container.innerHTML = "Нет доступных врачей";
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="doctor-row">
+        <div class="doctor-select-wrapper">
+          <select id="createDoctorSelect">
+            ${allowedDoctors.map(d => `
+              <option value="${d.id}"
+                ${String(d.id) === String(currentDoctorId) ? "selected" : ""}>
+                ${d.name}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+      </div>
+    `;
+
+    document
+      .getElementById("createDoctorSelect")
+      ?.addEventListener("change", () => {
+
+        window.selectedServices = [];
+
+        const servicesBlock = document.getElementById("selectedServicesBlock");
+        if (servicesBlock) servicesBlock.innerHTML = "";
+
+        const totalRow = document.getElementById("totalPriceRow");
+        if (totalRow) totalRow.style.display = "none";
+
+        filterScheduleByDoctor();
+      });
+
+  } catch (e) {
+
+    console.error("❌ LOAD DOCTORS ERROR:", e);
+
+    container.innerHTML = "Ошибка сети";
+
+  }
 }
 
 
