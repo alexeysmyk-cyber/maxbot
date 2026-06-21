@@ -49,10 +49,12 @@ content.innerHTML = `
       <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
         ${doctors.map(d => `
-          <option value="${d.id}">
-            ${d.name}
-          </option>
-        `).join('')}
+  <option value="${d.id}"
+    data-full="${d.name}"
+    data-short="${getShortName(d.name)}">
+    ${d.name}
+  </option>
+`).join('')}
 
       </select>
     </div>
