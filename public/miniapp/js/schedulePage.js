@@ -49,11 +49,12 @@ window.doctorsList = doctors;
           ${isDirector ? `<option value="all">Все врачи</option>` : ''}
 
           ${doctors.map(d => `
-            <option value="${d.id}"
-              ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
-              ${d.name}
-            </option>
-          `).join('')}
+  <option value="${d.id}"
+    data-full="${d.name}"
+    data-short="${getShortName(d.name)}">
+    ${d.name}
+  </option>
+`).join('')}
 
         </select>
       </div>
@@ -75,7 +76,7 @@ window.doctorsList = doctors;
   const calendarContainer = document.getElementById("scheduleCalendar");
   const scheduleContainer = document.getElementById("scheduleContainer");
   const doctorSelect = document.getElementById("scheduleDoctorSelect");
-
+  initDoctorSelect(doctorSelect);
   // ===============================
   // ДАТА ПО УМОЛЧАНИЮ (СЕГОДНЯ)
   // ===============================
@@ -122,4 +123,35 @@ window.doctorsList = doctors;
     });
   });
 
+}
+
+function getShortName(fullName) {
+  const parts = fullName.split(" ");
+  if (parts.length < 2) return fullName;
+
+  return `${parts[0]} ${parts.slice(1).map(p => p[0] + ".").join("")}`;
+}
+
+function initDoctorSelect(selectEl) {
+
+  if (!selectEl) return;
+
+  function updateClosedText() {
+    const selectedOption = selectEl.options[selectEl.selectedIndex];
+    selectedOption.textContent = selectedOption.dataset.short;
+  }
+
+  function restoreFullText() {
+    Array.from(selectEl.options).forEach(option => {
+      option.textContent = option.dataset.full;
+    });
+  }
+
+  selectEl.addEventListener("mousedown", restoreFullText);
+
+  selectEl.addEventListener("change", () => {
+    updateClosedText();
+  });
+
+  updateClosedText();
 }
