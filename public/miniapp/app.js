@@ -20,6 +20,7 @@ import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 import { loadSchedulePeriods } from "./js/schedulePeriods.js";
+import { renderSchedulePage } from "./js/schedulePage.js";
 
 console.log("🔥 APP JS LOADED");
 
@@ -28,13 +29,6 @@ function isRunningInMAX() {
          !!window.WebApp.initData &&
          window.WebApp.initData.length > 0;
 }
-
-
-/*function isRunningInMAX() {
-  return !!window.WebApp &&
-         typeof window.WebApp.initData !== 'undefined';
-}
-*/
 
 // ===============================
 // DOM
@@ -46,9 +40,6 @@ const scheduleTab = document.getElementById('scheduleTab');
 // ===============================
 // AUTH
 // ===============================
-
-
-
 
 async function getMaxUser() {
 
@@ -63,8 +54,6 @@ async function getMaxUser() {
 
   return user;
 }
-
-
 
 function renderFatal(text) {
   return `
@@ -95,8 +84,6 @@ async function fetchWithTimeout(url, options, timeout = 2000) {
     throw err;
   }
 }
-
-
 
 // ===============================
 // UI helpers
@@ -686,128 +673,6 @@ if (container && selectedDate) {
   addFloatingButton();
 }
 
-async function renderSchedulePage() {
-
-  const content = document.getElementById("content");
-
-  content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
-
-  let response;
-  let data;
-
-  try {
-    response = await fetch('/miniapp/doctors', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
-      },
-      body: JSON.stringify({})
-    });
-
-    data = await response.json();
-
-  } catch (err) {
-    content.innerHTML = `<div class="card">Ошибка загрузки</div>`;
-    return;
-  }
-
-  if (!response.ok || data.error) {
-    content.innerHTML = `<div class="card">Нет доступа</div>`;
-    return;
-  }
-
-  const { doctors = [], isDirector = false, currentDoctorId = null } = data;
-
-window.doctorsList = doctors;
-
-  // ===============================
-  // HTML
-  // ===============================
-  content.innerHTML = `
-    <div class="card doctor-row">
-      <div class="doctor-select-wrapper">
-        <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
-
-          ${isDirector ? `<option value="all">Все врачи</option>` : ''}
-
-          ${doctors.map(d => `
-            <option value="${d.id}"
-              ${String(d.id) === String(currentDoctorId) ? 'selected' : ''}>
-              ${d.name}
-            </option>
-          `).join('')}
-
-        </select>
-      </div>
-    </div>
-<div class="card filters-wrapper">
-
-</div>
-    <div class="card calendar-wrapper">
-      <div id="scheduleCalendar"></div>
-    </div>
-
-    <div id="scheduleContainer"></div>
-  `;
-
-  
-  // ===============================
-  // ЭЛЕМЕНТЫ
-  // ===============================
-  const calendarContainer = document.getElementById("scheduleCalendar");
-  const scheduleContainer = document.getElementById("scheduleContainer");
-  const doctorSelect = document.getElementById("scheduleDoctorSelect");
-
-  // ===============================
-  // ДАТА ПО УМОЛЧАНИЮ (СЕГОДНЯ)
-  // ===============================
-  if (!selectedDate) {
-    selectedDate = new Date();
-  }
-
-  // ===============================
-  // КАЛЕНДАРЬ (ТОТ ЖЕ ЧТО В VISITS)
-  // ===============================
-  renderCalendar(
-    calendarContainer,
-    (date) => {
-      selectedDate = new Date(date);
-
-      loadSchedulePeriods({
-        container: scheduleContainer,
-        date: selectedDate,
-        doctorId: doctorSelect.value
-      });
-    },
-    selectedDate
-  );
-
-  // ===============================
-  // ПЕРВАЯ ЗАГРУЗКА
-  // ===============================
-  loadSchedulePeriods({
-    container: scheduleContainer,
-    date: selectedDate,
-    doctorId: doctorSelect.value
-  });
-
-  // ===============================
-  // СМЕНА ВРАЧА
-  // ===============================
-  doctorSelect.addEventListener("change", () => {
-    if (!selectedDate) return;
-
-    loadSchedulePeriods({
-      container: scheduleContainer,
-      date: selectedDate,
-      doctorId: doctorSelect.value
-    });
-  });
-
-}
-
-// ===============================
 
 let createSheetOpen = false;
 function addFloatingButton() {
@@ -838,16 +703,13 @@ function addFloatingButton() {
 }
 
 
-
-
-
-
 function formatLocalDate(date) {
   const dd = String(date.getDate()).padStart(2, "0");
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const yyyy = date.getFullYear();
   return `${dd}.${mm}.${yyyy}`;
 }
+
 function initStepSlider(onChange) {
 
   const points = document.querySelectorAll(".step-point");
@@ -884,10 +746,6 @@ if (durationValue) {
     (defaultIndex / (values.length - 1)) * 100 + "%";
 }
 
-
-
-
-// ===============================
 function attachEvents() {
   visitsTab.addEventListener('click', () => {
     setActive(visitsTab);
@@ -896,11 +754,10 @@ function attachEvents() {
 
   scheduleTab.addEventListener("click", () => {
   setActive(scheduleTab);
-  renderSchedulePage();
-  });
+  renderSchedulePage(authToken);
+});
 }
 
-// ===============================
 
 export function waitForWebApp(timeout = 2000) {
   return new Promise(resolve => {
@@ -940,8 +797,6 @@ async function auth() {
 
   return false;
 }
-
-
 
 async function init() {
 
@@ -1051,8 +906,6 @@ if (data.token) {
 
   renderVisits();
 }
-
-
 
 init();
 
