@@ -1988,12 +1988,15 @@ input[type="date"].form-input {
 
 .schedule-bar {
   position: absolute;
-  top: 4px;
+  top: 50%;
+  transform: translateY(-50%);   /* 🔥 идеальный центр */
+
   height: 28px;
   border-radius: 8px;
+
   background: #e6f8fb;
   border: 1px solid #00a4c7;
-  font-size: 11px;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2027,10 +2030,12 @@ input[type="date"].form-input {
   right: 0;
   top: 50%;
 
-  height: 28px;                 /* как у бара */
-  transform: translateY(-50%);  /* центрируем */
+  height: 28px;
+  transform: translateY(-50%);
 
-  background: #e5e7eb;          /* чуть темнее */
+  background: #e5e7eb;
+
+  border: 1px solid #cbd5e1;   /* 🔥 добавили обводку */
   border-radius: 8px;
 }
 
