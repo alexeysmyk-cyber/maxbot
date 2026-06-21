@@ -2170,3 +2170,35 @@ input[type="date"].form-input {
   height: 0;
   margin: 0;
 }
+
+
+
+.room-block {
+  margin-bottom: 10px;
+}
+
+.room-header {
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-content {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: 0.3s ease;
+}
+
+.room-content.collapsed {
+  max-height: 0;
+}
+
+.arrow {
+  transition: 0.3s;
+}
+
+.arrow.rotated {
+  transform: rotate(180deg);
+}

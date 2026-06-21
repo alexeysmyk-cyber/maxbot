@@ -90,17 +90,25 @@ const dayItems = data.filter(i => i.date === formattedDate);
   // группировка по врачам
   const grouped = {};
 
-  dayItems.forEach(item => {
-    if (!grouped[item.user_id]) {
-      grouped[item.user_id] = [];
-    }
+// сначала по кабинетам
+dayItems.forEach(item => {
 
-    grouped[item.user_id].push({
-      start: parseDate(item.time_start),
-      end: parseDate(item.time_end),
-      type: item.type,
-      room: item.room
-    });
+  const room = item.room || "other";
+
+  if (!grouped[room]) {
+    grouped[room] = {};
+  }
+
+  if (!grouped[room][item.user_id]) {
+    grouped[room][item.user_id] = [];
+  }
+
+  grouped[room][item.user_id].push({
+    start: parseDate(item.time_start),
+    end: parseDate(item.time_end),
+    type: item.type,
+    room: item.room
+  });
   });
 
 let html = `
@@ -115,31 +123,61 @@ let html = `
   </div>
 `;
 
-  Object.keys(grouped).forEach(userId => {
+  Object.keys(grouped).forEach(room => {
 
-    const merged = mergeIntervals(grouped[userId]);
+  const roomName = room === "other" ? "Остальные" : `Кабинет ${room}`;
 
-html += `
-  <div class="schedule-row">
-    
-    <div class="schedule-label">
-      👨‍⚕️ ${localDoctorsMap[String(userId)] || ("ID " + userId)}
-    </div>
+  html += `
+    <div class="room-block">
 
-    <div class="schedule-line">
+      <div class="room-header" data-room="${room}">
+        🏥 ${roomName}
+        <span class="arrow">▼</span>
+      </div>
 
-      <!-- 🔥 СЕРЫЙ ФОН НА ВЕСЬ ДЕНЬ -->
-      <div class="schedule-bg"></div>
+      <div class="room-content">
+  `;
 
-      ${merged.map(i => renderBar(i)).join("")}
+  const doctors = grouped[room];
 
-    </div>
+  Object.keys(doctors).forEach(userId => {
 
-  </div>
-`;
+    const merged = mergeIntervals(doctors[userId]);
+
+    html += `
+      <div class="schedule-row">
+        
+        <div class="schedule-label">
+          👨‍⚕️ ${localDoctorsMap[String(userId)] || ("ID " + userId)}
+        </div>
+
+        <div class="schedule-line">
+          <div class="schedule-bg"></div>
+          ${merged.map(i => renderBar(i)).join("")}
+        </div>
+
+      </div>
+    `;
   });
 
+  html += `
+      </div>
+    </div>
+  `;
+});
+
   container.innerHTML = html;
+
+  document.querySelectorAll(".room-header").forEach(header => {
+  header.addEventListener("click", () => {
+
+    const content = header.nextElementSibling;
+
+    content.classList.toggle("collapsed");
+
+    header.querySelector(".arrow").classList.toggle("rotated");
+  });
+});
 
   attachBarEvents();
 }
