@@ -53,7 +53,7 @@ const prisma = new PrismaClient();
 async function authMiddleware(req, res, next) {
   try {
 
-    console.log("=================================");
+console.log("=================================");
 console.log("🔐 AUTH MIDDLEWARE START");
     const authHeader = req.headers.authorization;
 
@@ -115,11 +115,6 @@ req.user = user;
 }
 router.use(authMiddleware);
 
-// ===============================
-// ВРАЧИ
-// ===============================
-
-
 router.post("/doctors", async (req, res) => {
 
   console.log("=================================");
@@ -162,8 +157,7 @@ const currentMisUser = users.find(
   u => String(u.id) === String(mis_id)
 );
 
-  console.log("🔍 SEARCH MIS USER BY ID:", mis_id);
-
+console.log("🔍 SEARCH MIS USER BY ID:", mis_id);
 console.log("👤 MIS USER FOUND:", currentMisUser);
 
 
@@ -227,11 +221,20 @@ if (access.type === "doctor") {
 
 // 👑 админ
 if (access.type === "admin") {
-  doctors = users.map(u => ({
+
+  let list = users.map(u => ({
     id: u.id,
     name: u.name,
     role_names: u.role_names || []
   }));
+
+  if (onlyDoctors) {
+    list = list.filter(u =>
+      (u.role_names || []).includes("doctor")
+    );
+  }
+
+  doctors = list;
 }
 
 // защита
