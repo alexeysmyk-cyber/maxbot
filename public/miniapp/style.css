@@ -2015,12 +2015,11 @@ input[type="date"].form-input {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  left: 100%;
-
-
+  
   font-size: 11px;
   color: #444;
   white-space: nowrap;
+  pointer-events: none; /* чтобы не мешал кликам */
 }
 
 .schedule-bar.cancelled {
@@ -2042,6 +2041,7 @@ input[type="date"].form-input {
   height: 50px;
   border-radius: 10px;
   overflow: hidden;
+   padding-right: 30px;
 }
 
 /* серый фон */
@@ -2081,6 +2081,7 @@ input[type="date"].form-input {
   border-radius: 8px;
   background: #e6f8fb;
   border: 1px solid #00a4c7;
+  box-sizing: border-box;
 }
 
 /* отмена */
@@ -2203,12 +2204,13 @@ input[type="date"].form-input {
   transform: rotate(180deg);
 }
 
+
+/* 🔥 ПРАВИЛЬНОЕ позиционирование справа */
 .schedule-bar-outside.right {
-  left: 100%;
-    transform: translateX(6px);  /* вместо margin */
+  left: calc(100% + 8px); /* было 6px → увеличили запас */
 }
 
+/* 🔥 симметрично слева */
 .schedule-bar-outside.left {
-  right: 100%;
-  margin-right: 6px;
+  right: calc(100% + 8px);
 }
