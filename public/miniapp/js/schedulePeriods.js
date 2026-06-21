@@ -167,18 +167,20 @@ function renderBar(item) {
   const left = ((safeStart - dayStart) / total) * 100;
   const width = (duration / total) * 100;
 
-  return `
-    <div class="schedule-bar-wrapper"
-         style="left:${left}%; width:${width}%">
+ return `
+  <div class="schedule-bar-wrapper"
+       style="left:${left}%; width:${width}%">
 
-      <div class="schedule-bar-label">
-        ${formatTime(item.start)} - ${formatTime(item.end)}
-      </div>
+   <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
+     data-start="${formatTime(item.start)}"
+     data-end="${formatTime(item.end)}">
 
-      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"></div>
+  ${formatTime(item.start)} - ${formatTime(item.end)}
 
-    </div>
-  `;
+</div>
+
+  </div>
+`;
 }
 
 
