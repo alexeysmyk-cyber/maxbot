@@ -119,7 +119,7 @@ router.post("/doctors", async (req, res) => {
 
   console.log("=================================");
 console.log("👨‍⚕️ DOCTORS ENDPOINT");
-
+const { onlyDoctors } = req.body;
 const user = req.user;
 console.log("👤 USER FROM TOKEN:", user);
 
@@ -221,11 +221,20 @@ if (access.type === "doctor") {
 
 // 👑 админ
 if (access.type === "admin") {
-  doctors = users.map(u => ({
+
+  let list = users.map(u => ({
     id: u.id,
     name: u.name,
     role_names: u.role_names || []
   }));
+
+  if (onlyDoctors) {
+    list = list.filter(u =>
+      (u.role_names || []).includes("doctor")
+    );
+  }
+
+  doctors = list;
 }
 
 // защита
