@@ -3,6 +3,8 @@ import { loadSchedulePeriods } from "./schedulePeriods.js";
 
 let selectedDate = new Date();
 let showAll = false;
+let showCancelled = false;
+let showCompleted = false;
 
 export async function renderSchedulePage(authToken) {
 
@@ -68,6 +70,39 @@ content.innerHTML = `
 
   </div>
 
+<div class="card filter-card">
+
+  <div class="filter-header">
+    <span class="filter-title">Фильтры</span>
+    <button id="editFiltersBtn" class="link-btn">Изменить</button>
+  </div>
+
+  <div class="filter-values" id="filterSummary">
+    Предстоящие
+  </div>
+
+  <div class="filter-panel collapsing" id="filterPanel">
+
+    <div class="toggle-line">
+      <span>Показать отменённые</span>
+      <label class="switch">
+        <input type="checkbox" id="toggleCancelled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-line">
+      <span>Показать завершённые</span>
+      <label class="switch">
+        <input type="checkbox" id="toggleCompleted">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+  </div>
+
+</div>
+
   <div class="card calendar-wrapper">
     <div id="scheduleCalendar"></div>
   </div>
@@ -91,6 +126,39 @@ if (!isDirector) {
 
 
   const toggleContainer = document.getElementById("doctorToggle");
+  const toggleCancelled = document.getElementById("toggleCancelled");
+const toggleCompleted = document.getElementById("toggleCompleted");
+const filterSummary = document.getElementById("filterSummary");
+const filterPanel = document.getElementById("filterPanel");
+const editFiltersBtn = document.getElementById("editFiltersBtn");
+
+editFiltersBtn.addEventListener("click", () => {
+
+  if (filterPanel.classList.contains("collapsing")) {
+    filterPanel.classList.remove("collapsing");
+    editFiltersBtn.innerText = "Свернуть";
+  } else {
+    filterPanel.classList.add("collapsing");
+    editFiltersBtn.innerText = "Изменить";
+  }
+
+});
+
+toggleCancelled.addEventListener("change", () => {
+  showCancelled = toggleCancelled.checked;
+  updateFilterSummary();
+  reloadSchedule();
+});
+
+toggleCompleted.addEventListener("change", () => {
+  showCompleted = toggleCompleted.checked;
+  updateFilterSummary();
+  reloadSchedule();
+});
+
+
+
+
 
 if (toggleContainer) {
   toggleContainer.querySelectorAll(".toggle-btn").forEach(btn => {
@@ -142,6 +210,7 @@ if (toggleContainer) {
   // ПЕРВАЯ ЗАГРУЗКА
   // ===============================
  reloadSchedule();
+ updateFilterSummary();
 
   // ===============================
   // СМЕНА ВРАЧА
@@ -190,6 +259,19 @@ function reloadSchedule() {
   loadSchedulePeriods({
     container: scheduleContainer,
     date: selectedDate,
-    doctorId: showAll ? null : doctorSelect.value
+    doctorId: showAll ? null : doctorSelect.value,
+    showCancelled,
+    showCompleted
   });
+}
+
+function updateFilterSummary() {
+  let parts = [];
+
+  parts.push("Предстоящие");
+
+  if (showCancelled) parts.push("Отменённые");
+  if (showCompleted) parts.push("Завершённые");
+
+  filterSummary.innerText = parts.join(" • ");
 }
