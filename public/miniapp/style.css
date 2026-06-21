@@ -2070,9 +2070,9 @@ input[type="date"].form-input {
 
 .time-scale-line {
   position: relative;
-  height: 30px;
+  height: 25px;
   border-top: 2px solid #ddd;
-  margin-top: 14px;   /* 🔥 опускаем вниз */
+  margin-top: 12px;   /* 🔥 опускаем вниз */
 }
 
 /* маленькие риски */
