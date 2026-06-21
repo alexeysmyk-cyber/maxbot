@@ -324,30 +324,29 @@ function showLoader(container) {
 
 function renderTimeScale() {
 
-  const dayStart = 8;
-  const dayEnd = 22;
-  const total = dayEnd - dayStart;
+ const dayStart = 8 * 60;
+const dayEnd = 22 * 60;
+const total = dayEnd - dayStart;
 
-  const marks = [];
+for (let h = 8; h <= 22; h++) {
 
-  for (let h = dayStart; h <= dayEnd; h++) {
+  const minutes = h * 60;
 
-let left = ((h - dayStart) / total) * 100;
+  let left = ((minutes - dayStart) / total) * 100;
 
-// защита правого края
-if (left > 99) left = 99;
+  if (left > 99) left = 99;
 
-    const isMajor = [9, 13, 17, 21].includes(h);
+  const isMajor = [9, 13, 17, 21].includes(h);
 
-    marks.push(`
-      <div class="time-mark ${isMajor ? 'major' : ''}"
-           style="left:${left}%">
+  marks.push(`
+    <div class="time-mark ${isMajor ? 'major' : ''}"
+         style="left:${left}%">
 
-        ${isMajor ? `<span>${h}</span>` : ``}
+      ${isMajor ? `<span>${h}</span>` : ``}
 
-      </div>
-    `);
-  }
+    </div>
+  `);
+}
 
   return `
     <div class="time-scale-line">
