@@ -132,10 +132,10 @@ let html = `
 
       <div class="room-header" data-room="${room}">
         🏥 ${roomName}
-        <span class="arrow">▼</span>
+        <span class="arrow rotated">▼</span>
       </div>
 
-      <div class="room-content">
+      <div class="room-content collapsed">
   `;
 
   const doctors = grouped[room];
@@ -323,6 +323,8 @@ function showLoader(container) {
 }
 
 function renderTimeScale() {
+
+const marks = []; 
 
  const dayStart = 8 * 60;
 const dayEnd = 22 * 60;
