@@ -321,7 +321,7 @@ async function loadDoctorsForCreate() {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify({onlyDoctors: true })
+      body: JSON.stringify({})
     });
 
     console.log("📡 RESPONSE STATUS:", response.status);

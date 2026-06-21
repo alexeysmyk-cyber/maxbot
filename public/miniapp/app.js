@@ -145,7 +145,7 @@ try {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
   },
-  body: JSON.stringify({onlyDoctors: true })
+  body: JSON.stringify({})
 })
 
   data = await response.json();
@@ -161,7 +161,7 @@ try {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + (authToken || localStorage.getItem('token'))
   },
-  body: JSON.stringify({onlyDoctors: true })
+  body: JSON.stringify({})
 })
 
     data = await response.json();
