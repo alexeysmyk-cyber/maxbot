@@ -227,12 +227,11 @@ if (access.type === "doctor") {
 
 // 👑 админ
 if (access.type === "admin") {
-  doctors = users
-    .filter(u => (u.role_names || []).includes("doctor"))
-    .map(u => ({
-      id: u.id,
-      name: u.name
-    }));
+  doctors = users.map(u => ({
+    id: u.id,
+    name: u.name,
+    role_names: u.role_names || []
+  }));
 }
 
 // защита
