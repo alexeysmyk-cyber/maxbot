@@ -2070,15 +2070,16 @@ input[type="date"].form-input {
 
 .time-scale-line {
   position: relative;
-  height: 40px;
+  height: 32px;
   border-top: 2px solid #ddd;
   margin-top: 12px;   /* 🔥 опускаем вниз */
+   border-top: none; 
 }
 
 /* маленькие риски */
 .time-mark {
   position: absolute;
-  top: 14px;   /* совпадает с линией */
+  top: 6px;   /* совпадает с линией */
   width: 1px;
   height: 8px;
   background: #bbb;
@@ -2093,7 +2094,7 @@ input[type="date"].form-input {
 /* подписи */
 .time-mark span {
   position: absolute;
-  top: 18px;   /* 🔥 теперь ВНИЗ от линии */
+  top: 14px;   /* 🔥 теперь ВНИЗ от линии */
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
@@ -2103,7 +2104,7 @@ input[type="date"].form-input {
 }
 .schedule-header-row {
   position: sticky;
-  top: 60px;   /* 🔥 подгони под свой UI */
+  top: 20px;   /* 🔥 подгони под свой UI */
   z-index: 20;
   background: #f4f7fb;
 }
@@ -2121,7 +2122,7 @@ input[type="date"].form-input {
 .time-scale-line::before {
   content: "";
   position: absolute;
-  top: 14px;   /* линия внутри контейнера */
+  top: 6px;   /* линия внутри контейнера */
   left: 0;
   right: 0;
   height: 2px;
