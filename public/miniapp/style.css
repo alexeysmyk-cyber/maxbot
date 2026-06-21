@@ -2038,10 +2038,10 @@ input[type="date"].form-input {
 }
 .schedule-line {
   position: relative;
-  height: 50px;
+  height: 36px;        /* было 50 */
   border-radius: 10px;
   overflow: hidden;
-   padding-right: 30px;
+  padding-right: 30px; /* оставляем */
 }
 
 /* серый фон */
