@@ -2023,8 +2023,15 @@ input[type="date"].form-input {
 /* серый фон */
 .schedule-bg {
   position: absolute;
-  inset: 0;
-  background: #eef3f7;
+  left: 0;
+  right: 0;
+  top: 50%;
+
+  height: 28px;                 /* как у бара */
+  transform: translateY(-50%);  /* центрируем */
+
+  background: #e5e7eb;          /* чуть темнее */
+  border-radius: 8px;
 }
 
 /* контейнер бара */
