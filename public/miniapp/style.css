@@ -2093,7 +2093,7 @@ input[type="date"].form-input {
 /* подписи */
 .time-mark span {
   position: absolute;
-  top: -16px;   /* было -18 */
+  top: -12px;   /* было -18 */
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
