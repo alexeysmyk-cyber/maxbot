@@ -2011,6 +2011,18 @@ input[type="date"].form-input {
   text-overflow: ellipsis;
 }
 
+.schedule-bar-outside {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 100%;
+  margin-left: 6px;
+
+  font-size: 11px;
+  color: #444;
+  white-space: nowrap;
+}
+
 .schedule-bar.cancelled {
   background: repeating-linear-gradient(
     45deg,

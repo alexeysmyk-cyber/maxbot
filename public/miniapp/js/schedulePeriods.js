@@ -157,7 +157,7 @@ function renderBar(item) {
   const start = getMinutes(item.start);
   const end = getMinutes(item.end);
 
-  if (end <= start) return ""; // 🔥 защита
+  if (end <= start) return "";
 
   const safeStart = Math.max(start, dayStart);
   const safeEnd = Math.min(end, dayEnd);
@@ -167,22 +167,43 @@ function renderBar(item) {
   const left = ((safeStart - dayStart) / total) * 100;
   const width = (duration / total) * 100;
 
- return `
-  <div class="schedule-bar-wrapper"
-       style="left:${left}%; width:${width}%">
+  // ===== УМНЫЙ ТЕКСТ =====
+  const timeFull = `${formatTime(item.start)} - ${formatTime(item.end)}`;
+  const timeShort = `${formatTime(item.start)}`;
 
-   <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
-     data-start="${formatTime(item.start)}"
-     data-end="${formatTime(item.end)}">
+  let text = "";
+  let outside = false;
 
-  ${formatTime(item.start)} - ${formatTime(item.end)}
+  if (width > 18) {
+    text = timeFull;        // широкий
+  } else if (width > 10) {
+    text = timeShort;       // средний
+  } else {
+    text = timeFull;        // узкий → наружу
+    outside = true;
+  }
 
-</div>
+  return `
+    <div class="schedule-bar-wrapper"
+         style="left:${left}%; width:${width}%">
 
-  </div>
-`;
+      ${outside ? `
+        <div class="schedule-bar-outside">
+          ${text}
+        </div>
+      ` : ``}
+
+      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
+           data-start="${formatTime(item.start)}"
+           data-end="${formatTime(item.end)}">
+
+        ${!outside ? text : ""}
+
+      </div>
+
+    </div>
+  `;
 }
-
 
 // ===============================
 // HELPERS
