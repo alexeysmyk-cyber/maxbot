@@ -2103,7 +2103,7 @@ input[type="date"].form-input {
 }
 .schedule-header-row {
   position: sticky;
-  top: 100px;   /* 🔥 подгони под свой UI */
+  top: 60px;   /* 🔥 подгони под свой UI */
   z-index: 20;
   background: #f4f7fb;
 }
