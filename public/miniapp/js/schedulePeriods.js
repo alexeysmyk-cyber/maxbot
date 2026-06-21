@@ -276,7 +276,7 @@ let left = ((h - dayStart) / total) * 100;
 // защита правого края
 if (left > 99) left = 99;
 
-    const isMajor = [10, 14, 18, 22].includes(h);
+    const isMajor = [9, 13, 17, 21].includes(h);
 
     marks.push(`
       <div class="time-mark ${isMajor ? 'major' : ''}"
