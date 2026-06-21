@@ -2043,6 +2043,7 @@ input[type="date"].form-input {
 
 /* сам бар */
 .schedule-bar {
+  width: 100%;            /* 🔥 ВОТ ЭТО КРИТИЧНО */
   height: 28px;
   border-radius: 8px;
   background: #e6f8fb;
