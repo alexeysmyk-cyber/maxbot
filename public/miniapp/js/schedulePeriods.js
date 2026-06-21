@@ -103,9 +103,15 @@ const dayItems = data.filter(i => i.date === formattedDate);
     });
   });
 
-  let html = `
-  <div class="schedule-header">
-    ${renderTimeScale()}
+let html = `
+  <div class="schedule-row schedule-header-row">
+
+    <div class="schedule-label"></div>
+
+    <div class="schedule-line">
+      ${renderTimeScale()}
+    </div>
+
   </div>
 `;
 

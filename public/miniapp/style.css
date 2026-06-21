@@ -2065,7 +2065,7 @@ input[type="date"].form-input {
 /* ===== TIME SCALE LINE ===== */
 
 .schedule-header {
-  padding: 10px 20px 5px 120px; /* чтобы совпало с линиями */
+  padding: 10px 20px 5px 0;
 }
 
 .time-scale-line {
@@ -2092,9 +2092,18 @@ input[type="date"].form-input {
 /* подписи */
 .time-mark span {
   position: absolute;
-  top: -20px;
+  top: -18px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
   color: #666;
+  white-space: nowrap;
+}
+.schedule-header-row {
+  margin-bottom: 6px;
+}
+
+.schedule-header-row .schedule-line {
+  background: transparent;
+  height: 30px;
 }
