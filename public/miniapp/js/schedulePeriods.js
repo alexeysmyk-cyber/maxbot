@@ -147,19 +147,24 @@ function renderBar(item) {
   const start = getMinutes(item.start);
   const end = getMinutes(item.end);
 
-  const left = ((start - dayStart) / total) * 100;
-  const width = ((end - start) / total) * 100;
+  if (end <= start) return ""; // 🔥 защита
+
+  const safeStart = Math.max(start, dayStart);
+  const safeEnd = Math.min(end, dayEnd);
+
+  const duration = Math.max(5, safeEnd - safeStart);
+
+  const left = ((safeStart - dayStart) / total) * 100;
+  const width = (duration / total) * 100;
 
   return `
     <div class="schedule-bar-wrapper"
          style="left:${left}%; width:${width}%">
 
-      <!-- 🔥 ТЕКСТ НАД БАРОМ -->
       <div class="schedule-bar-label">
         ${formatTime(item.start)} - ${formatTime(item.end)}
       </div>
 
-      <!-- 🔥 САМ БАР -->
       <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"></div>
 
     </div>
