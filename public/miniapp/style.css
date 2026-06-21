@@ -2061,3 +2061,40 @@ input[type="date"].form-input {
   );
   border: 1px solid #e57373;
 }
+
+/* ===== TIME SCALE LINE ===== */
+
+.schedule-header {
+  padding: 10px 20px 5px 120px; /* чтобы совпало с линиями */
+}
+
+.time-scale-line {
+  position: relative;
+  height: 30px;
+  border-top: 2px solid #ddd;
+}
+
+/* маленькие риски */
+.time-mark {
+  position: absolute;
+  top: -2px;
+  width: 1px;
+  height: 8px;
+  background: #bbb;
+}
+
+/* большие риски */
+.time-mark.major {
+  height: 14px;
+  background: #888;
+}
+
+/* подписи */
+.time-mark span {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #666;
+}

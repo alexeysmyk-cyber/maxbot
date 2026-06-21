@@ -257,17 +257,31 @@ function showLoader(container) {
 
 function renderTimeScale() {
 
-  const hours = [];
+  const dayStart = 8;
+  const dayEnd = 22;
+  const total = dayEnd - dayStart;
 
-  for (let h = 8; h <= 22; h++) {
-    hours.push(h);
+  const marks = [];
+
+  for (let h = dayStart; h <= dayEnd; h++) {
+
+    const left = ((h - dayStart) / total) * 100;
+
+    const isMajor = [10, 14, 18, 22].includes(h);
+
+    marks.push(`
+      <div class="time-mark ${isMajor ? 'major' : ''}"
+           style="left:${left}%">
+
+        ${isMajor ? `<span>${h}:00</span>` : ``}
+
+      </div>
+    `);
   }
 
   return `
-    <div class="time-scale">
-      ${hours.map(h => `
-        <div class="time-cell">${h}:00</div>
-      `).join('')}
+    <div class="time-scale-line">
+      ${marks.join("")}
     </div>
   `;
 }
