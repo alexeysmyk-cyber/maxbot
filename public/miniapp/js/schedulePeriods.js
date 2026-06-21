@@ -282,7 +282,7 @@ if (left > 99) left = 99;
       <div class="time-mark ${isMajor ? 'major' : ''}"
            style="left:${left}%">
 
-        ${isMajor ? `<span>${h}:00</span>` : ``}
+        ${isMajor ? `<span>${h}</span>` : ``}
 
       </div>
     `);
