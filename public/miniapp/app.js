@@ -741,13 +741,113 @@ window.doctorsList = doctors;
         </select>
       </div>
     </div>
+<div class="card filters-wrapper">
 
+  <div class="filters-header" id="filtersToggle">
+    ⚙️ Фильтры
+  </div>
+
+  <div class="filters-body collapsed" id="filtersBody">
+
+    <!-- Только врачи -->
+    <div class="filter-item">
+      <label>
+        <input type="checkbox" id="filterDoctors">
+        <span id="filterDoctorsLabel">Все сотрудники</span>
+      </label>
+    </div>
+
+    <!-- Закрытое время -->
+    <div class="filter-item">
+      <label>
+        <input type="checkbox" id="filterClosed" checked>
+        <span id="filterClosedLabel">С отменами</span>
+      </label>
+    </div>
+
+    <!-- Открытое время -->
+    <div class="filter-item">
+      <label>
+        <input type="checkbox" id="filterOpen" checked>
+        <span id="filterOpenLabel">Открытое</span>
+      </label>
+    </div>
+
+  </div>
+
+</div>
     <div class="card calendar-wrapper">
       <div id="scheduleCalendar"></div>
     </div>
 
     <div id="scheduleContainer"></div>
   `;
+
+
+const filtersToggle = document.getElementById("filtersToggle");
+const filtersBody = document.getElementById("filtersBody");
+
+filtersToggle.addEventListener("click", () => {
+  filtersBody.classList.toggle("collapsed");
+});
+
+let filters = {
+  onlyDoctors: false,
+  showClosed: true,
+  showOpen: true
+};
+
+const filterDoctors = document.getElementById("filterDoctors");
+const filterDoctorsLabel = document.getElementById("filterDoctorsLabel");
+
+filterDoctors.addEventListener("change", () => {
+  filters.onlyDoctors = filterDoctors.checked;
+
+  filterDoctorsLabel.textContent = filterDoctors.checked
+    ? "Только врачи"
+    : "Все сотрудники";
+
+  reloadSchedule();
+});
+
+const filterClosed = document.getElementById("filterClosed");
+const filterClosedLabel = document.getElementById("filterClosedLabel");
+
+filterClosed.addEventListener("change", () => {
+  filters.showClosed = filterClosed.checked;
+
+  filterClosedLabel.textContent = filterClosed.checked
+    ? "С отменами"
+    : "Без отмен";
+
+  reloadSchedule();
+});
+
+const filterOpen = document.getElementById("filterOpen");
+const filterOpenLabel = document.getElementById("filterOpenLabel");
+
+filterOpen.addEventListener("change", () => {
+  filters.showOpen = filterOpen.checked;
+
+  filterOpenLabel.textContent = filterOpen.checked
+    ? "Открытое"
+    : "";
+
+  reloadSchedule();
+});
+
+function reloadSchedule() {
+  if (!selectedDate) return;
+
+  loadSchedulePeriods({
+    container: scheduleContainer,
+    date: selectedDate,
+    doctorId: doctorSelect.value,
+    filters
+  });
+}
+
+
 
   // ===============================
   // ЭЛЕМЕНТЫ
@@ -772,10 +872,11 @@ window.doctorsList = doctors;
       selectedDate = new Date(date);
 
       loadSchedulePeriods({
-        container: scheduleContainer,
-        date: selectedDate,
-        doctorId: doctorSelect.value
-      });
+  container: scheduleContainer,
+  date: selectedDate,
+  doctorId: doctorSelect.value,
+  filters
+});
     },
     selectedDate
   );
@@ -784,10 +885,11 @@ window.doctorsList = doctors;
   // ПЕРВАЯ ЗАГРУЗКА
   // ===============================
   loadSchedulePeriods({
-    container: scheduleContainer,
-    date: selectedDate,
-    doctorId: doctorSelect.value
-  });
+  container: scheduleContainer,
+  date: selectedDate,
+  doctorId: doctorSelect.value,
+  filters
+});
 
   // ===============================
   // СМЕНА ВРАЧА
@@ -795,11 +897,12 @@ window.doctorsList = doctors;
   doctorSelect.addEventListener("change", () => {
     if (!selectedDate) return;
 
-    loadSchedulePeriods({
-      container: scheduleContainer,
-      date: selectedDate,
-      doctorId: doctorSelect.value
-    });
+   loadSchedulePeriods({
+  container: scheduleContainer,
+  date: selectedDate,
+  doctorId: doctorSelect.value,
+  filters
+});
   });
 
 }
@@ -882,15 +985,7 @@ if (durationValue) {
 }
 
 
-// ===============================
-function renderSchedule() {
-  content.innerHTML = `
-    <div class="card">
-      <b>Расписание</b><br/>
-      Здесь будет управление слотами врача.
-    </div>
-  `;
-}
+
 
 // ===============================
 function attachEvents() {
