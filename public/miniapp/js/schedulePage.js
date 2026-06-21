@@ -23,7 +23,7 @@ export async function renderSchedulePage(authToken) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + authToken
       },
-      body: JSON.stringify({ onlyDoctors: true })
+      body: JSON.stringify({ })
     });
 
     data = await response.json();
