@@ -293,7 +293,7 @@ function updateFilterSummary() {
 
   // базовый текст
   if (onlyDoctors) {
-    parts.push("Только для врачей");
+    parts.push("Только врачи");
   } else {
     parts.push("Все сотрудники");
   }
