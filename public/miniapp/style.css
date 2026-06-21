@@ -2072,7 +2072,7 @@ input[type="date"].form-input {
   position: relative;
   height: 30px;
   border-top: 2px solid #ddd;
-  margin-top: 18px;   /* 🔥 опускаем вниз */
+  margin-top: 16px;   /* 🔥 опускаем вниз */
 }
 
 /* маленькие риски */
