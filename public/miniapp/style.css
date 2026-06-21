@@ -2202,3 +2202,13 @@ input[type="date"].form-input {
 .arrow.rotated {
   transform: rotate(180deg);
 }
+
+.schedule-bar-outside.right {
+  left: 100%;
+  margin-left: 6px;
+}
+
+.schedule-bar-outside.left {
+  right: 100%;
+  margin-right: 6px;
+}

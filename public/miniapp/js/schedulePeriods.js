@@ -153,7 +153,7 @@ let html = `
 
         <div class="schedule-line">
           <div class="schedule-bg"></div>
-          ${merged.map(i => renderBar(i)).join("")}
+          ${merged.map((i, idx) => renderBar(i, idx, merged.length)).join("")}
         </div>
 
       </div>
@@ -186,7 +186,7 @@ let html = `
 // ===============================
 // BAR
 // ===============================
-function renderBar(item) {
+function renderBar(item, index, totalBars) {
 
   const dayStart = 8 * 60;
   const dayEnd = 22 * 60;
@@ -205,44 +205,66 @@ function renderBar(item) {
   const left = ((safeStart - dayStart) / total) * 100;
   const width = (duration / total) * 100;
 
-  // ===== УМНЫЙ ТЕКСТ =====
   const timeFull = `${formatTime(item.start)} - ${formatTime(item.end)}`;
   const timeShort = `${formatTime(item.start)}`;
 
   let text = "";
-  let outside = false;
+  let mode = "inside"; // inside | right | left | none
+
+  // ===== ЛОГИКА =====
 
   if (width > 18) {
-    text = timeFull;        // широкий
-  } else if (width > 10) {
-    text = timeShort;       // средний
-  } else {
-    text = timeFull;        // узкий → наружу
-    outside = true;
+    text = timeFull;
+  } 
+  else if (width > 10) {
+    text = timeShort;
+  } 
+  else {
+
+    // если несколько интервалов — не рисуем вообще
+    if (totalBars > 1) {
+      mode = "none";
+    } else {
+
+      text = timeFull;
+
+      // пробуем справа
+      if (left + width < 85) {
+        mode = "right";
+      }
+      // если справа не влезает — пробуем слева
+      else if (left > 15) {
+        mode = "left";
+      }
+      else {
+        mode = "none";
+      }
+    }
   }
 
   return `
     <div class="schedule-bar-wrapper"
          style="left:${left}%; width:${width}%">
 
-      ${outside ? `
-        <div class="schedule-bar-outside">
+      ${mode === "right" ? `
+        <div class="schedule-bar-outside right">
           ${text}
         </div>
       ` : ``}
 
-      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
-           data-start="${formatTime(item.start)}"
-           data-end="${formatTime(item.end)}">
+      ${mode === "left" ? `
+        <div class="schedule-bar-outside left">
+          ${text}
+        </div>
+      ` : ``}
 
-        ${!outside ? text : ""}
-
+      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}">
+        ${mode === "inside" ? text : ""}
       </div>
 
     </div>
   `;
 }
-
 // ===============================
 // HELPERS
 // ===============================
@@ -309,9 +331,6 @@ function attachBarEvents() {
 }
 
 
-
-
-
 // ===============================
 function showLoader(container) {
   container.innerHTML = `
@@ -336,7 +355,7 @@ for (let h = 8; h <= 22; h++) {
 
   let left = ((minutes - dayStart) / total) * 100;
 
-  if (left > 99) left = 99;
+  if (left > 100) left = 100;
 
   const isMajor = [9, 13, 17, 21].includes(h);
 
