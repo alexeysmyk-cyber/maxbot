@@ -2068,18 +2068,28 @@ input[type="date"].form-input {
   padding: 10px 20px 5px 0;
 }
 
+/* контейнер шкалы */
 .time-scale-line {
   position: relative;
   height: 32px;
-  border-top: 2px solid #ddd;
-  margin-top: 0px;   /* 🔥 опускаем вниз */
-   border-top: none; 
+  margin-top: 0;
+}
+
+/* основная линия */
+.time-scale-line::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ddd;
 }
 
 /* маленькие риски */
 .time-mark {
   position: absolute;
-  top: 2px;   /* совпадает с линией */
+  top: 2px;
   width: 1px;
   height: 8px;
   background: #bbb;
@@ -2094,7 +2104,7 @@ input[type="date"].form-input {
 /* подписи */
 .time-mark span {
   position: absolute;
-  top: 10px;   /* 🔥 теперь ВНИЗ от линии */
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
@@ -2102,35 +2112,28 @@ input[type="date"].form-input {
   font-weight: 500;
   white-space: nowrap;
 }
+
+/* sticky строка шкалы */
 .schedule-header-row {
   position: sticky;
-  top: 0px;   /* 🔥 подгони под свой UI */
+  top: 0;
   z-index: 20;
   background: #f4f7fb;
+
+  padding-top: 4px;
+  transform: translateZ(0);
 }
 
+/* линия внутри header */
 .schedule-header-row .schedule-line {
-   background: #f4f7fb;
-  height: 32px;        /* было 30 */
+  background: #f4f7fb;
+  height: 32px;
   width: 100%;
-  overflow: visible;   /* 🔥 ВОТ ЭТО ГЛАВНОЕ */
+  overflow: visible;
 }
+
+/* пустой label слева */
 .schedule-header-row .schedule-label {
   height: 0;
   margin: 0;
-}
-.time-scale-line::before {
-  content: "";
-  position: absolute;
-  top: 2px;   /* линия внутри контейнера */
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #ddd;
-}
-.schedule-header-row {
-  padding-top: 4px;   /* 🔥 вот тут регулируешь позицию */
-}
-.schedule-header-row {
-  transform: translateZ(0);   /* 🔥 фикс рендера */
 }
