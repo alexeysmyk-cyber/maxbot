@@ -50,7 +50,7 @@ content.innerHTML = `
     <div class="doctor-select-wrapper">
       <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
-        ${doctors.map(d => `
+        ${getFilteredDoctors().map(d => `
   <option value="${d.id}"
     data-full="${d.name}"
     data-short="${getShortName(d.name)}">
@@ -160,6 +160,7 @@ editFiltersBtn.addEventListener("click", () => {
 
 toggleDoctorsOnly.addEventListener("change", () => {
   onlyDoctors = toggleDoctorsOnly.checked;
+  updateDoctorSelect();
   updateFilterSummary();
   reloadSchedule();
 });
@@ -307,4 +308,32 @@ function updateFilterSummary() {
   }
 
   filterSummary.innerText = parts.join(" • ");
+}
+function getFilteredDoctors() {
+  if (!onlyDoctors) return window.doctorsList;
+
+  return window.doctorsList.filter(d =>
+    (d.role_names || []).includes("doctor")
+  );
+}
+function updateDoctorSelect() {
+
+  const select = document.getElementById("scheduleDoctorSelect");
+
+  const list = getFilteredDoctors();
+
+  const currentValue = select.value;
+
+  select.innerHTML = list.map(d => `
+    <option value="${d.id}">
+      ${d.name}
+    </option>
+  `).join('');
+
+  // если текущий врач исчез — выбираем первого
+  if (!list.find(d => String(d.id) === String(currentValue))) {
+    select.value = list[0]?.id || "";
+  } else {
+    select.value = currentValue;
+  }
 }
