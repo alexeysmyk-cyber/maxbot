@@ -103,7 +103,11 @@ const dayItems = data.filter(i => i.date === formattedDate);
     });
   });
 
-  let html = "";
+  let html = `
+  <div class="schedule-header">
+    ${renderTimeScale()}
+  </div>
+`;
 
   Object.keys(grouped).forEach(userId => {
 
@@ -140,8 +144,8 @@ html += `
 // ===============================
 function renderBar(item) {
 
-  const dayStart = 9 * 60;
-  const dayEnd = 21 * 60;
+  const dayStart = 8 * 60;
+  const dayEnd = 22 * 60;
   const total = dayEnd - dayStart;
 
   const start = getMinutes(item.start);
@@ -247,6 +251,23 @@ function showLoader(container) {
     <div class="loader">
       <div class="spinner"></div>
       <div>Загрузка...</div>
+    </div>
+  `;
+}
+
+function renderTimeScale() {
+
+  const hours = [];
+
+  for (let h = 8; h <= 22; h++) {
+    hours.push(h);
+  }
+
+  return `
+    <div class="time-scale">
+      ${hours.map(h => `
+        <div class="time-cell">${h}:00</div>
+      `).join('')}
     </div>
   `;
 }
