@@ -125,7 +125,7 @@ let html = `
 
   Object.keys(grouped).forEach(room => {
 
-  const roomName = room === "other" ? "Остальные" : `Кабинет ${room}`;
+  const roomName = room === "other" ? "Остальные" : `${room}`;
 
   html += `
     <div class="room-block">
