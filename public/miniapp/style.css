@@ -2016,7 +2016,7 @@ input[type="date"].form-input {
   top: 50%;
   transform: translateY(-50%);
   left: 100%;
-  margin-left: 6px;
+
 
   font-size: 11px;
   color: #444;
@@ -2205,7 +2205,7 @@ input[type="date"].form-input {
 
 .schedule-bar-outside.right {
   left: 100%;
-  margin-left: 6px;
+    transform: translateX(6px);  /* вместо margin */
 }
 
 .schedule-bar-outside.left {

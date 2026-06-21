@@ -200,10 +200,14 @@ function renderBar(item, index, totalBars) {
   const safeStart = Math.max(start, dayStart);
   const safeEnd = Math.min(end, dayEnd);
 
-  const duration = Math.max(5, safeEnd - safeStart);
+ const duration = safeEnd - safeStart;
+
+if (duration <= 0) return "";
 
   const left = ((safeStart - dayStart) / total) * 100;
-  const width = (duration / total) * 100;
+const right = ((safeEnd - dayStart) / total) * 100;
+
+const width = right - left;
 
   const timeFull = `${formatTime(item.start)} - ${formatTime(item.end)}`;
   const timeShort = `${formatTime(item.start)}`;
