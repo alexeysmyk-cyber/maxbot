@@ -2103,9 +2103,9 @@ input[type="date"].form-input {
 }
 .schedule-header-row {
   position: sticky;
-  top: 0;                 /* прилипает к верху контейнера */
+  top: 140px;   /* 🔥 подгони под свой UI */
   z-index: 20;
-  background: #f4f7fb;    /* обязательно */
+  background: #f4f7fb;
 }
 
 .schedule-header-row .schedule-line {
