@@ -5,6 +5,7 @@ let selectedDate = new Date();
 let onlyDoctors = false;
 let noCancelled = false;
 let noWorktime = false;
+let showAll = false;
 
 export async function renderSchedulePage(authToken) {
 
@@ -325,7 +326,9 @@ function updateDoctorSelect() {
   const currentValue = select.value;
 
   select.innerHTML = list.map(d => `
-    <option value="${d.id}">
+    <option value="${d.id}"
+      data-full="${d.name}"
+      data-short="${getShortName(d.name)}">
       ${d.name}
     </option>
   `).join('');
@@ -336,4 +339,7 @@ function updateDoctorSelect() {
   } else {
     select.value = currentValue;
   }
+
+  // 🔥 ВАЖНО: переинициализировать select
+  initDoctorSelect(select);
 }
