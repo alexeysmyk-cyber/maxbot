@@ -2,9 +2,9 @@ import { renderCalendar } from "./calendar.js";
 import { loadSchedulePeriods } from "./schedulePeriods.js";
 
 let selectedDate = new Date();
-let showAll = false;
-let showCancelled = false;
-let showCompleted = false;
+let onlyDoctors = false;
+let noCancelled = false;
+let noWorktime = false;
 
 export async function renderSchedulePage(authToken) {
 
@@ -78,28 +78,36 @@ content.innerHTML = `
   </div>
 
   <div class="filter-values" id="filterSummary">
-    Предстоящие
+    Все сотрудники
   </div>
 
-  <div class="filter-panel collapsing" id="filterPanel">
+<div class="filter-panel collapsing" id="filterPanel">
 
-    <div class="toggle-line">
-      <span>Показать отменённые</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleCancelled">
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <div class="toggle-line">
-      <span>Показать завершённые</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleCompleted">
-        <span class="slider"></span>
-      </label>
-    </div>
-
+  <div class="toggle-line">
+    <span>Только для врачей</span>
+    <label class="switch">
+      <input type="checkbox" id="toggleDoctorsOnly">
+      <span class="slider"></span>
+    </label>
   </div>
+
+  <div class="toggle-line">
+    <span>Не показывать отмены</span>
+    <label class="switch">
+      <input type="checkbox" id="toggleNoCancelled">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="toggle-line">
+    <span>Не показывать рабочее время</span>
+    <label class="switch">
+      <input type="checkbox" id="toggleNoWorktime">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+</div>
 
 </div>
 
@@ -126,9 +134,15 @@ if (!isDirector) {
 
 
   const toggleContainer = document.getElementById("doctorToggle");
-  const toggleCancelled = document.getElementById("toggleCancelled");
-const toggleCompleted = document.getElementById("toggleCompleted");
+
+const toggleDoctorsOnly = document.getElementById("toggleDoctorsOnly");
+const toggleNoCancelled = document.getElementById("toggleNoCancelled");
+const toggleNoWorktime = document.getElementById("toggleNoWorktime");
+
+
 const filterSummary = document.getElementById("filterSummary");
+
+
 const filterPanel = document.getElementById("filterPanel");
 const editFiltersBtn = document.getElementById("editFiltersBtn");
 
@@ -144,14 +158,20 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
-toggleCancelled.addEventListener("change", () => {
-  showCancelled = toggleCancelled.checked;
+toggleDoctorsOnly.addEventListener("change", () => {
+  onlyDoctors = toggleDoctorsOnly.checked;
   updateFilterSummary();
   reloadSchedule();
 });
 
-toggleCompleted.addEventListener("change", () => {
-  showCompleted = toggleCompleted.checked;
+toggleNoCancelled.addEventListener("change", () => {
+  noCancelled = toggleNoCancelled.checked;
+  updateFilterSummary();
+  reloadSchedule();
+});
+
+toggleNoWorktime.addEventListener("change", () => {
+  noWorktime = toggleNoWorktime.checked;
   updateFilterSummary();
   reloadSchedule();
 });
@@ -256,22 +276,35 @@ function reloadSchedule() {
 
   if (!selectedDate) return;
 
-  loadSchedulePeriods({
-    container: scheduleContainer,
-    date: selectedDate,
-    doctorId: showAll ? null : doctorSelect.value,
-    showCancelled,
-    showCompleted
-  });
+loadSchedulePeriods({
+  container: scheduleContainer,
+  date: selectedDate,
+  doctorId: showAll ? null : doctorSelect.value,
+
+  onlyDoctors,
+  noCancelled,
+  noWorktime
+});
 }
 
 function updateFilterSummary() {
+
   let parts = [];
 
-  parts.push("Предстоящие");
+  // базовый текст
+  if (onlyDoctors) {
+    parts.push("Только для врачей");
+  } else {
+    parts.push("Все сотрудники");
+  }
 
-  if (showCancelled) parts.push("Отменённые");
-  if (showCompleted) parts.push("Завершённые");
+  if (noCancelled) {
+    parts.push("Без отмен");
+  }
+
+  if (noWorktime) {
+    parts.push("Без рабочего времени");
+  }
 
   filterSummary.innerText = parts.join(" • ");
 }
