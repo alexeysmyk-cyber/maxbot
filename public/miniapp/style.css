@@ -2102,11 +2102,14 @@ input[type="date"].form-input {
   white-space: nowrap;
 }
 .schedule-header-row {
-  margin-bottom: 6px;
+  position: sticky;
+  top: 0;                 /* прилипает к верху контейнера */
+  z-index: 20;
+  background: #f4f7fb;    /* обязательно */
 }
 
 .schedule-header-row .schedule-line {
-  background: transparent;
+   background: #f4f7fb;
   height: 40px;        /* было 30 */
   width: 100%;
   overflow: visible;   /* 🔥 ВОТ ЭТО ГЛАВНОЕ */
