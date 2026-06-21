@@ -2,6 +2,7 @@ import { renderCalendar } from "./calendar.js";
 import { loadSchedulePeriods } from "./schedulePeriods.js";
 
 let selectedDate = new Date();
+let showAll = false;
 
 export async function renderSchedulePage(authToken) {
 
@@ -41,33 +42,36 @@ window.doctorsList = doctors;
   // ===============================
   // HTML
   // ===============================
-  content.innerHTML = `
-    <div class="card doctor-row">
-      <div class="doctor-select-wrapper">
-        <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
+content.innerHTML = `
+  <div class="card doctor-row">
 
-          ${isDirector ? `<option value="all">Все врачи</option>` : ''}
+    <div class="doctor-select-wrapper">
+      <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
-          ${doctors.map(d => `
-  <option value="${d.id}"
-    data-full="${d.name}"
-    data-short="${getShortName(d.name)}">
-    ${d.name}
-  </option>
-`).join('')}
+        ${doctors.map(d => `
+          <option value="${d.id}">
+            ${d.name}
+          </option>
+        `).join('')}
 
-        </select>
+      </select>
+    </div>
+
+    ${isDirector ? `
+      <div class="doctor-toggle" id="doctorToggle">
+        <div class="toggle-btn active" data-mode="self">Мои</div>
+        <div class="toggle-btn" data-mode="all">Все</div>
       </div>
-    </div>
-<div class="card filters-wrapper">
+    ` : ``}
 
-</div>
-    <div class="card calendar-wrapper">
-      <div id="scheduleCalendar"></div>
-    </div>
+  </div>
 
-    <div id="scheduleContainer"></div>
-  `;
+  <div class="card calendar-wrapper">
+    <div id="scheduleCalendar"></div>
+  </div>
+
+  <div id="scheduleContainer"></div>
+`;
 
   
   // ===============================
@@ -76,7 +80,43 @@ window.doctorsList = doctors;
   const calendarContainer = document.getElementById("scheduleCalendar");
   const scheduleContainer = document.getElementById("scheduleContainer");
   const doctorSelect = document.getElementById("scheduleDoctorSelect");
+
+// Убираем для директора
+if (!isDirector) {
+  showAll = false;
+  doctorSelect.disabled = true;
+}
+
+
+  const toggleContainer = document.getElementById("doctorToggle");
+
+if (toggleContainer) {
+  toggleContainer.querySelectorAll(".toggle-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+
+      toggleContainer.querySelectorAll(".toggle-btn")
+        .forEach(b => b.classList.remove("active"));
+
+      btn.classList.add("active");
+
+      showAll = btn.dataset.mode === "all";
+
+      // блокируем select если "все"
+      doctorSelect.disabled = showAll;
+
+      reloadSchedule();
+    });
+  });
+}
+
+
+
   initDoctorSelect(doctorSelect);
+
+
+
+
+
   // ===============================
   // ДАТА ПО УМОЛЧАНИЮ (СЕГОДНЯ)
   // ===============================
@@ -89,39 +129,24 @@ window.doctorsList = doctors;
   // ===============================
   renderCalendar(
     calendarContainer,
-    (date) => {
-      selectedDate = new Date(date);
-
-      loadSchedulePeriods({
-        container: scheduleContainer,
-        date: selectedDate,
-        doctorId: doctorSelect.value
-      });
-    },
+   (date) => {
+  selectedDate = new Date(date);
+  reloadSchedule();
+},
     selectedDate
   );
 
   // ===============================
   // ПЕРВАЯ ЗАГРУЗКА
   // ===============================
-  loadSchedulePeriods({
-    container: scheduleContainer,
-    date: selectedDate,
-    doctorId: doctorSelect.value
-  });
+ reloadSchedule();
 
   // ===============================
   // СМЕНА ВРАЧА
   // ===============================
-  doctorSelect.addEventListener("change", () => {
-    if (!selectedDate) return;
-
-    loadSchedulePeriods({
-      container: scheduleContainer,
-      date: selectedDate,
-      doctorId: doctorSelect.value
-    });
-  });
+doctorSelect.addEventListener("change", () => {
+  reloadSchedule();
+});
 
 }
 
@@ -154,4 +179,15 @@ function initDoctorSelect(selectEl) {
   });
 
   updateClosedText();
+}
+
+function reloadSchedule() {
+
+  if (!selectedDate) return;
+
+  loadSchedulePeriods({
+    container: scheduleContainer,
+    date: selectedDate,
+    doctorId: showAll ? null : doctorSelect.value
+  });
 }
