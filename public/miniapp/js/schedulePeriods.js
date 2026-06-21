@@ -271,7 +271,10 @@ function renderTimeScale() {
 
   for (let h = dayStart; h <= dayEnd; h++) {
 
-    const left = ((h - dayStart) / total) * 100;
+let left = ((h - dayStart) / total) * 100;
+
+// защита правого края
+if (left > 99.5) left = 99.5;
 
     const isMajor = [10, 14, 18, 22].includes(h);
 

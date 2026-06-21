@@ -2092,11 +2092,12 @@ input[type="date"].form-input {
 /* подписи */
 .time-mark span {
   position: absolute;
-  top: -18px;
+  top: -16px;   /* было -18 */
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
-  color: #666;
+  color: #444;   /* чуть темнее */
+  font-weight: 500;
   white-space: nowrap;
 }
 .schedule-header-row {
@@ -2106,4 +2107,9 @@ input[type="date"].form-input {
 .schedule-header-row .schedule-line {
   background: transparent;
   height: 30px;
+   width: 100%;
+}
+.schedule-header-row .schedule-label {
+  height: 0;
+  margin: 0;
 }
