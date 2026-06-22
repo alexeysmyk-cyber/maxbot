@@ -2,7 +2,7 @@
 // SCHEDULE PERIODS (TIMELINE)
 // ===============================
 
-//let doctorsMap = {};
+let doctorsMap = {};
 
 export async function loadSchedulePeriods({
   date,
@@ -49,7 +49,7 @@ if (window.doctorsList) {
   }
 }
 
-/*function buildDoctorsMap() {
+function buildDoctorsMap() {
   const map = {};
 
   if (window.doctorsList) {
@@ -61,7 +61,7 @@ if (window.doctorsList) {
   return map;
 }
 
-*/
+
 // ===============================
 // RENDER
 // ===============================
