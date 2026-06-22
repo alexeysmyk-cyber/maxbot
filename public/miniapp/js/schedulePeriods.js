@@ -2,7 +2,7 @@
 // SCHEDULE PERIODS (TIMELINE)
 // ===============================
 
-let doctorsMap = {};
+//let doctorsMap = {};
 
 export async function loadSchedulePeriods({
   date,
@@ -49,7 +49,7 @@ if (window.doctorsList) {
   }
 }
 
-function buildDoctorsMap() {
+/*function buildDoctorsMap() {
   const map = {};
 
   if (window.doctorsList) {
@@ -61,12 +61,7 @@ function buildDoctorsMap() {
   return map;
 }
 
-
-function getDoctorName(id) {
-  return doctorsMap[String(id)] || ("ID " + id);
-}
-
-
+*/
 // ===============================
 // RENDER
 // ===============================
@@ -123,9 +118,9 @@ let html = `
   </div>
 `;
 
-  Object.keys(grouped).forEach(room => {
+  sortRooms(Object.keys(grouped)).forEach(room => {
 
-  const roomName = room === "other" ? "Остальные" : `${room}`;
+  const roomName = room === "other" ? "Без кабинета" : `${room}`;
 
   html += `
     <div class="room-block">
@@ -143,6 +138,7 @@ let html = `
   Object.keys(doctors).forEach(userId => {
 
     const merged = mergeIntervals(doctors[userId]);
+    occupiedZones = [];
 
     html += `
       <div class="schedule-row">
@@ -153,7 +149,7 @@ let html = `
 
         <div class="schedule-line">
           <div class="schedule-bg"></div>
-          ${merged.map((i, idx) => renderBar(i, idx, merged.length)).join("")}
+            ${merged.map((i, idx) => renderBar(i, idx, merged)).join("")}
         </div>
 
       </div>
@@ -182,11 +178,22 @@ let html = `
   attachBarEvents();
 }
 
-
 // ===============================
 // BAR
 // ===============================
-function renderBar(item, index, totalBars) {
+
+let occupiedZones = [];
+function isFree(start, end) {
+  return !occupiedZones.some(z =>
+    !(end < z.start || start > z.end)
+  );
+}
+function reserve(start, end) {
+  occupiedZones.push({ start, end });
+}
+function renderBar(item, index, allBars) {
+
+  const totalBars = allBars.length;
 
   const dayStart = 8 * 60;
   const dayEnd = 22 * 60;
@@ -200,52 +207,166 @@ function renderBar(item, index, totalBars) {
   const safeStart = Math.max(start, dayStart);
   const safeEnd = Math.min(end, dayEnd);
 
- const duration = safeEnd - safeStart;
-
-if (duration <= 0) return "";
+  const duration = safeEnd - safeStart;
+  if (duration <= 0) return "";
 
   const left = ((safeStart - dayStart) / total) * 100;
-const right = ((safeEnd - dayStart) / total) * 100;
-
-const width = right - left;
+  const right = ((safeEnd - dayStart) / total) * 100;
+  const width = right - left;
 
   const timeFull = `${formatTime(item.start)} - ${formatTime(item.end)}`;
-  const timeShort = `${formatTime(item.start)}`;
+
+  // 🔥 средний формат: 13-14
+  const startHour = formatTime(item.start).slice(0, 2);
+  const endHour = formatTime(item.end).slice(0, 2);
+  const timeMid = `${startHour}-${endHour}`;
 
   let text = "";
-  let mode = "inside"; // inside | right | left | none
+  let mode = "inside";
 
-  // ===== ЛОГИКА =====
-
+  // ===============================
+  // ШИРОКИЙ БАР
+  // ===============================
   if (width > 18) {
     text = timeFull;
-  } 
+  }
+
+  // ===============================
+  // СРЕДНИЙ БАР
+  // ===============================
   else if (width > 10) {
-    text = timeShort;
-  } 
+    text = timeMid; // 🔥 было 13:00 → стало 13-14
+  }
+
+  // ===============================
+  // УЗКИЙ БАР
+  // ===============================
   else {
 
-    // если несколько интервалов — не рисуем вообще
+    text = timeFull;
+
+    const textWidth = 14; // чуть уменьшили (было 18)
+    const GAP = 1;
+
+    const isEarly = start < 11 * 60;
+    const isLate = end >= 19 * 60;
+
+    // ===============================
+    // НЕСКОЛЬКО БАРОВ
+    // ===============================
     if (totalBars > 1) {
-      mode = "none";
-    } else {
 
-      text = timeFull;
+      // ===== УТРО → только вправо =====
+      if (isEarly) {
 
-      // пробуем справа
-      if (left + width < 85) {
-        mode = "right";
+        const rightStart = left + width + GAP;
+        const rightEnd = rightStart + textWidth;
+
+        if (
+  rightEnd <= 95 &&
+  isFree(rightStart, rightEnd) &&
+  isFreeFromBars(rightStart, rightEnd, allBars)
+) {
+          mode = "right";
+          reserve(rightStart, rightEnd);
+        } else {
+          mode = "none";
+        }
+
+        return buildBarHtml({ left, width, mode, text, item });
       }
-      // если справа не влезает — пробуем слева
-      else if (left > 15) {
+
+      // ===== ВЕЧЕР → только влево =====
+      if (isLate) {
+
+        const leftEnd = left - GAP;
+        const leftStart = leftEnd - textWidth;
+
+        if (
+  leftStart >= 0 &&
+  isFree(leftStart, leftEnd) &&
+  isFreeFromBars(leftStart, leftEnd, allBars)
+) {
+          mode = "left";
+          reserve(leftStart, leftEnd);
+        } else {
+          mode = "none";
+        }
+
+        return buildBarHtml({ left, width, mode, text, item });
+      }
+
+      // ===== ДЕНЬ → сначала влево потом вправо =====
+
+      const leftEnd = left - GAP;
+      const leftStart = leftEnd - textWidth;
+
+     if (
+  leftStart >= 0 &&
+  isFree(leftStart, leftEnd) &&
+  isFreeFromBars(leftStart, leftEnd, allBars)
+){
         mode = "left";
+        reserve(leftStart, leftEnd);
+        return buildBarHtml({ left, width, mode, text, item });
+      }
+
+      const rightStart = left + width + GAP;
+      const rightEnd = rightStart + textWidth;
+
+      if (
+  rightEnd <= 95 &&
+  isFree(rightStart, rightEnd) &&
+  isFreeFromBars(rightStart, rightEnd, allBars)
+) {
+        mode = "right";
+        reserve(rightStart, rightEnd);
+        return buildBarHtml({ left, width, mode, text, item });
+      }
+
+      mode = "none";
+      return buildBarHtml({ left, width, mode, text, item });
+    }
+
+    // ===============================
+    // ОДИН БАР
+    // ===============================
+    else {
+
+      const rightStart = left + width + GAP;
+      const rightEnd = rightStart + textWidth;
+
+      if (
+  rightEnd <= 95 &&
+  isFree(rightStart, rightEnd) &&
+  isFreeFromBars(rightStart, rightEnd, allBars)
+) {
+        mode = "right";
+        reserve(rightStart, rightEnd);
       }
       else {
-        mode = "none";
+
+        const leftEnd = left - GAP;
+        const leftStart = leftEnd - textWidth;
+
+        if (
+  leftStart >= 0 &&
+  isFree(leftStart, leftEnd) &&
+  isFreeFromBars(leftStart, leftEnd, allBars)
+) {
+          mode = "left";
+          reserve(leftStart, leftEnd);
+        }
+        else {
+          mode = "none";
+        }
       }
     }
   }
 
+  return buildBarHtml({ left, width, mode, text, item });
+}
+function buildBarHtml({ left, width, mode, text, item }) {
   return `
     <div class="schedule-bar-wrapper"
          style="left:${left}%; width:${width}%">
@@ -269,6 +390,18 @@ const width = right - left;
     </div>
   `;
 }
+function isFreeFromBars(start, end, allBars) {
+  return !allBars.some(bar => {
+
+    const total = 22*60 - 8*60;
+
+const barStart = ((getMinutes(bar.start) - 8*60) / total) * 100;
+const barEnd   = ((getMinutes(bar.end) - 8*60) / total) * 100;
+
+    return !(end < barStart || start > barEnd);
+  });
+}
+
 // ===============================
 // HELPERS
 // ===============================
@@ -285,6 +418,7 @@ function getMinutes(date) {
 function formatTime(date) {
   return date.toTimeString().slice(0, 5);
 }
+
 function formatLocalDate(date) {
   const dd = String(date.getDate()).padStart(2, "0");
   const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -292,9 +426,6 @@ function formatLocalDate(date) {
   return `${dd}.${mm}.${yyyy}`;
 }
 
-// ===============================
-// MERGE
-// ===============================
 function mergeIntervals(list) {
 
   const sorted = list.sort((a, b) => a.start - b.start);
@@ -320,10 +451,6 @@ function mergeIntervals(list) {
   return merged;
 }
 
-
-// ===============================
-// EVENTS
-// ===============================
 function attachBarEvents() {
   document.querySelectorAll(".schedule-bar").forEach(el => {
     el.addEventListener("click", () => {
@@ -334,8 +461,6 @@ function attachBarEvents() {
   });
 }
 
-
-// ===============================
 function showLoader(container) {
   container.innerHTML = `
     <div class="loader">
@@ -378,4 +503,42 @@ for (let h = 8; h <= 22; h++) {
       ${marks.join("")}
     </div>
   `;
+}
+
+function sortRooms(rooms) {
+
+  const wordToNumber = {
+    "перв": 1,
+    "втор": 2,
+    "трет": 3,
+    "четвер": 4,
+    "пят": 5
+  };
+
+  return rooms.sort((a, b) => {
+
+    const ra = a === "other" ? "без кабинета" : a.toLowerCase();
+    const rb = b === "other" ? "без кабинета" : b.toLowerCase();
+
+    function getPriority(room) {
+
+      // 👇 1. ищем словесные номера
+      for (const key in wordToNumber) {
+        if (room.includes(key)) {
+          return wordToNumber[key];
+        }
+      }
+
+      // 👇 2. процедурная
+      if (room.includes("процедур")) return 100;
+
+      // 👇 3. без кабинета
+      if (room.includes("без кабинета")) return 200;
+
+      return 999;
+    }
+
+    return getPriority(ra) - getPriority(rb);
+  });
+
 }

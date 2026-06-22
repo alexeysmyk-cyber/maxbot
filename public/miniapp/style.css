@@ -2207,10 +2207,10 @@ input[type="date"].form-input {
 
 /* 🔥 ПРАВИЛЬНОЕ позиционирование справа */
 .schedule-bar-outside.right {
-  left: calc(100% + 8px); /* было 6px → увеличили запас */
+  left: calc(100% + 3px); /* было 6px → увеличили запас */
 }
 
 /* 🔥 симметрично слева */
 .schedule-bar-outside.left {
-  right: calc(100% + 8px);
+  right: calc(100% + 3px);
 }
