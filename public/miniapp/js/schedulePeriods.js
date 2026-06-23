@@ -21,7 +21,7 @@ export async function loadSchedulePeriods({
 
   showLoader(container);
 
-const key = formatMonth(date);
+const key = `${doctorId}_${formatMonth(date)}`;
 
 const cached = scheduleCache.get(key);
 
