@@ -15,7 +15,8 @@ export async function loadSchedulePeriods({
   container,
   onlyDoctors,
   noCancelled,
-  noWorktime
+  noWorktime,
+  showAll
 }) {
 
   showLoader(container);
@@ -115,7 +116,7 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime, showAll) {
+function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
