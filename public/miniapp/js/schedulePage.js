@@ -179,12 +179,38 @@ editFiltersBtn.addEventListener("click", () => {
 });
 
 toggleDoctorsOnly.addEventListener("change", () => {
+  console.log("1️⃣ CHANGE EVENT FIRED");
+
+  console.log("2️⃣ BEFORE UPDATE", {
+    onlyDoctors,
+    checked: toggleDoctorsOnly.checked
+  });
+
   onlyDoctors = toggleDoctorsOnly.checked;
-   reloadSchedule();
+
+  console.log("3️⃣ STATE UPDATED", {
+    onlyDoctors
+  });
+
+  console.log("4️⃣ CALL updateDoctorSelect()");
   updateDoctorSelect();
+
+  const doctorSelectAfter = document.getElementById("scheduleDoctorSelect");
+  console.log("5️⃣ AFTER updateDoctorSelect", {
+    doctorValue: doctorSelectAfter?.value,
+    optionsCount: doctorSelectAfter?.options?.length
+  });
+
+  console.log("6️⃣ CALL updateFilterSummary()");
   updateFilterSummary();
-  // reloadSchedule();
-  
+
+  const summaryEl = document.getElementById("filterSummary");
+  console.log("7️⃣ SUMMARY TEXT", summaryEl?.innerText);
+
+  console.log("8️⃣ CALL reloadSchedule()");
+  reloadSchedule();
+
+  console.log("9️⃣ RELOAD CALLED");
 });
 
 toggleNoCancelled.addEventListener("change", () => {
@@ -300,23 +326,18 @@ function initDoctorSelect(selectEl) {
 }
 
 function updateFilterSummary() {
+  const filterSummary = document.getElementById("filterSummary"); // ← заново
 
   let parts = [];
 
-  // базовый текст
   if (onlyDoctors) {
     parts.push("Только врачи");
   } else {
     parts.push("Все сотрудники");
   }
 
-  if (noCancelled) {
-    parts.push("Без отмен");
-  }
-
-  if (noWorktime) {
-    parts.push("Без рабочего времени");
-  }
+  if (noCancelled) parts.push("Без отмен");
+  if (noWorktime) parts.push("Без рабочего времени");
 
   filterSummary.innerText = parts.join(" • ");
 }
@@ -367,6 +388,6 @@ if (onlyDoctors) {
 
   // 🔥 ВАЖНО: переинициализировать select
   initDoctorSelect(select);
-  select.dispatchEvent(new Event("change"));
+ 
 
 }
