@@ -166,6 +166,18 @@ const filterSummary = document.getElementById("filterSummary");
 const filterPanel = document.getElementById("filterPanel");
 const editFiltersBtn = document.getElementById("editFiltersBtn");
 
+toggleDoctorsOnly.addEventListener("change", () => {
+  console.log("DOCTORS CHANGE");
+
+  onlyDoctors = toggleDoctorsOnly.checked;
+
+  updateFilterSummary();
+  updateDoctorSelect();
+  reloadSchedule();
+});
+
+
+
 editFiltersBtn.addEventListener("click", () => {
 
   if (filterPanel.classList.contains("collapsing")) {
@@ -178,21 +190,6 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
-const doctorsSwitch = document.querySelector("#toggleDoctorsOnly").closest(".toggle-line");
-
-doctorsSwitch.addEventListener("click", () => {
-  const input = doctorsSwitch.querySelector("input");
-
-  input.checked = !input.checked;
-
-  console.log("SWITCH WORKED");
-
-  onlyDoctors = input.checked;
-
-  updateFilterSummary();
-  updateDoctorSelect();
-  reloadSchedule();
-});
 
 toggleNoCancelled.addEventListener("change", () => {
   noCancelled = toggleNoCancelled.checked;
