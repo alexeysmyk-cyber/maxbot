@@ -21,7 +21,7 @@ export async function loadSchedulePeriods({
 
   showLoader(container);
 
-const key = `${doctorId}_${formatLocalDate(date)}`;
+const key = `${doctorId}_${formatMonth(date)}`;
 
 const cached = scheduleCache.get(key);
 
@@ -29,7 +29,7 @@ if (cached) {
   const age = Date.now() - cached.timestamp;
 
   if (age < CACHE_TTL) {
-    console.log("🟢 CACHE HIT", key);
+    console.log("🟢 CACHE HIT (MONTH)", key);
 
     renderSchedulePeriods(
       cached.data,
@@ -48,8 +48,6 @@ if (cached) {
   }
 }
 
-console.log("🟡 CACHE MISS", key);
-
 
 
 
@@ -57,31 +55,33 @@ console.log("🟡 CACHE MISS", key);
 
 
   try {
-    const response = await fetch("/miniapp/schedule-periods", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({
-  date: formatLocalDate(date),
-  user_id: doctorId
-})
-    });
+console.log("🟡 CACHE MISS", key);
 
-    const data = await response.json();
+const response = await fetch("/miniapp/schedule-periods", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token")
+  },
+  body: JSON.stringify({
+    date: formatLocalDate(date),
+    user_id: doctorId
+  })
+});
 
+const data = await response.json();
 
+if (!response.ok || data.error) {
+  throw new Error("LOAD_ERROR");
+}
 
-
-    if (!response.ok || data.error) {
-      throw new Error("LOAD_ERROR");
-    }
-
+// 🔥 сохраняем МЕСЯЦ
 scheduleCache.set(key, {
   data: data.data,
   timestamp: Date.now()
 });
+
+console.log("💾 CACHE SAVED (MONTH)", key);
 
 
     // 🔥 ОБНОВЛЯЕМ СПИСОК ВРАЧЕЙ
