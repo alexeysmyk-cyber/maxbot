@@ -179,6 +179,7 @@ toggleDoctorsOnly.addEventListener("change", () => {
   onlyDoctors = toggleDoctorsOnly.checked;
   updateDoctorSelect();
   updateFilterSummary();
+   reloadSchedule();
   
 });
 
