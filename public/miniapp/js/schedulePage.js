@@ -127,9 +127,9 @@ content.innerHTML = `
   // ===============================
   const calendarContainer = document.getElementById("scheduleCalendar");
   const scheduleContainer = document.getElementById("scheduleContainer");
-  const doctorSelect = document.getElementById("scheduleDoctorSelect");
+function reloadSchedule() {
 
-  function reloadSchedule() {
+  const doctorSelect = document.getElementById("scheduleDoctorSelect"); // 🔥 каждый раз заново
 
   if (!selectedDate) return;
 
@@ -180,18 +180,8 @@ toggleDoctorsOnly.addEventListener("change", () => {
   updateDoctorSelect();
   updateFilterSummary();
 
-  // 🔥 гарантируем смену врача
-  if (onlyDoctors) {
-    const list = getFilteredDoctors();
 
-    const hasMe = list.find(d => String(d.id) === String(myDoctorId));
 
-    if (hasMe) {
-      doctorSelect.value = myDoctorId;
-    } else {
-      doctorSelect.value = list[0]?.id || "";
-    }
-  }
 
    reloadSchedule();
   
