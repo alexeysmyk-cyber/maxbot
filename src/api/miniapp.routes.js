@@ -57,7 +57,7 @@ console.log("=================================");
 console.log("🔐 AUTH MIDDLEWARE START");
     const authHeader = req.headers.authorization;
 
-    console.log("📦 AUTH HEADER:", authHeader);
+   // console.log("📦 AUTH HEADER:", authHeader);
 
     // ❌ нет токена
     if (!authHeader) {

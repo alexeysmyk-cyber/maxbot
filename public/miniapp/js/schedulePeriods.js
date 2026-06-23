@@ -120,7 +120,7 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktimeб,showAll) {
+function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime,showAll) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
