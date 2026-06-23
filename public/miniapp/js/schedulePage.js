@@ -179,15 +179,12 @@ editFiltersBtn.addEventListener("click", () => {
 });
 
 toggleDoctorsOnly.addEventListener("change", () => {
+  console.log("TOGGLE DOCTORS FIRED"); // 👈
+  
   onlyDoctors = toggleDoctorsOnly.checked;
-
-  updateDoctorSelect();
   updateFilterSummary();
-
-  // 👇 даём DOM обновиться
-  setTimeout(() => {
-    reloadSchedule();
-  }, 0);
+  updateDoctorSelect();
+  reloadSchedule();
 });
 
 toggleNoCancelled.addEventListener("change", () => {
