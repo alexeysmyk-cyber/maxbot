@@ -9,6 +9,8 @@ let showAll = false;
 
 export async function renderSchedulePage(authToken) {
 
+  console.log("🔥🔥🔥 NEW VERSION LOADED");
+
   const content = document.getElementById("content");
 
 
