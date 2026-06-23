@@ -76,7 +76,7 @@ function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCan
 
 const dayItems = data.filter(i => i.date === formattedDate);
 
-const filteredItems = onlyDoctors
+
 
 let filteredItems = dayItems;
 
