@@ -2,6 +2,11 @@
 // SCHEDULE PERIODS (TIMELINE)
 // ===============================
 
+
+const scheduleCache = new Map();
+const CACHE_TTL = 20 * 1000; // 20 секунд
+
+
 let doctorsMap = {};
 
 export async function loadSchedulePeriods({
@@ -14,6 +19,41 @@ export async function loadSchedulePeriods({
 }) {
 
   showLoader(container);
+
+const key = `${doctorId}_${formatLocalDate(date)}`;
+
+const cached = scheduleCache.get(key);
+
+if (cached) {
+  const age = Date.now() - cached.timestamp;
+
+  if (age < CACHE_TTL) {
+    console.log("🟢 CACHE HIT", key);
+
+    renderSchedulePeriods(
+      cached.data,
+      date,
+      container,
+      onlyDoctors,
+      noCancelled,
+      noWorktime,
+      showAll
+    );
+
+    return;
+  } else {
+    console.log("🔄 CACHE EXPIRED", key);
+    scheduleCache.delete(key);
+  }
+}
+
+console.log("🟡 CACHE MISS", key);
+
+
+
+
+
+
 
   try {
     const response = await fetch("/miniapp/schedule-periods", {
@@ -30,6 +70,12 @@ export async function loadSchedulePeriods({
 
     const data = await response.json();
 
+scheduleCache.set(key, {
+  data: data.data,
+  timestamp: Date.now()
+});
+
+
     if (!response.ok || data.error) {
       throw new Error("LOAD_ERROR");
     }
@@ -41,7 +87,8 @@ if (window.doctorsList) {
   });
 }
 
-    renderSchedulePeriods(data.data, date, container, onlyDoctors, noCancelled, noWorktime);
+
+    renderSchedulePeriods(data.data, date, container, onlyDoctors, noCancelled, noWorktime, showAll);
 
   } catch (e) {
     container.innerHTML = `
@@ -68,7 +115,7 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime) {
+function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime, showAll) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
@@ -159,7 +206,7 @@ let html = `
         <span class="arrow rotated">▼</span>
       </div>
 
-      <div class="room-content collapsed">
+      <div class="room-content ${showAll ? "collapsed" : ""}">
   `;
 
   const doctors = grouped[room];
