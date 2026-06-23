@@ -218,16 +218,18 @@ if (toggleContainer) {
       showAll = btn.dataset.mode === "all";
 
       // блокируем select если "все"
-      doctorSelect.disabled = showAll;
+  const doctorSelect = document.getElementById("scheduleDoctorSelect");
+if (doctorSelect) {
+  doctorSelect.disabled = showAll;
+}
 
       reloadSchedule();
     });
   });
 }
 
-
-
-  initDoctorSelect(doctorSelect);
+const doctorSelect = document.getElementById("scheduleDoctorSelect");
+initDoctorSelect(doctorSelect);
 
 
 
