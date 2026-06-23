@@ -146,9 +146,12 @@ function reloadSchedule() {
 // Убираем для директора
 if (!isDirector) {
   showAll = false;
-  doctorSelect.disabled = true;
-}
 
+  const doctorSelect = document.getElementById("scheduleDoctorSelect");
+  if (doctorSelect) {
+    doctorSelect.disabled = true;
+  }
+}
 
   const toggleContainer = document.getElementById("doctorToggle");
 
