@@ -178,30 +178,29 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
-document.addEventListener("change", (e) => {
+document.addEventListener("click", (e) => {
 
-  const id = e.target.id;
+  const line = e.target.closest(".toggle-line");
+  if (!line) return;
 
-  if (!id) return;
+  const input = line.querySelector("input");
+  if (!input) return;
 
-  if (
-    id !== "toggleDoctorsOnly" &&
-    id !== "toggleNoCancelled" &&
-    id !== "toggleNoWorktime"
-  ) return;
+  // 👉 вручную переключаем
+  input.checked = !input.checked;
 
-  console.log("🔥 GLOBAL CHANGE", id);
+  console.log("🔥 CLICK TOGGLE", input.id);
 
-  if (id === "toggleDoctorsOnly") {
-    onlyDoctors = e.target.checked;
+  if (input.id === "toggleDoctorsOnly") {
+    onlyDoctors = input.checked;
   }
 
-  if (id === "toggleNoCancelled") {
-    noCancelled = e.target.checked;
+  if (input.id === "toggleNoCancelled") {
+    noCancelled = input.checked;
   }
 
-  if (id === "toggleNoWorktime") {
-    noWorktime = e.target.checked;
+  if (input.id === "toggleNoWorktime") {
+    noWorktime = input.checked;
   }
 
   console.log("STATE:", {
@@ -213,7 +212,6 @@ document.addEventListener("change", (e) => {
   updateDoctorSelect();
   updateFilterSummary();
   reloadSchedule();
-
 });
 
 
