@@ -77,11 +77,7 @@ function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCan
 const dayItems = data.filter(i => i.date === formattedDate);
 
 const filteredItems = onlyDoctors
-  ? dayItems.filter(i => {
-      const doctor = window.doctorsList.find(d => String(d.id) === String(i.user_id));
-      return doctor && (doctor.role_names || []).includes("doctor");
-    })
-  : dayItems;
+
 let filteredItems = dayItems;
 
 // только врачи
