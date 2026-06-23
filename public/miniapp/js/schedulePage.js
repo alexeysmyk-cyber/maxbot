@@ -259,9 +259,9 @@ initDoctorSelect(doctorSelect);
   // ===============================
   // СМЕНА ВРАЧА
   // ===============================
-doctorSelect.addEventListener("change", () => {
-  reloadSchedule();
-});
+//doctorSelect.addEventListener("change", () => {
+//  reloadSchedule();
+//});
 
 
 
@@ -366,6 +366,6 @@ if (onlyDoctors) {
 
   // 🔥 ВАЖНО: переинициализировать select
   initDoctorSelect(select);
-  select.dispatchEvent(new Event("change"));
+  //select.dispatchEvent(new Event("change"));
 
 }
