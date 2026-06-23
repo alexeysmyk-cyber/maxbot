@@ -193,12 +193,29 @@ if (!response.ok || data.error) {
 
   const { doctors = [], isDirector = false, currentDoctorId = null } = data;
 
+  let myDoctorId = currentDoctorId;
+
 if (!doctors.length) {
 
   renderAccessDeniedNoMax({
     text: "Нет доступных врачей",
     icon: "⚠️"
   });
+
+
+
+const hasMe = doctors.some(
+  d => String(d.id) === String(myDoctorId)
+);
+
+if (doctorSelect) {
+  if (hasMe) {
+    doctorSelect.value = myDoctorId;
+  } else {
+    doctorSelect.value = doctors[0].id;
+  }
+}
+
 
   return;
 }
@@ -279,7 +296,9 @@ if (!doctors.length) {
     <div class="card calendar-wrapper">
       <div id="calendar"></div>
     </div>
-
+<div class="card">
+  <div id="schedulePeriodsContainer"></div>
+</div>
     <div id="scheduleContainer"></div>
   `;
 
@@ -304,6 +323,10 @@ if (window.forceScheduleState) {
   window.forceScheduleState = null;
 }
 
+function getDoctorFilter() {
+  if (showAll) return "all";
+  return doctorSelect.value;
+}
   
 
 function initDoctorSelect() {
@@ -323,9 +346,15 @@ function initDoctorSelect() {
 
   doctorSelect.addEventListener("mousedown", restoreFullText);
 
-  doctorSelect.addEventListener("change", () => {
-    updateClosedText();
+ doctorSelect.addEventListener("change", () => {
+  refreshSchedule();
+
+  loadSchedulePeriods({
+    date: selectedDate,
+    doctorId: getDoctorFilter(),
+    container: document.getElementById("schedulePeriodsContainer")
   });
+});
 
   updateClosedText();
 }
@@ -334,9 +363,7 @@ initDoctorSelect();
 
   
 
-doctorSelect.addEventListener("change", () => {
-  refreshSchedule();
-});
+
 
 
 
@@ -559,7 +586,7 @@ function refreshSchedule() {
     loadSchedule({
       container,
       date: formatLocalDate(selectedDate),
-      doctorId: showAll ? "all" : doctorSelect.value,
+      doctorId: getDoctorFilter(),
       showAll,
       duration: selectedDuration,
       showCancelled,
@@ -599,9 +626,25 @@ function updateFilterSummary() {
 
         btn.classList.add("active");
         showAll = btn.dataset.mode === "all";
-        doctorSelect.disabled = showAll;
+
+if (showAll) {
+  doctorSelect.disabled = true;
+} else {
+  doctorSelect.disabled = false;
+
+  // 🔥 ВАЖНО: при возврате в "Мои"
+  if (myDoctorId) {
+    doctorSelect.value = myDoctorId;
+  }
+}
         
         refreshSchedule();
+        // 🔥 ДОБАВИТЬ: обновляем timeline
+loadSchedulePeriods({
+  date: selectedDate,
+  doctorId: getDoctorFilter(),
+  container: document.getElementById("schedulePeriodsContainer")
+});
         
       });
     });
@@ -641,10 +684,16 @@ renderCalendar(
   (date) => {
     selectedDate = new Date(date);
 
+   loadSchedulePeriods({
+  date: selectedDate,
+  doctorId: getDoctorFilter(),
+  container: document.getElementById("schedulePeriodsContainer")
+});
+
     loadSchedule({
       container: scheduleContainer,
       date: formatLocalDate(selectedDate),
-      doctorId: showAll ? "all" : doctorSelect.value,
+      doctorId: getDoctorFilter(),
       showAll,
       duration: selectedDuration,
       showCancelled,
@@ -658,10 +707,18 @@ renderCalendar(
 // 🔥 Первая загрузка без debounce
 const container = document.getElementById("scheduleContainer");
 if (container && selectedDate) {
+
+loadSchedulePeriods({
+  date: selectedDate,
+  doctorId: getDoctorFilter(),
+  container: document.getElementById("schedulePeriodsContainer")
+});
+
+
   loadSchedule({
     container,
     date: formatLocalDate(selectedDate),
-    doctorId: showAll ? "all" : doctorSelect.value,
+    doctorId: getDoctorFilter(),
     showAll,
     duration: selectedDuration,
     showCancelled,
@@ -947,7 +1004,7 @@ if (container) {
   loadSchedule({
     container,
     date: formatLocalDate(selectedDate),
-    doctorId: document.getElementById("doctorSelect")?.value,
+    doctorId: getDoctorFilter(),
     showAll: false,
     duration: selectedDuration,
     showCancelled: false,
