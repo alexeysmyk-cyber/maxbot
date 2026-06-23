@@ -161,6 +161,27 @@ const toggleDoctorsOnly = document.getElementById("toggleDoctorsOnly");
 const toggleNoCancelled = document.getElementById("toggleNoCancelled");
 const toggleNoWorktime = document.getElementById("toggleNoWorktime");
 
+toggleDoctorsOnly.addEventListener("change", (e) => {
+  onlyDoctors = e.target.checked;
+  console.log("onlyDoctors:", onlyDoctors);
+  reloadSchedule();
+});
+
+toggleNoCancelled.addEventListener("change", (e) => {
+  noCancelled = e.target.checked;
+  console.log("noCancelled:", noCancelled);
+  reloadSchedule();
+});
+
+toggleNoWorktime.addEventListener("change", (e) => {
+  noWorktime = e.target.checked;
+  console.log("noWorktime:", noWorktime);
+  reloadSchedule();
+});
+
+
+
+
 
 const filterSummary = document.getElementById("filterSummary");
 
