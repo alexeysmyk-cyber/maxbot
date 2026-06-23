@@ -19,6 +19,18 @@ export async function renderSchedulePage(authToken) {
   let response;
   let data;
 
+  if (onlyDoctors) {
+  periods = periods.filter(p => p.isDoctor);
+}
+
+if (noCancelled) {
+  periods = periods.filter(p => p.status !== "cancelled");
+}
+
+if (noWorktime) {
+  periods = periods.filter(p => p.type !== "worktime");
+}
+
   try {
     response = await fetch('/miniapp/doctors', {
       method: 'POST',
