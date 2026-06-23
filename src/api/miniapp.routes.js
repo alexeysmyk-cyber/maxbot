@@ -71,7 +71,7 @@ console.log("🔐 AUTH MIDDLEWARE START");
 
     const token = authHeader.split(" ")[1];
 
-    console.log("🔑 TOKEN:", token);
+    //console.log("🔑 TOKEN:", token);
 
     // ❌ нет токена после Bearer
     if (!token) {
@@ -121,7 +121,7 @@ router.post("/doctors", async (req, res) => {
 console.log("👨‍⚕️ DOCTORS ENDPOINT");
 const { onlyDoctors } = req.body;
 const user = req.user;
-console.log("👤 USER FROM TOKEN:", user);
+//console.log("👤 USER FROM TOKEN:", user);
 
 const mis_id = user?.mis_id;
 console.log("🆔 MIS_ID:", mis_id);
@@ -158,7 +158,7 @@ const currentMisUser = users.find(
 );
 
 console.log("🔍 SEARCH MIS USER BY ID:", mis_id);
-console.log("👤 MIS USER FOUND:", currentMisUser);
+console.log("👤 MIS USER FOUND:", currentMisUser.id);
 
 
 const roleNames = currentMisUser?.role_names || [];
