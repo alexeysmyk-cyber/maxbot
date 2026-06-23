@@ -19,7 +19,6 @@ let authToken = null;
 import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
-import { loadSchedulePeriods } from "./js/schedulePeriods.js";
 import { renderSchedulePage } from "./js/schedulePage.js";
 
 console.log("🔥 APP JS LOADED");
@@ -356,13 +355,6 @@ function initDoctorSelect() {
 initDoctorSelect();
 
   
-
-
-
-
-
-
-
   
 
 const scheduleContainer = document.getElementById("scheduleContainer");

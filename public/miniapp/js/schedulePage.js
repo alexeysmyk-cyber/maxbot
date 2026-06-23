@@ -10,8 +10,7 @@ let showAll = false;
 export async function renderSchedulePage(authToken) {
 
   const content = document.getElementById("content");
-  const scheduleContainer = document.getElementById("scheduleContainer");
-const doctorSelect = document.getElementById("scheduleDoctorSelect");
+
 
   content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
 
@@ -129,6 +128,20 @@ content.innerHTML = `
   const scheduleContainer = document.getElementById("scheduleContainer");
   const doctorSelect = document.getElementById("scheduleDoctorSelect");
 
+  function reloadSchedule() {
+
+  if (!selectedDate) return;
+
+  loadSchedulePeriods({
+    container: scheduleContainer,
+    date: selectedDate,
+    doctorId: showAll ? "all" : doctorSelect.value,
+    onlyDoctors,
+    noCancelled,
+    noWorktime
+  });
+}
+
 // Убираем для директора
 if (!isDirector) {
   showAll = false;
@@ -243,6 +256,8 @@ doctorSelect.addEventListener("change", () => {
   reloadSchedule();
 });
 
+
+
 }
 
 function getShortName(fullName) {
@@ -274,20 +289,6 @@ function initDoctorSelect(selectEl) {
   });
 
   updateClosedText();
-}
-
-function reloadSchedule() {
-
-  if (!selectedDate) return;
-
-  loadSchedulePeriods({
-    container: scheduleContainer,
-    date: selectedDate,
-    doctorId: showAll ? "all" : doctorSelect.value,
-    onlyDoctors,
-    noCancelled,
-    noWorktime
-  });
 }
 
 function updateFilterSummary() {
