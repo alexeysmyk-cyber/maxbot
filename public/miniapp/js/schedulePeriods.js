@@ -71,15 +71,19 @@ console.log("🟡 CACHE MISS", key);
 
     const data = await response.json();
 
+
+
+
+    if (!response.ok || data.error) {
+      throw new Error("LOAD_ERROR");
+    }
+
 scheduleCache.set(key, {
   data: data.data,
   timestamp: Date.now()
 });
 
 
-    if (!response.ok || data.error) {
-      throw new Error("LOAD_ERROR");
-    }
     // 🔥 ОБНОВЛЯЕМ СПИСОК ВРАЧЕЙ
 if (window.doctorsList) {
   doctorsMap = {};
@@ -116,7 +120,7 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime) {
+function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktimeб,showAll) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
@@ -204,7 +208,7 @@ let html = `
 
       <div class="room-header" data-room="${room}">
         🏥 ${roomName}
-        <span class="arrow rotated">▼</span>
+        <span class="arrow ${showAll ? "rotated" : ""}">▼</span>
       </div>
 
       <div class="room-content ${showAll ? "collapsed" : ""}">
@@ -214,7 +218,29 @@ let html = `
 
   Object.keys(doctors).forEach(userId => {
 
-    const merged = mergeIntervals(doctors[userId]);
+    const items = doctors[userId];
+
+// 🔥 группируем по type
+const byType = {};
+
+items.forEach(i => {
+  if (!byType[i.type]) byType[i.type] = [];
+  byType[i.type].push(i);
+});
+
+// 🔥 merge отдельно по каждому type
+let merged = [];
+
+Object.keys(byType).forEach(type => {
+  const mergedByType = mergeIntervals(byType[type]);
+
+  // 👇 ВАЖНО: вернуть type обратно
+  mergedByType.forEach(m => {
+    m.type = Number(type);
+  });
+
+  merged.push(...mergedByType);
+});
     occupiedZones = [];
 
     html += `
@@ -460,9 +486,12 @@ function buildBarHtml({ left, width, mode, text, item }) {
         </div>
       ` : ``}
 
-      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}">
-        ${mode === "inside" ? text : ""}
+      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
+     data-start="${formatTime(item.start)}"
+     data-end="${formatTime(item.end)}">
       </div>
+
+
 
     </div>
   `;
