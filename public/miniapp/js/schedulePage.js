@@ -180,13 +180,9 @@ editFiltersBtn.addEventListener("click", () => {
 
 toggleDoctorsOnly.addEventListener("change", () => {
   onlyDoctors = toggleDoctorsOnly.checked;
-  
+   reloadSchedule();
   updateDoctorSelect();
   updateFilterSummary();
-
-
-
-
    reloadSchedule();
   
 });
