@@ -179,6 +179,20 @@ toggleDoctorsOnly.addEventListener("change", () => {
   onlyDoctors = toggleDoctorsOnly.checked;
   updateDoctorSelect();
   updateFilterSummary();
+
+  // 🔥 гарантируем смену врача
+  if (onlyDoctors) {
+    const list = getFilteredDoctors();
+
+    const hasMe = list.find(d => String(d.id) === String(myDoctorId));
+
+    if (hasMe) {
+      doctorSelect.value = myDoctorId;
+    } else {
+      doctorSelect.value = list[0]?.id || "";
+    }
+  }
+
    reloadSchedule();
   
 });
@@ -361,6 +375,5 @@ if (onlyDoctors) {
 
   // 🔥 ВАЖНО: переинициализировать select
   initDoctorSelect(select);
-reloadSchedule();
 
 }
