@@ -178,53 +178,43 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
-toggleDoctorsOnly.addEventListener("change", () => {
-  console.log("1️⃣ CHANGE EVENT FIRED");
+document.addEventListener("change", (e) => {
 
-  console.log("2️⃣ BEFORE UPDATE", {
+  const id = e.target.id;
+
+  if (!id) return;
+
+  if (
+    id !== "toggleDoctorsOnly" &&
+    id !== "toggleNoCancelled" &&
+    id !== "toggleNoWorktime"
+  ) return;
+
+  console.log("🔥 GLOBAL CHANGE", id);
+
+  if (id === "toggleDoctorsOnly") {
+    onlyDoctors = e.target.checked;
+  }
+
+  if (id === "toggleNoCancelled") {
+    noCancelled = e.target.checked;
+  }
+
+  if (id === "toggleNoWorktime") {
+    noWorktime = e.target.checked;
+  }
+
+  console.log("STATE:", {
     onlyDoctors,
-    checked: toggleDoctorsOnly.checked
+    noCancelled,
+    noWorktime
   });
 
-  onlyDoctors = toggleDoctorsOnly.checked;
-
-  console.log("3️⃣ STATE UPDATED", {
-    onlyDoctors
-  });
-
-  console.log("4️⃣ CALL updateDoctorSelect()");
   updateDoctorSelect();
-
-  const doctorSelectAfter = document.getElementById("scheduleDoctorSelect");
-  console.log("5️⃣ AFTER updateDoctorSelect", {
-    doctorValue: doctorSelectAfter?.value,
-    optionsCount: doctorSelectAfter?.options?.length
-  });
-
-  console.log("6️⃣ CALL updateFilterSummary()");
-  updateFilterSummary();
-
-  const summaryEl = document.getElementById("filterSummary");
-  console.log("7️⃣ SUMMARY TEXT", summaryEl?.innerText);
-
-  console.log("8️⃣ CALL reloadSchedule()");
-  reloadSchedule();
-
-  console.log("9️⃣ RELOAD CALLED");
-});
-
-toggleNoCancelled.addEventListener("change", () => {
-  noCancelled = toggleNoCancelled.checked;
   updateFilterSummary();
   reloadSchedule();
-});
 
-toggleNoWorktime.addEventListener("change", () => {
-  noWorktime = toggleNoWorktime.checked;
-  updateFilterSummary();
-  reloadSchedule();
 });
-
 
 
 
