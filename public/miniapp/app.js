@@ -559,7 +559,7 @@ function refreshSchedule() {
     loadSchedule({
       container,
       date: formatLocalDate(selectedDate),
-      doctorId: showAll ? null : doctorSelect.value,
+      doctorId: showAll ? "all" : doctorSelect.value,
       showAll,
       duration: selectedDuration,
       showCancelled,
@@ -644,7 +644,7 @@ renderCalendar(
     loadSchedule({
       container: scheduleContainer,
       date: formatLocalDate(selectedDate),
-      doctorId: showAll ? null : doctorSelect.value,
+      doctorId: showAll ? "all" : doctorSelect.value,
       showAll,
       duration: selectedDuration,
       showCancelled,
@@ -661,7 +661,7 @@ if (container && selectedDate) {
   loadSchedule({
     container,
     date: formatLocalDate(selectedDate),
-    doctorId: showAll ? null : doctorSelect.value,
+    doctorId: showAll ? "all" : doctorSelect.value,
     showAll,
     duration: selectedDuration,
     showCancelled,
