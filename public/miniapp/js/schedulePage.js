@@ -10,6 +10,8 @@ let showAll = false;
 export async function renderSchedulePage(authToken) {
 
   const content = document.getElementById("content");
+  const scheduleContainer = document.getElementById("scheduleContainer");
+const doctorSelect = document.getElementById("scheduleDoctorSelect");
 
   content.innerHTML = `<div class="card">Загрузка врачей...</div>`;
 
@@ -278,15 +280,14 @@ function reloadSchedule() {
 
   if (!selectedDate) return;
 
-loadSchedulePeriods({
-  container: scheduleContainer,
-  date: selectedDate,
-  doctorId: showAll ? null : doctorSelect.value,
-
-  onlyDoctors,
-  noCancelled,
-  noWorktime
-});
+  loadSchedulePeriods({
+    container: scheduleContainer,
+    date: selectedDate,
+    doctorId: showAll ? "all" : doctorSelect.value,
+    onlyDoctors,
+    noCancelled,
+    noWorktime
+  });
 }
 
 function updateFilterSummary() {

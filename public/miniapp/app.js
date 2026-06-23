@@ -296,9 +296,7 @@ if (doctorSelect) {
     <div class="card calendar-wrapper">
       <div id="calendar"></div>
     </div>
-<div class="card">
-  <div id="schedulePeriodsContainer"></div>
-</div>
+
     <div id="scheduleContainer"></div>
   `;
 
@@ -349,11 +347,7 @@ function initDoctorSelect() {
  doctorSelect.addEventListener("change", () => {
   refreshSchedule();
 
-  loadSchedulePeriods({
-    date: selectedDate,
-    doctorId: getDoctorFilter(),
-    container: document.getElementById("schedulePeriodsContainer")
-  });
+ 
 });
 
   updateClosedText();
@@ -640,11 +634,7 @@ if (showAll) {
         
         refreshSchedule();
         // 🔥 ДОБАВИТЬ: обновляем timeline
-loadSchedulePeriods({
-  date: selectedDate,
-  doctorId: getDoctorFilter(),
-  container: document.getElementById("schedulePeriodsContainer")
-});
+
         
       });
     });
@@ -684,11 +674,7 @@ renderCalendar(
   (date) => {
     selectedDate = new Date(date);
 
-   loadSchedulePeriods({
-  date: selectedDate,
-  doctorId: getDoctorFilter(),
-  container: document.getElementById("schedulePeriodsContainer")
-});
+
 
     loadSchedule({
       container: scheduleContainer,
@@ -708,11 +694,7 @@ renderCalendar(
 const container = document.getElementById("scheduleContainer");
 if (container && selectedDate) {
 
-loadSchedulePeriods({
-  date: selectedDate,
-  doctorId: getDoctorFilter(),
-  container: document.getElementById("schedulePeriodsContainer")
-});
+
 
 
   loadSchedule({
