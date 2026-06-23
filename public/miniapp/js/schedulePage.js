@@ -178,18 +178,20 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
-const doctorsSwitch = document.querySelector("#toggleDoctorsOnly").closest(".switch");
+const doctorsSwitch = document.querySelector("#toggleDoctorsOnly").closest(".toggle-line");
 
 doctorsSwitch.addEventListener("click", () => {
-  setTimeout(() => {
-    console.log("SWITCH WORKED");
+  const input = doctorsSwitch.querySelector("input");
 
-    onlyDoctors = toggleDoctorsOnly.checked;
+  input.checked = !input.checked;
 
-    updateFilterSummary();
-    updateDoctorSelect();
-    reloadSchedule();
-  }, 0);
+  console.log("SWITCH WORKED");
+
+  onlyDoctors = input.checked;
+
+  updateFilterSummary();
+  updateDoctorSelect();
+  reloadSchedule();
 });
 
 toggleNoCancelled.addEventListener("change", () => {
