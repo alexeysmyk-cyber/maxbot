@@ -8,7 +8,9 @@ export async function loadSchedulePeriods({
   date,
   doctorId,
   container,
-  onlyDoctors
+  onlyDoctors,
+  noCancelled,
+  noWorktime
 }) {
 
   showLoader(container);
@@ -39,7 +41,7 @@ if (window.doctorsList) {
   });
 }
 
-    renderSchedulePeriods(data.data, date, container, onlyDoctors);
+    renderSchedulePeriods(data.data, date, container, onlyDoctors, noCancelled, noWorktime);
 
   } catch (e) {
     container.innerHTML = `
@@ -66,7 +68,7 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container, onlyDoctors) {
+function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
@@ -80,6 +82,29 @@ const filteredItems = onlyDoctors
       return doctor && (doctor.role_names || []).includes("doctor");
     })
   : dayItems;
+let filteredItems = dayItems;
+
+// только врачи
+if (onlyDoctors) {
+  filteredItems = filteredItems.filter(i => {
+    const doctor = window.doctorsList.find(
+      d => String(d.id) === String(i.user_id)
+    );
+    return doctor && (doctor.role_names || []).includes("doctor");
+  });
+}
+
+// отмены
+if (noCancelled) {
+  filteredItems = filteredItems.filter(i => i.type !== 3);
+}
+// рабочее время (type = 1)
+if (noWorktime) {
+  filteredItems = filteredItems.filter(i => i.type !== 1);
+}
+console.log("FILTER RESULT:", filteredItems.length);
+
+
 
   if (!filteredItems.length){
     container.innerHTML = `
