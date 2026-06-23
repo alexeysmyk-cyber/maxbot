@@ -73,6 +73,13 @@ function renderSchedulePeriods(data, selectedDate, container) {
 
 const dayItems = data.filter(i => i.date === formattedDate);
 
+const filteredItems = onlyDoctors
+  ? dayItems.filter(i => {
+      const doctor = window.doctorsList.find(d => String(d.id) === String(i.user_id));
+      return doctor && (doctor.role_names || []).includes("doctor");
+    })
+  : dayItems;
+
   if (!dayItems.length) {
     container.innerHTML = `
       <div class="card empty-state">
@@ -86,7 +93,7 @@ const dayItems = data.filter(i => i.date === formattedDate);
   const grouped = {};
 
 // сначала по кабинетам
-dayItems.forEach(item => {
+filteredItems.forEach(item => {
 
   const room = item.room || "other";
 
