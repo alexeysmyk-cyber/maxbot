@@ -21,7 +21,7 @@ export async function loadSchedulePeriods({
 
   showLoader(container);
 
-const key = `${doctorId}_${formatMonth(date)}`;
+const key = formatMonth(date);
 
 const cached = scheduleCache.get(key);
 
@@ -51,7 +51,10 @@ if (age < CACHE_TTL) {
   }
 }
 
-
+console.log("🚀 LOAD START", {
+  key,
+  hasCache: scheduleCache.has(key)
+});
 
 
 

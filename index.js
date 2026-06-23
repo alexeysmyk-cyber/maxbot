@@ -61,7 +61,7 @@ if (!isValid) {
 
 
 
-console.log("📦 RAW initData:", initData);
+//console.log("📦 RAW initData:", initData);
 
     if (!initData) {
       console.log("❌ NO initData");
@@ -485,7 +485,7 @@ function verifyInitData(initData, botToken) {
     .update(dataCheckString)
     .digest("hex");
 
-  console.log("📦 DATA CHECK STRING:\n", dataCheckString);
+  //console.log("📦 DATA CHECK STRING:\n", dataCheckString);
   console.log("📦 HASH FROM MAX:", hash);
   console.log("📦 CALCULATED:", hmac);
 
