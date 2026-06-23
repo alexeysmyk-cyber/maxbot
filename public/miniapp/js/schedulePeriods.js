@@ -536,6 +536,11 @@ function formatLocalDate(date) {
   return `${dd}.${mm}.${yyyy}`;
 }
 
+function formatMonth(date) {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function mergeIntervals(list) {
 
   const sorted = list.sort((a, b) => a.start - b.start);
