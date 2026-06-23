@@ -40,6 +40,7 @@ export async function renderSchedulePage(authToken) {
   }
 
   const { doctors = [], isDirector = false, currentDoctorId = null } = data;
+  let myDoctorId = currentDoctorId;
 
 window.doctorsList = doctors;
 
@@ -178,7 +179,7 @@ toggleDoctorsOnly.addEventListener("change", () => {
   onlyDoctors = toggleDoctorsOnly.checked;
   updateDoctorSelect();
   updateFilterSummary();
-  reloadSchedule();
+  
 });
 
 toggleNoCancelled.addEventListener("change", () => {
@@ -336,12 +337,29 @@ function updateDoctorSelect() {
   `).join('');
 
   // если текущий врач исчез — выбираем первого
+ const hasMe = list.find(d => String(d.id) === String(myDoctorId));
+
+if (onlyDoctors) {
+
+  if (hasMe) {
+    // если я врач → выбираем себя
+    select.value = myDoctorId;
+  } else {
+    // если я НЕ врач → первый врач
+    select.value = list[0]?.id || "";
+  }
+
+} else {
+  // обычная логика
   if (!list.find(d => String(d.id) === String(currentValue))) {
     select.value = list[0]?.id || "";
   } else {
     select.value = currentValue;
   }
+}
 
   // 🔥 ВАЖНО: переинициализировать select
   initDoctorSelect(select);
+reloadSchedule();
+
 }
