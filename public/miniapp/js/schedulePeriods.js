@@ -26,7 +26,9 @@ const key = `${doctorId}_${formatMonth(date)}`;
 const cached = scheduleCache.get(key);
 
 console.log("KEY:", key, "doctorId:", doctorId);
+
 if (cached) {
+  
   const age = Date.now() - cached.timestamp;
 
 if (age < CACHE_TTL) {

@@ -70,7 +70,7 @@ if (!isValid) {
 
     const params = new URLSearchParams(initData);
 
-    console.log("🔥 INIT PARAMS:", Object.fromEntries(params));
+   // console.log("🔥 INIT PARAMS:", Object.fromEntries(params));
 
     const userStr = params.get("user");
 
