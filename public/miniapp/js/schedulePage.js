@@ -9,6 +9,8 @@ let showAll = false;
 
 export async function renderSchedulePage(authToken) {
 
+  console.log("RENDER PAGE");
+
   const content = document.getElementById("content");
 
 
@@ -121,6 +123,43 @@ content.innerHTML = `
   <div id="scheduleContainer"></div>
 `;
 
+document.addEventListener("change", handleAllToggles);
+
+function handleAllToggles(e) {
+
+  const id = e.target.id;
+
+  if (!id) return;
+
+  if (id === "toggleDoctorsOnly") {
+    onlyDoctors = e.target.checked;
+  }
+
+  if (id === "toggleNoCancelled") {
+    noCancelled = e.target.checked;
+  }
+
+  if (id === "toggleNoWorktime") {
+    noWorktime = e.target.checked;
+  }
+
+  // если это вообще не toggle — выходим
+  if (
+    id !== "toggleDoctorsOnly" &&
+    id !== "toggleNoCancelled" &&
+    id !== "toggleNoWorktime"
+  ) return;
+
+  console.log("TOGGLE:", {
+    onlyDoctors,
+    noCancelled,
+    noWorktime
+  });
+
+  updateDoctorSelect();
+  updateFilterSummary();
+  reloadSchedule();
+}
   
   // ===============================
   // ЭЛЕМЕНТЫ
@@ -130,6 +169,14 @@ content.innerHTML = `
 function reloadSchedule() {
 
   const doctorSelect = document.getElementById("scheduleDoctorSelect"); // 🔥 каждый раз заново
+
+
+  console.log("RELOAD", {
+    doctor: doctorSelect?.value,
+    onlyDoctors,
+    noCancelled,
+    noWorktime
+  });
 
   if (!selectedDate) return;
 
@@ -158,27 +205,11 @@ if (!isDirector) {
 const toggleDoctorsOnly = document.getElementById("toggleDoctorsOnly");
 const toggleNoCancelled = document.getElementById("toggleNoCancelled");
 const toggleNoWorktime = document.getElementById("toggleNoWorktime");
-
-
 const filterSummary = document.getElementById("filterSummary");
-
-
 const filterPanel = document.getElementById("filterPanel");
 const editFiltersBtn = document.getElementById("editFiltersBtn");
 
-document.addEventListener("change", (e) => {
 
-  if (e.target.id === "toggleDoctorsOnly") {
-    console.log("DOCTORS TOGGLE FIRED");
-
-    onlyDoctors = e.target.checked;
-
-    updateFilterSummary();
-    updateDoctorSelect();
-    reloadSchedule();
-  }
-
-});
 
 
 editFiltersBtn.addEventListener("click", () => {
@@ -194,17 +225,6 @@ editFiltersBtn.addEventListener("click", () => {
 });
 
 
-toggleNoCancelled.addEventListener("change", () => {
-  noCancelled = toggleNoCancelled.checked;
-  updateFilterSummary();
-  reloadSchedule();
-});
-
-toggleNoWorktime.addEventListener("change", () => {
-  noWorktime = toggleNoWorktime.checked;
-  updateFilterSummary();
-  reloadSchedule();
-});
 
 
 
