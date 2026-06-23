@@ -166,16 +166,19 @@ const filterSummary = document.getElementById("filterSummary");
 const filterPanel = document.getElementById("filterPanel");
 const editFiltersBtn = document.getElementById("editFiltersBtn");
 
-toggleDoctorsOnly.addEventListener("change", () => {
-  console.log("DOCTORS CHANGE");
+document.addEventListener("change", (e) => {
 
-  onlyDoctors = toggleDoctorsOnly.checked;
+  if (e.target.id === "toggleDoctorsOnly") {
+    console.log("DOCTORS TOGGLE FIRED");
 
-  updateFilterSummary();
-  updateDoctorSelect();
-  reloadSchedule();
+    onlyDoctors = e.target.checked;
+
+    updateFilterSummary();
+    updateDoctorSelect();
+    reloadSchedule();
+  }
+
 });
-
 
 
 editFiltersBtn.addEventListener("click", () => {
