@@ -9,8 +9,6 @@ let showAll = false;
 
 export async function renderSchedulePage(authToken) {
 
-  console.log("RENDER PAGE");
-
   const content = document.getElementById("content");
 
 
@@ -18,18 +16,6 @@ export async function renderSchedulePage(authToken) {
 
   let response;
   let data;
-
-  if (onlyDoctors) {
-  periods = periods.filter(p => p.isDoctor);
-}
-
-if (noCancelled) {
-  periods = periods.filter(p => p.status !== "cancelled");
-}
-
-if (noWorktime) {
-  periods = periods.filter(p => p.type !== "worktime");
-}
 
   try {
     response = await fetch('/miniapp/doctors', {
@@ -135,43 +121,6 @@ content.innerHTML = `
   <div id="scheduleContainer"></div>
 `;
 
-document.addEventListener("change", handleAllToggles);
-
-function handleAllToggles(e) {
-
-  const id = e.target.id;
-
-  if (!id) return;
-
-  if (id === "toggleDoctorsOnly") {
-    onlyDoctors = e.target.checked;
-  }
-
-  if (id === "toggleNoCancelled") {
-    noCancelled = e.target.checked;
-  }
-
-  if (id === "toggleNoWorktime") {
-    noWorktime = e.target.checked;
-  }
-
-  // если это вообще не toggle — выходим
-  if (
-    id !== "toggleDoctorsOnly" &&
-    id !== "toggleNoCancelled" &&
-    id !== "toggleNoWorktime"
-  ) return;
-
-  console.log("TOGGLE:", {
-    onlyDoctors,
-    noCancelled,
-    noWorktime
-  });
-
-  updateDoctorSelect();
-  updateFilterSummary();
-  reloadSchedule();
-}
   
   // ===============================
   // ЭЛЕМЕНТЫ
@@ -181,14 +130,6 @@ function handleAllToggles(e) {
 function reloadSchedule() {
 
   const doctorSelect = document.getElementById("scheduleDoctorSelect"); // 🔥 каждый раз заново
-
-
-  console.log("RELOAD", {
-    doctor: doctorSelect?.value,
-    onlyDoctors,
-    noCancelled,
-    noWorktime
-  });
 
   if (!selectedDate) return;
 
@@ -217,12 +158,13 @@ if (!isDirector) {
 const toggleDoctorsOnly = document.getElementById("toggleDoctorsOnly");
 const toggleNoCancelled = document.getElementById("toggleNoCancelled");
 const toggleNoWorktime = document.getElementById("toggleNoWorktime");
+
+
 const filterSummary = document.getElementById("filterSummary");
+
+
 const filterPanel = document.getElementById("filterPanel");
 const editFiltersBtn = document.getElementById("editFiltersBtn");
-
-
-
 
 editFiltersBtn.addEventListener("click", () => {
 
@@ -236,7 +178,30 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
+toggleDoctorsOnly.addEventListener("change", () => {
+  onlyDoctors = toggleDoctorsOnly.checked;
+  
+  updateDoctorSelect();
+  updateFilterSummary();
 
+
+
+
+   reloadSchedule();
+  
+});
+
+toggleNoCancelled.addEventListener("change", () => {
+  noCancelled = toggleNoCancelled.checked;
+  updateFilterSummary();
+  reloadSchedule();
+});
+
+toggleNoWorktime.addEventListener("change", () => {
+  noWorktime = toggleNoWorktime.checked;
+  updateFilterSummary();
+  reloadSchedule();
+});
 
 
 
@@ -299,9 +264,9 @@ initDoctorSelect(doctorSelect);
   // ===============================
   // СМЕНА ВРАЧА
   // ===============================
-//doctorSelect.addEventListener("change", () => {
-//  reloadSchedule();
-//});
+doctorSelect.addEventListener("change", () => {
+  reloadSchedule();
+});
 
 
 
@@ -406,6 +371,6 @@ if (onlyDoctors) {
 
   // 🔥 ВАЖНО: переинициализировать select
   initDoctorSelect(select);
-  //select.dispatchEvent(new Event("change"));
+  select.dispatchEvent(new Event("change"));
 
 }
