@@ -28,21 +28,23 @@ const cached = scheduleCache.get(key);
 if (cached) {
   const age = Date.now() - cached.timestamp;
 
-  if (age < CACHE_TTL) {
-    console.log("🟢 CACHE HIT (MONTH)", key);
+if (age < CACHE_TTL) {
+  console.log("🟢 CACHE HIT (MONTH)", key);
 
-    renderSchedulePeriods(
-      cached.data,
-      date,
-      container,
-      onlyDoctors,
-      noCancelled,
-      noWorktime,
-      showAll
-    );
+  container.innerHTML = ""; // 👈 КРИТИЧНО
 
-    return;
-  } else {
+  renderSchedulePeriods(
+    cached.data,
+    date,
+    container,
+    onlyDoctors,
+    noCancelled,
+    noWorktime,
+    showAll
+  );
+
+  return;
+} else {
     console.log("🔄 CACHE EXPIRED", key);
     scheduleCache.delete(key);
   }
@@ -232,9 +234,11 @@ items.forEach(i => {
 let merged = [];
 
 Object.keys(byType).forEach(type => {
-  const mergedByType = mergeIntervals(byType[type]);
+  const list = byType[type];
+  if (!list || !list.length) return;
 
-  // 👇 ВАЖНО: вернуть type обратно
+  const mergedByType = mergeIntervals(list);
+
   mergedByType.forEach(m => {
     m.type = Number(type);
   });
