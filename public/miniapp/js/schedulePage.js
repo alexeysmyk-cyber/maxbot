@@ -183,7 +183,7 @@ toggleDoctorsOnly.addEventListener("change", () => {
    reloadSchedule();
   updateDoctorSelect();
   updateFilterSummary();
-   reloadSchedule();
+  // reloadSchedule();
   
 });
 
