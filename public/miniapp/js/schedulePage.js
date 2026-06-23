@@ -186,7 +186,7 @@ toggleDoctorsOnly.addEventListener("change", () => {
 
 
 
-   reloadSchedule();
+   //reloadSchedule();
   
 });
 
@@ -370,5 +370,6 @@ if (onlyDoctors) {
 
   // 🔥 ВАЖНО: переинициализировать select
   initDoctorSelect(select);
+  select.dispatchEvent(new Event("change"));
 
 }
