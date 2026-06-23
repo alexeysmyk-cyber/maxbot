@@ -7,7 +7,8 @@ let doctorsMap = {};
 export async function loadSchedulePeriods({
   date,
   doctorId,
-  container
+  container,
+  onlyDoctors
 }) {
 
   showLoader(container);
@@ -38,7 +39,7 @@ if (window.doctorsList) {
   });
 }
 
-    renderSchedulePeriods(data.data, date, container);
+    renderSchedulePeriods(data.data, date, container, onlyDoctors);
 
   } catch (e) {
     container.innerHTML = `
@@ -65,7 +66,7 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container) {
+function renderSchedulePeriods(data, selectedDate, container, onlyDoctors) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
@@ -80,7 +81,7 @@ const filteredItems = onlyDoctors
     })
   : dayItems;
 
-  if (!dayItems.length) {
+  if (!filteredItems.length){
     container.innerHTML = `
       <div class="card empty-state">
         Нет расписания
