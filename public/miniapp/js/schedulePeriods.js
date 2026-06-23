@@ -24,11 +24,12 @@ export async function loadSchedulePeriods({
 const key = `${doctorId}_${formatMonth(date)}`;
 
 const cached = scheduleCache.get(key);
-console.log("KEY:", key, "doctorId:", doctorId);
+
 if (cached) {
   const age = Date.now() - cached.timestamp;
 
 if (age < CACHE_TTL) {
+  console.log("KEY:", key, "doctorId:", doctorId);
   console.log("🟢 CACHE HIT (MONTH)", key);
 
   container.innerHTML = ""; // 👈 КРИТИЧНО
