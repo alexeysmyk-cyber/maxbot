@@ -804,6 +804,11 @@ router.post("/schedule-periods", async (req, res) => {
   }
 });
 router.post("/create-schedule", async (req, res) => {
+
+   res.on("finish", () => {
+    console.log("✅ RESPONSE FINISHED");
+  });
+
   console.log("🔥 CREATE SCHEDULE HIT", Date.now());
   try {
     const user = req.user;
@@ -919,20 +924,23 @@ router.post("/create-schedule", async (req, res) => {
       });
     }
 
-    if (response.data.error !== 0) {
-      const message =
-        response.data?.data?.desc || "Ошибка создания расписания";
+   if (response.data.error !== 0) {
+  const message =
+    response.data?.data?.desc || "Ошибка создания расписания";
 
-      console.log("📤 SEND TO FRONT:", {
-        success: false,
-        message
-      });
+  console.log("📤 SEND TO FRONT:", {
+    success: false,
+    message
+  });
 
-      return res.json({
-        success: false,
-        message
-      });
-    }
+  res.status(200).json({
+    success: false,
+    message
+  });
+
+  return; // 👈 ОБЯЗАТЕЛЬНО
+}
+console.log("🚀 AFTER RES.JSON");
 
     // ===============================
     // ✅ УСПЕХ
