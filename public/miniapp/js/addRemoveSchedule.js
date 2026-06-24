@@ -349,7 +349,6 @@ async function handleCreateSchedule(body, isNoIntersection) {
 }
 
 async function createScheduleRequest(body) {
-
   try {
 
     const res = await fetch("/miniapp/create-schedule", {
@@ -363,10 +362,14 @@ async function createScheduleRequest(body) {
 
     const data = await res.json();
 
+    console.log("📦 STATUS:", res.status);
     console.log("📦 RESPONSE:", data);
 
-    if (data.error) {
-      showErrorModal(data.data?.desc || "Ошибка создания");
+    // 🔥 ВАЖНО — проверка статуса
+    if (!res.ok || data.error) {
+      showErrorModal(
+        data?.data?.desc || "Ошибка создания слота"
+      );
       return;
     }
 
@@ -374,10 +377,9 @@ async function createScheduleRequest(body) {
 
   } catch (e) {
     console.error("❌ FETCH ERROR:", e);
-    showErrorModal("Ошибка сети или сервера");
+    showErrorModal("Ошибка сети");
   }
 }
-
 
 function showErrorModal(text) {
 
