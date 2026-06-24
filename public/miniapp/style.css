@@ -2238,11 +2238,19 @@ input[type="date"].form-input {
   padding: 10px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.segment.active {
+/* 📘 Расписание (по умолчанию) */
+.segment.active[data-type="schedule"] {
   background: #2563eb;
   color: white;
+}
+
+/* 🌸 Отмена (нежно красный) */
+.segment.active[data-type="cancel"] {
+  background: #fca5a5; /* мягкий красный */
+  color: #7f1d1d; /* тёмный текст */
 }
 
 .form-group {
@@ -2261,4 +2269,14 @@ input[type="date"].form-input {
   padding: 8px;
   border-radius: 8px;
   border: 1px solid #ddd;
+}
+.card + .card {
+  margin-top: 12px;
+}
+.segment:hover {
+  background: #e5e7eb;
+}
+
+.segment.active:hover {
+  filter: brightness(0.95);
 }

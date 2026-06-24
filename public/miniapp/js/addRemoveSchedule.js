@@ -33,16 +33,16 @@ export async function openAddRemoveSchedule() {
       </div>
 
       <!-- ✅ TOGGLE -->
-      <div class="card" style="margin-top:16px;">
+      <div class="card" style="margin-top:12px;">
 
         <div class="toggle-header">Тип слота</div>
 
         <div class="segmented-control" id="slotTypeToggle">
           <div class="segment active" data-type="schedule">
-            Расписание
+          📅 Расписание
           </div>
           <div class="segment" data-type="cancel">
-            Отмена
+          🚫 Отмена
           </div>
         </div>
 
