@@ -2367,3 +2367,15 @@ input[type="date"].form-input {
 
   margin-left: 2px;   /* 🔥 чуть правее */
 }
+
+.checkbox-row span {
+  font-size: 14px;
+  color: #374151;
+
+  white-space: nowrap;
+
+  margin-left: 6px;     /* 👉 правее */
+  transform: translateY(-1px); /* 👉 чуть выше */
+
+  line-height: 1;       /* 👉 убирает лишнюю высоту */
+}
