@@ -192,7 +192,18 @@ timeEndInput.addEventListener("change", () => {
     .getElementById("createScheduleBtn")
     .addEventListener("click", async () => {
 
-      const doctorId = document.getElementById("addScheduleDoctorSelect").value;
+        console.log("🔥 CLICK START");
+
+      const doctorSelect = document.getElementById("addScheduleDoctorSelect");
+console.log("doctorSelect:", doctorSelect);
+
+if (!doctorSelect) {
+  console.log("❌ doctorSelect NOT FOUND");
+  showErrorModal("Список врачей ещё загружается");
+  return;
+}
+
+const doctorId = doctorSelect.value;
       const timeStart = document.getElementById("timeStart").value;
       const timeEnd = document.getElementById("timeEnd").value;
       const roomValue = document.getElementById("roomSelect").value;
