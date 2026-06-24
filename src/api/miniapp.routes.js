@@ -938,7 +938,6 @@ function resolveAccess(roleNames = []) {
 export default router;
 
 
-export default router;
 
 
 // 👇 ВСТАВИТЬ СЮДА
