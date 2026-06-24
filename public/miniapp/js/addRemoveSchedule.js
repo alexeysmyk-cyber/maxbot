@@ -373,7 +373,15 @@ if (conflict) {
       "В этом кабинете в выбранное время принимает другой врач.\nВы точно хотите создать слот?"
     );
 
-    if (!confirmResult) return;
+  if (!confirmResult) {
+  return {
+    success: false,
+    message: "Создание отменено"
+  };
+}
+
+
+
   }
 
   // 👉 если другой кабинет — просто идём дальше (это ОК)
@@ -424,7 +432,7 @@ console.log("RAW RESPONSE:", text);
     console.log("📡 STATUS:", res.status);
     console.log("📦 DATA:", data);
 
- if  (data.error) {
+ if (data && data.error) {
   console.log("❌ BACKEND ERROR FULL:", data);
 
   return {
