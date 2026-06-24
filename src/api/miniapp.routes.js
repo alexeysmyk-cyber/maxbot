@@ -933,17 +933,13 @@ router.post("/create-schedule", async (req, res) => {
     message
   });
 
-  // 👇 ВАЖНО: вручную выставляем заголовки
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Connection", "close");
 
-  // 👇 отправляем как строку (не res.json!)
-res.setHeader("Content-Type", "application/json");
-res.setHeader("Connection", "close");
-
-return res.end(JSON.stringify({
-  success: true
-}));
+  return res.end(JSON.stringify({
+    success: false,
+    message
+  }));
 }
 console.log("🚀 AFTER RES.JSON");
 
