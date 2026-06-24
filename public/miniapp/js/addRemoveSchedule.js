@@ -319,87 +319,47 @@ function formatDate(date) {
 }
 
 async function handleCreateSchedule(body, isNoIntersection) {
+  try {
 
-  if (!isNoIntersection) {
-  console.log("👉 BEFORE CREATE REQUEST");
+    if (!isNoIntersection) {
+      return await createScheduleRequest(body);
+    }
 
-  return await createScheduleRequest(body);
+    const checkRes = await fetch("/miniapp/schedule-periods", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({
+        time_start: `${body.date} ${body.time_start}`,
+        time_end: `${body.date} ${body.time_end}`,
+        clinic_id: body.clinic_id
+      })
+    });
 
-console.log("👉 AFTER CREATE REQUEST");
+    const text = await checkRes.text();
+    console.log("CHECK RAW:", text);
+
+    let checkData;
+
+    try {
+      checkData = JSON.parse(text);
+    } catch {
+      return { success: false, message: "Ошибка проверки расписания" };
+    }
+
+    if (!checkData.error && checkData.data?.length) {
+      // твоя логика
+    }
+
+    return await createScheduleRequest(body);
+
+  } catch (e) {
+    console.error("🔥 HANDLE ERROR:", e);
+    return { success: false, message: "Ошибка при создании" };
   }
-
-  // ===============================
-  // 🔥 1. Проверяем расписание
-  // ===============================
-  const checkRes = await fetch("/miniapp/schedule-periods", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + localStorage.getItem("token")
-    },
-    body: JSON.stringify({
-      time_start: `${body.date} ${body.time_start}`,
-      time_end: `${body.date} ${body.time_end}`,
-      clinic_id: body.clinic_id
-    })
-  });
-
-  const checkData = await checkRes.json();
-
-  if (!checkData.error && checkData.data?.length) {
-
-const start = new Date(`${body.date} ${body.time_start}`);
-const end = new Date(`${body.date} ${body.time_end}`);
-
-const conflict = checkData.data.find(item => {
-  const itemStart = new Date(item.time_start);
-  const itemEnd = new Date(item.time_end);
-
-  return start < itemEnd && end > itemStart;
-});
-
-
-if (conflict) {
-
-    console.log("CONFLICT FOUND:", conflict);
-
-  const isSameRoom =
-    conflict.room && body.room && conflict.room === body.room;
-
-  // 👉 если тот же кабинет — спрашиваем
-  if (isSameRoom) {
-
-    const confirmResult = confirm(
-      "В этом кабинете в выбранное время принимает другой врач.\nВы точно хотите создать слот?"
-    );
-
-  if (!confirmResult) {
-  return {
-    success: false,
-    message: "Создание отменено"
-  };
 }
-
-
-
-  }
-
-  // 👉 если другой кабинет — просто идём дальше (это ОК)
-}
-
-
-
-  }
-
-  // ===============================
-  // 🔥 2. Создаём слот
-  // ===============================
-console.log("👉 BEFORE CREATE REQUEST");
-
-  return await createScheduleRequest(body);
-  
-}
-
 
 
 
