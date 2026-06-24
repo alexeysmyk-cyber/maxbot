@@ -910,6 +910,9 @@ router.post("/create-schedule", async (req, res) => {
       return res.status(502).json({ error: "MIS_INVALID_RESPONSE" });
     }
 
+console.log("➡️ CREATE SCHEDULE TO MIS:", body);
+console.log("⬅️ MIS RESPONSE:", response.data);
+
     if (response.data.error !== 0) {
       return res.status(400).json(response.data);
     }
