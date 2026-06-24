@@ -228,7 +228,7 @@ console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
          const result = await handleCreateSchedule(body, noIntersections);
 
-if (!result) return;
+if (!result)   showErrorModal("Не удалось создать слот"); return;
 
 if (!result.success) {
   showErrorModal(result.message);
@@ -414,12 +414,20 @@ async function createScheduleRequest(body) {
     console.log("📡 STATUS:", res.status);
     console.log("📦 DATA:", data);
 
-    if (!res.ok || data.error) {
-      return {
-        success: false,
-        message: data?.data?.desc || "Ошибка создания"
-      };
-    }
+ if (!res.ok || data.error) {
+  console.log("❌ BACKEND ERROR FULL:", data);
+
+  return {
+    success: false,
+    message:
+      data?.data?.desc ||
+      data?.message ||
+      JSON.stringify(data) ||
+      "Ошибка создания"
+  };
+}
+
+console.log("👉 RESULT:", result);
 
     return { success: true };
 
