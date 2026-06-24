@@ -804,6 +804,7 @@ router.post("/schedule-periods", async (req, res) => {
   }
 });
 router.post("/create-schedule", async (req, res) => {
+  console.log("🔥 CREATE SCHEDULE HIT", Date.now());
   try {
     const user = req.user;
 
