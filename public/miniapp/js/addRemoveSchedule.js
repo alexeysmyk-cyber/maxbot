@@ -75,7 +75,7 @@ export async function openAddRemoveSchedule() {
     <option value="Процедурная">Процедурная</option>
   </select>
 </div>
-<div class="form-group">
+<div class="form-group schedule-only">
   <label class="checkbox-row">
     <input type="checkbox" id="noIntersectionsCheckbox">
     <span>Без пересечений визитов</span>
@@ -118,6 +118,7 @@ export async function openAddRemoveSchedule() {
   // ===============================
   const segments = document.querySelectorAll("#slotTypeToggle .segment");
   const commentBlock = document.getElementById("cancelCommentBlock");
+  const scheduleOnly = document.querySelector(".schedule-only");
 
   segments.forEach(seg => {
     seg.addEventListener("click", () => {
@@ -127,13 +128,18 @@ export async function openAddRemoveSchedule() {
 
       const type = seg.dataset.type;
 
-      if (type === "cancel") {
-        isCancel = true;
-        commentBlock.style.display = "block";
-      } else {
-        isCancel = false;
-        commentBlock.style.display = "none";
-      }
+     if (type === "cancel") {
+  isCancel = true;
+  commentBlock.style.display = "block";
+
+  if (scheduleOnly) scheduleOnly.style.display = "none"; // 👈 скрываем
+
+} else {
+  isCancel = false;
+  commentBlock.style.display = "none";
+
+  if (scheduleOnly) scheduleOnly.style.display = "block"; // 👈 показываем
+}
 
     });
   });

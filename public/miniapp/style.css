@@ -2339,23 +2339,31 @@ input[type="date"].form-input {
 .checkbox-row {
   display: flex;
   align-items: center;
-  gap: 6px;              /* 🔥 меньше расстояние */
+  gap: 10px;
+
+  margin-top: 10px;   /* 🔥 ниже */
+  margin-left: 6px;   /* 🔥 правее */
+
   cursor: pointer;
 }
 
-/* сам чекбокс */
+/* чекбокс */
 .checkbox-row input[type="checkbox"] {
-  margin: 0;             /* 🔥 убирает сдвиг браузера */
-  width: 16px;
-  height: 16px;
+  width: 18px;        /* 🔥 больше */
+  height: 18px;
+
+  margin: 0;
   accent-color: #00a4c7;
 
-  flex-shrink: 0;        /* 🔥 не сжимается */
+  flex-shrink: 0;
 }
 
 /* текст */
 .checkbox-row span {
-  white-space: nowrap;   /* 🔥 ВСЕГДА в одну строку */
-  font-size: 13px;
+  font-size: 14px;    /* 🔥 больше */
   color: #374151;
+
+  white-space: nowrap;
+
+  margin-left: 2px;   /* 🔥 чуть правее */
 }
