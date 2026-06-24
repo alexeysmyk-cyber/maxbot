@@ -2338,18 +2338,18 @@ input[type="date"].form-input {
 
 .checkbox-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: center;   /* 🔥 ИДЕАЛЬНЫЙ центр */
+  gap: 8px;
 
-  margin-top: 10px;   /* 🔥 ниже */
-  margin-left: 6px;   /* 🔥 правее */
+  margin-top: 10px;
+  margin-left: 10px;     /* 👉 правее (как ты хочешь) */
 
   cursor: pointer;
 }
 
 /* чекбокс */
 .checkbox-row input[type="checkbox"] {
-  width: 18px;        /* 🔥 больше */
+  width: 18px;
   height: 18px;
 
   margin: 0;
@@ -2360,22 +2360,13 @@ input[type="date"].form-input {
 
 /* текст */
 .checkbox-row span {
-  font-size: 14px;    /* 🔥 больше */
-  color: #374151;
-
-  white-space: nowrap;
-
-  margin-left: 2px;   /* 🔥 чуть правее */
-}
-
-.checkbox-row span {
   font-size: 14px;
   color: #374151;
 
   white-space: nowrap;
 
-  margin-left: 6px;     /* 👉 правее */
-  transform: translateY(-1px); /* 👉 чуть выше */
+  display: flex;          /* 🔥 важно */
+  align-items: center;    /* 🔥 центр по чекбоксу */
 
-  line-height: 1;       /* 👉 убирает лишнюю высоту */
+  margin-left: 4px;       /* 👉 чуть правее */
 }
