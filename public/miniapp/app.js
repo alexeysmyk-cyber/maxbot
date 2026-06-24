@@ -791,13 +791,16 @@ function attachEvents() {
 visitsTab.addEventListener("click", () => {
   currentTab = "visits";
   updateFabIcon();
+  setActive(scheduleTab);
   renderVisits();
 });
 
 scheduleTab.addEventListener("click", () => {
   currentTab = "schedule";
   updateFabIcon();
+  setActive(scheduleTab);
   renderSchedulePage(authToken);
+
 });
 }
 
