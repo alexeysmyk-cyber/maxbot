@@ -916,6 +916,7 @@ console.log("⬅️ MIS RESPONSE:", response.data);
     if (response.data.error !== 0) {
 
       console.log("📤 SEND TO FRONT:", JSON.stringify(response.data));
+      
       return res.status(400).json(response.data);
       
     }
