@@ -2295,7 +2295,7 @@ input[type="date"].form-input {
   bottom: 0;
   background: white;
   padding: 12px;
-  border-top: 1px solid #eee;
+  border-top: none;
 }
 .form-row {
   display: grid;

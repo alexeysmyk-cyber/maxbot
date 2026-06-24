@@ -66,9 +66,21 @@ export async function openAddRemoveSchedule() {
 </div>
 
         <div class="form-group">
-          <label>Кабинет</label>
-          <input type="text" id="roomInput" placeholder="Например: 101">
-        </div>
+  <label>Кабинет</label>
+  <select id="roomSelect" class="form-input">
+    <option value="">Без кабинета</option>
+    <option value="Первый кабинет">Первый кабинет</option>
+    <option value="Второй кабинет">Второй кабинет</option>
+    <option value="Третий кабинет">Третий кабинет</option>
+    <option value="Процедурная">Процедурная</option>
+  </select>
+</div>
+<div class="form-group">
+  <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+    <input type="checkbox" id="noIntersectionsCheckbox">
+    Без пересечений визитов
+  </label>
+</div>
 
         <div class="form-group" id="cancelCommentBlock" style="display:none;">
           <label>Причина отмены</label>
@@ -141,19 +153,34 @@ export async function openAddRemoveSchedule() {
       const doctorId = document.getElementById("addScheduleDoctorSelect").value;
       const timeStart = document.getElementById("timeStart").value;
       const timeEnd = document.getElementById("timeEnd").value;
-      const room = document.getElementById("roomInput").value;
+      const roomValue = document.getElementById("roomSelect").value;
+const noIntersections = document.getElementById("noIntersectionsCheckbox").checked;
       const comment = document.getElementById("cancelCommentInput")?.value || "";
 
       const body = {
-        date: formatDate(selectedDate),
-        time_start: timeStart,
-        time_end: timeEnd,
-        user_id: doctorId,
-        clinic_id: 2997,
-        room,
-        is_cancel: isCancel ? 1 : 0,
-        comment: isCancel ? comment : ""
-      };
+  date: formatDate(selectedDate),
+  time_start: timeStart,
+  time_end: timeEnd,
+  user_id: doctorId,
+  clinic_id: 2997,
+
+};
+
+// ✅ только если отмена
+if (isCancel) {
+  body.is_cancel = 1;
+  body.comment = comment;
+}
+
+// ✅ добавляем ТОЛЬКО если есть кабинет
+if (roomValue) {
+  body.room = roomValue;
+}
+
+// ✅ добавляем ТОЛЬКО если галка включена
+if (noIntersections) {
+  body.no_intersections = true;
+}
 
       console.log("CREATE BODY:", body);
     });
