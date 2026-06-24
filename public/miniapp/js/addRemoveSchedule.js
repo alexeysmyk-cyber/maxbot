@@ -244,6 +244,7 @@ console.log("👉 CALL handleCreateSchedule");
          console.log("🔥 RESULT:", result);
 
 if (!result || !result.success) {
+      console.log("🔥 SHOW ERROR:", result);
   showErrorModal(result?.message || "Ошибка создания");
   return;
 }
