@@ -805,19 +805,17 @@ router.post("/schedule-periods", async (req, res) => {
 });
 router.post("/create-schedule", async (req, res) => {
 
-   res.on("finish", () => {
+  res.on("finish", () => {
     console.log("✅ RESPONSE FINISHED");
   });
 
   console.log("🔥 CREATE SCHEDULE HIT", Date.now());
+
   try {
     const user = req.user;
 
     if (!user) {
-      return res.json({
-        success: false,
-        message: "Нет доступа"
-      });
+      return send(res, false, "Нет доступа");
     }
 
     const {
@@ -833,55 +831,9 @@ router.post("/create-schedule", async (req, res) => {
     } = req.body;
 
     if (!date || !time_start || !time_end || !user_id) {
-      return res.json({
-        success: false,
-        message: "Не все поля заполнены"
-      });
+      return send(res, false, "Не все поля заполнены");
     }
 
-    // ===============================
-    // 🔥 ПРОВЕРКА ПЕРЕСЕЧЕНИЙ
-    // ===============================
-    if (no_intersections) {
-      const bodyCheck = qs.stringify({
-        api_key: process.env.API_KEY,
-        time_start: `${date} ${time_start}`,
-        time_end: `${date} ${time_end}`,
-        clinic_id
-      });
-
-      const checkUrl = process.env.BASE_URL + "/getSchedulePeriods";
-
-      const checkResponse = await axios.post(checkUrl, bodyCheck, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      });
-
-      const checkData = checkResponse.data;
-
-      if (checkData.error === 0 && checkData.data?.length) {
-        const start = new Date(`${date} ${time_start}`);
-        const end = new Date(`${date} ${time_end}`);
-
-        const conflict = checkData.data.find(item => {
-          const itemStart = new Date(item.time_start);
-          const itemEnd = new Date(item.time_end);
-          return start < itemEnd && end > itemStart;
-        });
-
-        if (conflict) {
-          if (conflict.room && room && conflict.room === room) {
-            return res.json({
-              success: false,
-              message: "В этом кабинете в выбранное время принимает другой врач"
-            });
-          }
-        }
-      }
-    }
-
-    // ===============================
-    // 🔥 СОЗДАНИЕ СЛОТА В MIS
-    // ===============================
     const body = {
       api_key: process.env.API_KEY,
       date,
@@ -914,49 +866,22 @@ router.post("/create-schedule", async (req, res) => {
     console.log("➡️ CREATE SCHEDULE TO MIS:", body);
     console.log("⬅️ MIS RESPONSE:", response.data);
 
-    // ===============================
-    // ❗ ПРОВЕРКА ОТВЕТА MIS
-    // ===============================
     if (!response.data || typeof response.data !== "object") {
-      return res.json({
-        success: false,
-        message: "Некорректный ответ MIS"
-      });
+      return send(res, false, "Некорректный ответ MIS");
     }
 
- if (response.data.error !== 0) {
-  const message =
-    response.data?.data?.desc || "Ошибка создания расписания";
+    if (response.data.error !== 0) {
+      const message =
+        response.data?.data?.desc || "Ошибка создания расписания";
 
-  console.log("📤 SEND TO FRONT:", {
-    success: false,
-    message
-  });
+      return send(res, false, message);
+    }
 
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Connection", "close");
-
-  return res.end(JSON.stringify({
-    success: false,
-    message
-  }));
-}
-console.log("🚀 AFTER RES.JSON");
-
-    // ===============================
-    // ✅ УСПЕХ
-    // ===============================
-    return res.json({
-      success: true
-    });
+    return send(res, true);
 
   } catch (err) {
     console.log("create-schedule error:", err.message);
-
-    return res.json({
-      success: false,
-      message: "Ошибка сервера"
-    });
+    return send(res, false, "Ошибка сервера");
   }
 });
 
