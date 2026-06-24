@@ -924,7 +924,7 @@ router.post("/create-schedule", async (req, res) => {
       });
     }
 
-   if (response.data.error !== 0) {
+ if (response.data.error !== 0) {
   const message =
     response.data?.data?.desc || "Ошибка создания расписания";
 
@@ -933,12 +933,17 @@ router.post("/create-schedule", async (req, res) => {
     message
   });
 
-  res.status(200).json({
-    success: false,
-    message
-  });
+  // 👇 ВАЖНО: вручную выставляем заголовки
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Connection", "close");
 
-  return; // 👈 ОБЯЗАТЕЛЬНО
+  // 👇 отправляем как строку (не res.json!)
+res.setHeader("Content-Type", "application/json");
+res.setHeader("Connection", "close");
+
+return res.end(JSON.stringify({
+  success: true
+}));
 }
 console.log("🚀 AFTER RES.JSON");
 
