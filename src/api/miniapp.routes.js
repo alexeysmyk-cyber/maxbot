@@ -914,8 +914,10 @@ console.log("➡️ CREATE SCHEDULE TO MIS:", body);
 console.log("⬅️ MIS RESPONSE:", response.data);
 
     if (response.data.error !== 0) {
-      return res.status(400).json(response.data);
+
       console.log("📤 SEND TO FRONT:", JSON.stringify(response.data));
+      return res.status(400).json(response.data);
+      
     }
 
     return res.json(response.data);
