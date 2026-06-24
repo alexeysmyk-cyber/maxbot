@@ -141,12 +141,11 @@ timeEndInput.addEventListener("change", () => {
   const end = timeEndInput.value;
   if (!end) return;
 
-  // 🔥 начало не может быть позже конца
   timeStartInput.max = end;
 
-  // ❗ если уже выбрано начало и оно больше → сброс
+  // ❗ если конец меньше начала → исправляем КОНЕЦ
   if (timeStartInput.value && timeStartInput.value >= end) {
-    timeStartInput.value = "";
+    timeEndInput.value = ""; // 👈 меняем то, что ввели
   }
 });
 
@@ -226,6 +225,7 @@ if (noIntersections) {
 }
 
       console.log("CREATE BODY:", body);
+         await handleCreateSchedule(body, noIntersections);
     });
 
   // ===============================
@@ -299,4 +299,95 @@ function formatDate(date) {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const y = date.getFullYear();
   return `${d}.${m}.${y}`;
+}
+
+async function handleCreateSchedule(body, isNoIntersection) {
+
+  if (!isNoIntersection) {
+    return await createScheduleRequest(body);
+  }
+
+  // ===============================
+  // 🔥 1. Проверяем расписание
+  // ===============================
+  const checkRes = await fetch("/miniapp/schedule-periods", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    },
+    body: JSON.stringify({
+      time_start: `${body.date} ${body.time_start}`,
+      time_end: `${body.date} ${body.time_end}`,
+      clinic_id: body.clinic_id
+    })
+  });
+
+  const checkData = await checkRes.json();
+
+  if (!checkData.error && checkData.data?.length) {
+
+    const conflict = checkData.data.find(item => {
+      return item.room && body.room && item.room === body.room;
+    });
+
+    if (conflict) {
+
+      const confirmResult = confirm(
+        "В этом кабинете в выбранное время принимает другой врач.\nВы точно хотите создать слот?"
+      );
+
+      if (!confirmResult) return;
+
+    }
+  }
+
+  // ===============================
+  // 🔥 2. Создаём слот
+  // ===============================
+  return await createScheduleRequest(body);
+}
+
+async function createScheduleRequest(body) {
+
+
+await fetch("/miniapp/create-schedule", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token")
+  },
+  body: JSON.stringify(body)
+});
+
+
+
+  const data = await res.json();
+
+  if (data.error) {
+    showErrorModal(data.data?.desc || "Ошибка создания");
+    return;
+  }
+
+  showSuccess("Слот успешно создан");
+
+}
+function showErrorModal(text) {
+
+  const modal = document.createElement("div");
+  modal.className = "error-modal";
+
+  modal.innerHTML = `
+    <div class="error-box">
+      <div class="error-title">Ошибка</div>
+      <div class="error-text">${text}</div>
+      <button id="errorOkBtn">ОК</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById("errorOkBtn").onclick = () => {
+    modal.remove();
+  };
 }

@@ -803,6 +803,127 @@ router.post("/schedule-periods", async (req, res) => {
     return res.status(500).json({ error: "SERVER_ERROR" });
   }
 });
+router.post("/create-schedule", async (req, res) => {
+
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(403).json({ error: "NO_ACCESS" });
+    }
+
+    const {
+      date,
+      time_start,
+      time_end,
+      user_id,
+      clinic_id,
+      room,
+      is_cancel,
+      comment,
+      no_intersections
+    } = req.body;
+
+    if (!date || !time_start || !time_end || !user_id) {
+      return res.status(400).json({ error: "NO_REQUIRED_FIELDS" });
+    }
+
+    // ===============================
+    // 🔥 ЕСЛИ НУЖНО ПРОВЕРЯТЬ ПЕРЕСЕЧЕНИЯ
+    // ===============================
+    if (no_intersections) {
+
+      const bodyCheck = qs.stringify({
+        api_key: process.env.API_KEY,
+        time_start: `${date} ${time_start}`,
+        time_end: `${date} ${time_end}`,
+        clinic_id
+      });
+
+      const checkUrl = process.env.BASE_URL + "/getSchedulePeriods";
+
+      const checkResponse = await axios.post(checkUrl, bodyCheck, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+
+      const checkData = checkResponse.data;
+
+      if (checkData.error === 0 && checkData.data?.length) {
+
+        const start = new Date(`${date} ${time_start}`);
+        const end = new Date(`${date} ${time_end}`);
+
+        const conflict = checkData.data.find(item => {
+          const itemStart = new Date(item.time_start);
+          const itemEnd = new Date(item.time_end);
+
+          return start < itemEnd && end > itemStart;
+        });
+
+        if (conflict) {
+
+          if (conflict.room && room && conflict.room === room) {
+            return res.status(400).json({
+              error: 1,
+              data: {
+                code: 409,
+                desc: "В этом кабинете в выбранное время принимает другой врач"
+              }
+            });
+          }
+        }
+      }
+    }
+
+    // ===============================
+    // 🔥 СОЗДАЁМ СЛОТ В MIS
+    // ===============================
+    const body = {
+      api_key: process.env.API_KEY,
+      date,
+      time_start,
+      time_end,
+      user_id,
+      clinic_id
+    };
+
+    if (room) body.room = room;
+    if (is_cancel) {
+      body.is_cancel = 1;
+      body.comment = comment || "";
+    }
+
+    const url = process.env.BASE_URL + "/createSchedule";
+
+    const response = await axios.post(
+      url,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        validateStatus: () => true
+      }
+    );
+
+    if (!response.data || typeof response.data !== "object") {
+      return res.status(502).json({ error: "MIS_INVALID_RESPONSE" });
+    }
+
+    if (response.data.error !== 0) {
+      return res.status(400).json(response.data);
+    }
+
+    return res.json(response.data);
+
+  } catch (err) {
+    console.log("create-schedule error:", err.message);
+
+    return res.status(500).json({
+      error: "SERVER_ERROR"
+    });
+  }
+});
 
 
 function formatDate(dateInput) {
