@@ -2321,3 +2321,17 @@ input[type="date"].form-input {
     flex-direction: column;
   }
 }
+
+#roomSelect {
+  width: 100%;
+  padding: 8px 12px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  height: 38px;
+  box-sizing: border-box;
+
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
