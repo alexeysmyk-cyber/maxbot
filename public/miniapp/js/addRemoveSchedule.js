@@ -389,12 +389,20 @@ async function createScheduleRequest(body) {
 const text = await res.text();
 console.log("RAW RESPONSE:", text);
 
-    let data;
+let data;
 
-   try {
+try {
   data = JSON.parse(text);
 } catch (e) {
   return { success: false, message: text };
+}
+
+// 👇 ВОТ СЮДА
+if (data && data.success === false) {
+  return {
+    success: false,
+    message: data.message
+  };
 }
 
     console.log("📡 STATUS:", res.status);
