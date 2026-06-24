@@ -936,3 +936,18 @@ function resolveAccess(roleNames = []) {
 
 
 export default router;
+
+
+export default router;
+
+
+// 👇 ВСТАВИТЬ СЮДА
+function send(res, success, message = "") {
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Connection", "close");
+
+  return res.end(JSON.stringify({
+    success,
+    message
+  }));
+}
