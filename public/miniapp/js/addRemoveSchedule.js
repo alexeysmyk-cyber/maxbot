@@ -243,11 +243,6 @@ console.log("👉 CALL handleCreateSchedule");
          const result = await handleCreateSchedule(body, noIntersections);
          console.log("🔥 RESULT:", result);
 
-if (!result) {
-  showErrorModal("Не удалось создать слот");
-  return;
-}
-
 if (!result.success) {
   showErrorModal(result.message);
   return;
@@ -384,24 +379,20 @@ async function createScheduleRequest(body) {
     });
 
     const data = await res.json();
+
     console.log("📥 RESPONSE:", data);
 
-    // ✅ ЕДИНЫЙ ФОРМАТ (главное)
-    if (!data.success) {
-      return {
-        success: false,
-        message: data.message || "Ошибка создания"
-      };
-    }
-
-    return { success: true };
+    // ❗ ВАЖНО
+    return {
+      success: data.success === true,
+      message: data.message || null
+    };
 
   } catch (e) {
     console.error("❌ FETCH ERROR:", e);
     return { success: false, message: "Ошибка сети" };
   }
 }
-
 
 
 function showErrorModal(text) {
