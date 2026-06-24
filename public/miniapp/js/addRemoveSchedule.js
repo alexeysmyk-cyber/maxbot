@@ -113,6 +113,43 @@ export async function openAddRemoveSchedule() {
     new Date()
   );
 
+  // Logika chtoby ne vybrali krivoe vremia
+
+  const timeStartInput = document.getElementById("timeStart");
+const timeEndInput = document.getElementById("timeEnd");
+
+// ===============================
+// 👉 START → ограничивает END
+// ===============================
+timeStartInput.addEventListener("change", () => {
+  const start = timeStartInput.value;
+  if (!start) return;
+
+  // 🔥 конец не может быть раньше начала
+  timeEndInput.min = start;
+
+  // ❗ если уже выбран конец и он меньше → сброс
+  if (timeEndInput.value && timeEndInput.value <= start) {
+    timeEndInput.value = "";
+  }
+});
+
+// ===============================
+// 👉 END → ограничивает START
+// ===============================
+timeEndInput.addEventListener("change", () => {
+  const end = timeEndInput.value;
+  if (!end) return;
+
+  // 🔥 начало не может быть позже конца
+  timeStartInput.max = end;
+
+  // ❗ если уже выбрано начало и оно больше → сброс
+  if (timeStartInput.value && timeStartInput.value >= end) {
+    timeStartInput.value = "";
+  }
+});
+
   // ===============================
   // 🔥 TOGGLE (ПОСЛЕ DOM!)
   // ===============================
