@@ -2268,6 +2268,7 @@ input[type="date"].form-input {
   width: 100%;
   padding: 8px;
   border-radius: 8px;
+  box-sizing: border-box; 
   border: 1px solid #ddd;
 }
 
@@ -2277,4 +2278,21 @@ input[type="date"].form-input {
 
 .segment.active:hover {
   filter: brightness(0.95);
+}
+.visit-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.form-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px; /* чтобы кнопка не перекрывала */
+}
+.fixed-bottom {
+  position: sticky; /* 🔥 лучше чем fixed */
+  bottom: 0;
+  background: white;
+  padding: 12px;
+  border-top: 1px solid #eee;
 }
