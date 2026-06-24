@@ -2337,14 +2337,18 @@ input[type="date"].form-input {
 }
 
 .checkbox-row {
-  display: flex;
-  align-items: center;   /* 🔥 ИДЕАЛЬНЫЙ центр */
+  display: flex !important;   /* 🔥 перебиваем block */
+  align-items: center;
   gap: 8px;
 
   margin-top: 10px;
-  margin-left: 10px;     /* 👉 правее (как ты хочешь) */
+  margin-left: 10px;
 
   cursor: pointer;
+}
+
+.form-group label.checkbox-row {
+  display: flex;   /* 🔥 переопределяет block */
 }
 
 /* чекбокс */
