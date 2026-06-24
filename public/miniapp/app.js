@@ -794,7 +794,7 @@ visitsTab.addEventListener("click", () => {
   setActive(visitsTab);
   renderVisits();
 });
-
+ 
 scheduleTab.addEventListener("click", () => {
   currentTab = "schedule";
   updateFabIcon();

@@ -2271,7 +2271,7 @@ input[type="date"].form-input {
   border: 1px solid #ddd;
 }
 .card + .card {
-  margin-top: 12px;
+  margin-top: 6px;
 }
 .segment:hover {
   background: #e5e7eb;
