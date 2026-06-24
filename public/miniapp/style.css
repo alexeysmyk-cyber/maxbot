@@ -2225,6 +2225,7 @@ input[type="date"].form-input {
 
 
 
+
 .segmented-control {
   display: flex;
   background: #f2f4f7;
@@ -2295,4 +2296,23 @@ input[type="date"].form-input {
   background: white;
   padding: 12px;
   border-top: 1px solid #eee;
+}
+.form-row {
+  display: flex;
+  gap: 10px; /* расстояние между полями */
+}
+
+.form-row .form-group {
+  flex: 1; /* равная ширина */
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #6b7280; /* мягкий серый */
+}
+@media (max-width: 400px) {
+  .form-row {
+    flex-direction: column;
+  }
 }

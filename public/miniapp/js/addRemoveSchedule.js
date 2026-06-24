@@ -33,7 +33,7 @@ export async function openAddRemoveSchedule() {
       </div>
 
       <!-- ✅ TOGGLE -->
-      <div class="card" style="margin-top:4px;">
+      <div class="card" style="margin-top:2px;">
 
         <div class="toggle-header">Тип слота</div>
 
@@ -49,17 +49,21 @@ export async function openAddRemoveSchedule() {
       </div>
 
       <!-- ✅ ФОРМА -->
-      <div class="card" style="margin-top:4px;">
+      <div class="card" style="margin-top:2px;">
 
-        <div class="form-group">
-          <label>Начало</label>
-          <input type="time" id="timeStart">
-        </div>
+        <div class="form-row">
 
-        <div class="form-group">
-          <label>Конец</label>
-          <input type="time" id="timeEnd">
-        </div>
+  <div class="form-group">
+    <label>Начало</label>
+    <input type="time" id="timeStart">
+  </div>
+
+  <div class="form-group">
+    <label>Конец</label>
+    <input type="time" id="timeEnd">
+  </div>
+
+</div>
 
         <div class="form-group">
           <label>Кабинет</label>
