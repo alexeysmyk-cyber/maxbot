@@ -328,37 +328,58 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
   if (!checkData.error && checkData.data?.length) {
 
-   const start = new Date(`${body.date} ${body.time_start}`);
+const start = new Date(`${body.date} ${body.time_start}`);
 const end = new Date(`${body.date} ${body.time_end}`);
 
 const conflict = checkData.data.find(item => {
-
   const itemStart = new Date(item.time_start);
   const itemEnd = new Date(item.time_end);
 
-  const isTimeOverlap = start < itemEnd && end > itemStart;
-  const isSameRoom = item.room && body.room && item.room === body.room;
-
-  return isTimeOverlap && isSameRoom;
+  return start < itemEnd && end > itemStart;
 });
-console.log("CONFLICT:", conflict);
 
-    if (conflict) {
 
-      const confirmResult = confirm(
-        "В этом кабинете в выбранное время принимает другой врач.\nВы точно хотите создать слот?"
-      );
+if (conflict) {
 
-      if (!confirmResult) return;
+    console.log("CONFLICT FOUND:", conflict);
 
-    }
+  const isSameRoom =
+    conflict.room && body.room && conflict.room === body.room;
+
+  // 👉 если тот же кабинет — спрашиваем
+  if (isSameRoom) {
+
+    const confirmResult = confirm(
+      "В этом кабинете в выбранное время принимает другой врач.\nВы точно хотите создать слот?"
+    );
+
+    if (!confirmResult) return;
+  }
+
+  // 👉 если другой кабинет — просто идём дальше (это ОК)
+}
+
+
+
   }
 
   // ===============================
   // 🔥 2. Создаём слот
   // ===============================
   return await createScheduleRequest(body);
+
+
+
+
+  
 }
+
+
+
+
+
+
+
 
 async function createScheduleRequest(body) {
   try {
