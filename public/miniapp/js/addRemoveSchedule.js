@@ -76,9 +76,9 @@ export async function openAddRemoveSchedule() {
   </select>
 </div>
 <div class="form-group">
-  <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+  <label class="checkbox-row">
     <input type="checkbox" id="noIntersectionsCheckbox">
-    Без пересечений визитов
+    <span>Без пересечений визитов</span>
   </label>
 </div>
 

@@ -2335,3 +2335,27 @@ input[type="date"].form-input {
   border-radius: 10px;
   border: 1px solid #ddd;
 }
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;              /* 🔥 меньше расстояние */
+  cursor: pointer;
+}
+
+/* сам чекбокс */
+.checkbox-row input[type="checkbox"] {
+  margin: 0;             /* 🔥 убирает сдвиг браузера */
+  width: 16px;
+  height: 16px;
+  accent-color: #00a4c7;
+
+  flex-shrink: 0;        /* 🔥 не сжимается */
+}
+
+/* текст */
+.checkbox-row span {
+  white-space: nowrap;   /* 🔥 ВСЕГДА в одну строку */
+  font-size: 13px;
+  color: #374151;
+}
