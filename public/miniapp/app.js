@@ -791,7 +791,7 @@ function attachEvents() {
 visitsTab.addEventListener("click", () => {
   currentTab = "visits";
   updateFabIcon();
-  setActive(scheduleTab);
+  setActive(visitsTab);
   renderVisits();
 });
 
