@@ -804,12 +804,14 @@ router.post("/schedule-periods", async (req, res) => {
   }
 });
 router.post("/create-schedule", async (req, res) => {
-
   try {
     const user = req.user;
 
     if (!user) {
-      return res.status(403).json({ error: "NO_ACCESS" });
+      return res.json({
+        success: false,
+        message: "Нет доступа"
+      });
     }
 
     const {
@@ -825,14 +827,16 @@ router.post("/create-schedule", async (req, res) => {
     } = req.body;
 
     if (!date || !time_start || !time_end || !user_id) {
-      return res.status(400).json({ error: "NO_REQUIRED_FIELDS" });
+      return res.json({
+        success: false,
+        message: "Не все поля заполнены"
+      });
     }
 
     // ===============================
-    // 🔥 ЕСЛИ НУЖНО ПРОВЕРЯТЬ ПЕРЕСЕЧЕНИЯ
+    // 🔥 ПРОВЕРКА ПЕРЕСЕЧЕНИЙ
     // ===============================
     if (no_intersections) {
-
       const bodyCheck = qs.stringify({
         api_key: process.env.API_KEY,
         time_start: `${date} ${time_start}`,
@@ -849,26 +853,20 @@ router.post("/create-schedule", async (req, res) => {
       const checkData = checkResponse.data;
 
       if (checkData.error === 0 && checkData.data?.length) {
-
         const start = new Date(`${date} ${time_start}`);
         const end = new Date(`${date} ${time_end}`);
 
         const conflict = checkData.data.find(item => {
           const itemStart = new Date(item.time_start);
           const itemEnd = new Date(item.time_end);
-
           return start < itemEnd && end > itemStart;
         });
 
         if (conflict) {
-
           if (conflict.room && room && conflict.room === room) {
-            return res.status(400).json({
-              error: 1,
-              data: {
-                code: 409,
-                desc: "В этом кабинете в выбранное время принимает другой врач"
-              }
+            return res.json({
+              success: false,
+              message: "В этом кабинете в выбранное время принимает другой врач"
             });
           }
         }
@@ -876,7 +874,7 @@ router.post("/create-schedule", async (req, res) => {
     }
 
     // ===============================
-    // 🔥 СОЗДАЁМ СЛОТ В MIS
+    // 🔥 СОЗДАНИЕ СЛОТА В MIS
     // ===============================
     const body = {
       api_key: process.env.API_KEY,
@@ -888,6 +886,7 @@ router.post("/create-schedule", async (req, res) => {
     };
 
     if (room) body.room = room;
+
     if (is_cancel) {
       body.is_cancel = 1;
       body.comment = comment || "";
@@ -906,32 +905,47 @@ router.post("/create-schedule", async (req, res) => {
       }
     );
 
+    console.log("➡️ CREATE SCHEDULE TO MIS:", body);
+    console.log("⬅️ MIS RESPONSE:", response.data);
+
+    // ===============================
+    // ❗ ПРОВЕРКА ОТВЕТА MIS
+    // ===============================
     if (!response.data || typeof response.data !== "object") {
-      return res.status(502).json({ error: "MIS_INVALID_RESPONSE" });
+      return res.json({
+        success: false,
+        message: "Некорректный ответ MIS"
+      });
     }
 
-console.log("➡️ CREATE SCHEDULE TO MIS:", body);
-console.log("⬅️ MIS RESPONSE:", response.data);
-
     if (response.data.error !== 0) {
+      const message =
+        response.data?.data?.desc || "Ошибка создания расписания";
 
-      console.log("📤 SEND TO FRONT:", JSON.stringify(response.data));
+      console.log("📤 SEND TO FRONT:", {
+        success: false,
+        message
+      });
 
-  return res.json({
-    success: false,
-    message: response.data?.data?.desc || "Ошибка MIS"
-  });
-}
+      return res.json({
+        success: false,
+        message
+      });
+    }
 
-return res.json({
-  success: true
-});
+    // ===============================
+    // ✅ УСПЕХ
+    // ===============================
+    return res.json({
+      success: true
+    });
 
   } catch (err) {
     console.log("create-schedule error:", err.message);
 
-    return res.status(500).json({
-      error: "SERVER_ERROR"
+    return res.json({
+      success: false,
+      message: "Ошибка сервера"
     });
   }
 });
