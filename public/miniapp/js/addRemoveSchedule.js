@@ -227,6 +227,7 @@ if (noIntersections) {
 console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
          const result = await handleCreateSchedule(body, noIntersections);
+         console.log("🔥 RESULT:", result);
 
 if (!result)   showErrorModal("Не удалось создать слот"); return;
 
