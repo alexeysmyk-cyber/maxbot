@@ -379,7 +379,15 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
-    const data = await res.json();
+    const text = await res.text();
+console.log("RAW RESPONSE:", text);
+
+let data;
+try {
+  data = JSON.parse(text);
+} catch (e) {
+  console.log("❌ JSON PARSE ERROR", e);
+}
 
     console.log("📥 RESPONSE:", data);
 
