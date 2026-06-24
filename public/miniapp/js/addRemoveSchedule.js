@@ -351,6 +351,8 @@ async function handleCreateSchedule(body, isNoIntersection) {
 async function createScheduleRequest(body) {
   try {
 
+    console.log("🚀 SENDING:", body);
+
     const res = await fetch("/miniapp/create-schedule", {
       method: "POST",
       headers: {
@@ -360,27 +362,41 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
-    const data = await res.json();
+    console.log("📡 STATUS:", res.status);
 
-    console.log("📦 STATUS:", res.status);
-    console.log("📦 RESPONSE:", data);
+    let data;
 
-    // 🔥 ВАЖНО — проверка статуса
-    if (!res.ok || data.error) {
-      showErrorModal(
-        data?.data?.desc || "Ошибка создания слота"
-      );
+    try {
+      data = await res.json();
+    } catch (e) {
+      console.error("❌ JSON PARSE ERROR");
+      showErrorModal("Сервер вернул некорректный ответ");
       return;
     }
 
+    console.log("📦 RESPONSE:", data);
+
+    // 🔥 ЛОВИМ ВСЁ
+    if (!res.ok) {
+      console.log("❌ HTTP ERROR");
+      showErrorModal(data?.data?.desc || "Ошибка сервера");
+      return;
+    }
+
+    if (data.error) {
+      console.log("❌ MIS ERROR");
+      showErrorModal(data?.data?.desc || "Ошибка MIS");
+      return;
+    }
+
+    console.log("✅ SUCCESS");
     showSuccess("Слот успешно создан");
 
   } catch (e) {
-    console.error("❌ FETCH ERROR:", e);
+    console.error("❌ FETCH CRASH:", e);
     showErrorModal("Ошибка сети");
   }
 }
-
 function showErrorModal(text) {
 
   const modal = document.createElement("div");
