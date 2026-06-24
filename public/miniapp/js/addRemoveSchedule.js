@@ -374,9 +374,6 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
 
 
-
-
-
 async function createScheduleRequest(body) {
   try {
 
