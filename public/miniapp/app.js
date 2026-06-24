@@ -14,12 +14,14 @@ let swipeBlockedUntil = 0;
 let gestureLocked = false;
 let gestureType = null; // "horizontal" | "vertical"
 let authToken = null;
+let currentTab = "visits";
 
 
 import { renderCalendar } from './js/calendar.js';
 import { loadSchedule } from "./js/schedule.js";
 import { openCreateVisit } from "./js/createVisit.js"; 
 import { renderSchedulePage } from "./js/schedulePage.js";
+import { openAddRemoveSchedule } from "./js/addRemoveSchedule.js";
 
 console.log("🔥 APP JS LOADED");
 
@@ -137,7 +139,7 @@ let response;
 let data;
 
 try {
-   console.log("📤 USING TOKEN:", authToken || localStorage.getItem('token'));
+   //console.log("📤 USING TOKEN:", authToken || localStorage.getItem('token'));
   response = await fetch('/miniapp/doctors', {
   method: 'POST',
   headers: {
@@ -153,7 +155,7 @@ try {
   console.warn("Doctors request timeout, retrying...");
 
   try {
-    console.log("📤 USING TOKEN:", authToken || localStorage.getItem('token'));
+    //console.log("📤 USING TOKEN:", authToken || localStorage.getItem('token'));
     response = await fetch('/miniapp/doctors', {
   method: 'POST',
   headers: {
@@ -719,17 +721,25 @@ function addFloatingButton() {
 
   let blocked = false;
 
-  fab.addEventListener("click", (e) => {
-    if (blocked) return;
+fab.addEventListener("click", () => {
 
-    blocked = true;
+  if (blocked) return;
+  blocked = true;
+
+  // 👉 ВИЗИТЫ
+  if (currentTab === "visits") {
     openCreateVisit();
+  }
 
-    // защита от повторного открытия
-    setTimeout(() => {
-      blocked = false;
-    }, 500);
-  });
+  // 👉 РАСПИСАНИЕ
+  else if (currentTab === "schedule") {
+    openAddRemoveSchedule();
+  }
+
+  setTimeout(() => {
+    blocked = false;
+  }, 500);
+});
 
 }
 
@@ -778,15 +788,28 @@ if (durationValue) {
 }
 
 function attachEvents() {
-  visitsTab.addEventListener('click', () => {
-    setActive(visitsTab);
-    renderVisits();
-  });
+visitsTab.addEventListener("click", () => {
+  currentTab = "visits";
+  updateFabIcon();
+  renderVisits();
+});
 
-  scheduleTab.addEventListener("click", () => {
-  setActive(scheduleTab);
+scheduleTab.addEventListener("click", () => {
+  currentTab = "schedule";
+  updateFabIcon();
   renderSchedulePage(authToken);
 });
+}
+
+function updateFabIcon() {
+  const fab = document.getElementById("fabCreate");
+  if (!fab) return;
+
+  if (currentTab === "visits") {
+    fab.innerText = "+";
+  } else if (currentTab === "schedule") {
+    fab.innerText = "⚙️";
+  }
 }
 
 
