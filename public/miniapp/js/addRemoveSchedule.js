@@ -224,6 +224,10 @@ if (roomValue) {
 if (noIntersections) {
   body.no_intersections = true;
 }
+
+const text = await res.text();
+console.log("RAW RESPONSE:", text);
+
 console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
          const result = await handleCreateSchedule(body, noIntersections);
