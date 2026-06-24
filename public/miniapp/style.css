@@ -2298,9 +2298,9 @@ input[type="date"].form-input {
   border-top: 1px solid #eee;
 }
 .form-row {
-  display: flex;
-   gap: 8px;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 .form-row input {
   min-width: 0; /* 🔥 фикс для time input */
