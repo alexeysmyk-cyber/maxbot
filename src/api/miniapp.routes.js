@@ -870,14 +870,19 @@ router.post("/create-schedule", async (req, res) => {
       return send(res, false, "Некорректный ответ MIS");
     }
 
-    if (response.data.error !== 0) {
-      const message =
-        response.data?.data?.desc || "Ошибка создания расписания";
+   if (Number(response.data.error) !== 0) {
+  const message =
+    response.data?.data?.desc || "Ошибка создания расписания";
 
-      return send(res, false, message);
-    }
+  console.log("📤 SEND TO FRONT:", {
+    success: false,
+    message
+  });
 
-    return send(res, true);
+  return send(res, false, message);
+}
+
+    return send(res, true, "OK");
 
   } catch (err) {
     console.log("create-schedule error:", err.message);
