@@ -386,6 +386,7 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
+
 const text = await res.text();
 console.log("RAW RESPONSE:", text);
 
@@ -394,35 +395,27 @@ let data;
 try {
   data = JSON.parse(text);
 } catch (e) {
-  return { success: false, message: text };
+  return { success: false, message: "Ошибка сервера" };
 }
 
-// 👇 ВОТ СЮДА
+// ✅ ЕДИНЫЙ ФОРМАТ
 if (data && data.success === false) {
   return {
     success: false,
-    message: data.message
+    message: data.message || "Ошибка"
   };
 }
 
-    console.log("📡 STATUS:", res.status);
-    console.log("📦 DATA:", data);
-
- if (data && data.error) {
-  console.log("❌ BACKEND ERROR FULL:", data);
-
+// ❌ старый MIS формат (оставим на всякий случай)
+if (data && data.error) {
   return {
     success: false,
-    message:
-      data?.data?.desc ||
-      data?.message ||
-      JSON.stringify(data) ||
-      "Ошибка создания"
+    message: data?.data?.desc || "Ошибка MIS"
   };
 }
 
-
-    return { success: true };
+// ✅ успех
+return { success: true };
 
   } catch (e) {
     console.error("❌ FETCH ERROR:", e);
