@@ -226,7 +226,16 @@ if (noIntersections) {
 }
 console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
-         await handleCreateSchedule(body, noIntersections);
+         const result = await handleCreateSchedule(body, noIntersections);
+
+if (!result) return;
+
+if (!result.success) {
+  showErrorModal(result.message);
+  return;
+}
+
+showSuccess("Слот успешно создан");
     });
 
   // ===============================
@@ -373,12 +382,8 @@ if (conflict) {
 console.log("👉 BEFORE CREATE REQUEST");
 
   return await createScheduleRequest(body);
-
-console.log("👉 AFTER CREATE REQUEST");
-
   
 }
-
 
 
 
@@ -403,35 +408,29 @@ async function createScheduleRequest(body) {
     try {
       data = await res.json();
     } catch (e) {
-      showErrorModal("Сервер вернул некорректный ответ");
-      return;
+      return { success: false, message: "Некорректный ответ сервера" };
     }
 
     console.log("📡 STATUS:", res.status);
     console.log("📦 DATA:", data);
 
-    // 🔥 ВОТ КЛЮЧ
-    if (!res.ok) {
-      showErrorModal(
-        data?.data?.desc || "Ошибка создания слота"
-      );
-      return;
+    if (!res.ok || data.error) {
+      return {
+        success: false,
+        message: data?.data?.desc || "Ошибка создания"
+      };
     }
 
-    if (data.error) {
-      showErrorModal(
-        data?.data?.desc || "Ошибка MIS"
-      );
-      return;
-    }
-
-    showSuccess("Слот успешно создан");
+    return { success: true };
 
   } catch (e) {
     console.error("❌ FETCH ERROR:", e);
-    showErrorModal("Ошибка сети");
+    return { success: false, message: "Ошибка сети" };
   }
 }
+
+
+
 function showErrorModal(text) {
 
     console.log("🔥 SHOW ERROR:", text); 
