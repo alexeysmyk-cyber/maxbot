@@ -305,7 +305,11 @@ function formatDate(date) {
 async function handleCreateSchedule(body, isNoIntersection) {
 
   if (!isNoIntersection) {
-    return await createScheduleRequest(body);
+  console.log("👉 BEFORE CREATE REQUEST");
+
+  return await createScheduleRequest(body);
+
+console.log("👉 AFTER CREATE REQUEST");
   }
 
   // ===============================
@@ -366,10 +370,11 @@ if (conflict) {
   // ===============================
   // 🔥 2. Создаём слот
   // ===============================
+console.log("👉 BEFORE CREATE REQUEST");
+
   return await createScheduleRequest(body);
 
-
-
+console.log("👉 AFTER CREATE REQUEST");
 
   
 }
@@ -384,8 +389,6 @@ if (conflict) {
 async function createScheduleRequest(body) {
   try {
 
-    console.log("🚀 SENDING:", body);
-
     const res = await fetch("/miniapp/create-schedule", {
       method: "POST",
       headers: {
@@ -395,42 +398,43 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
-    console.log("📡 STATUS:", res.status);
-
     let data;
 
     try {
       data = await res.json();
     } catch (e) {
-      console.error("❌ JSON PARSE ERROR");
       showErrorModal("Сервер вернул некорректный ответ");
       return;
     }
 
-    console.log("📦 RESPONSE:", data);
+    console.log("📡 STATUS:", res.status);
+    console.log("📦 DATA:", data);
 
-    // 🔥 ЛОВИМ ВСЁ
+    // 🔥 ВОТ КЛЮЧ
     if (!res.ok) {
-      console.log("❌ HTTP ERROR");
-      showErrorModal(data?.data?.desc || "Ошибка сервера");
+      showErrorModal(
+        data?.data?.desc || "Ошибка создания слота"
+      );
       return;
     }
 
     if (data.error) {
-      console.log("❌ MIS ERROR");
-      showErrorModal(data?.data?.desc || "Ошибка MIS");
+      showErrorModal(
+        data?.data?.desc || "Ошибка MIS"
+      );
       return;
     }
 
-    console.log("✅ SUCCESS");
     showSuccess("Слот успешно создан");
 
   } catch (e) {
-    console.error("❌ FETCH CRASH:", e);
+    console.error("❌ FETCH ERROR:", e);
     showErrorModal("Ошибка сети");
   }
 }
 function showErrorModal(text) {
+
+    console.log("🔥 SHOW ERROR:", text); 
 
   const modal = document.createElement("div");
   modal.className = "error-modal";
