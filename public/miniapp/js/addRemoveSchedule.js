@@ -225,15 +225,17 @@ if (noIntersections) {
   body.no_intersections = true;
 }
 
-const text = await res.text();
-console.log("RAW RESPONSE:", text);
+
 
 console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
          const result = await handleCreateSchedule(body, noIntersections);
          console.log("🔥 RESULT:", result);
 
-if (!result)   showErrorModal("Не удалось создать слот"); return;
+if (!result) {
+  showErrorModal("Не удалось создать слот");
+  return;
+}
 
 if (!result.success) {
   showErrorModal(result.message);
@@ -408,10 +410,14 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
+const text = await res.text();
+console.log("RAW RESPONSE:", text);
+
     let data;
 
     try {
       data = await res.json();
+
     } catch (e) {
       return { success: false, message: "Некорректный ответ сервера" };
     }
