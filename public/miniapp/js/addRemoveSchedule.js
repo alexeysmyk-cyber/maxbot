@@ -350,28 +350,35 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
 async function createScheduleRequest(body) {
 
+  try {
 
-await fetch("/miniapp/create-schedule", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token")
-  },
-  body: JSON.stringify(body)
-});
+    const res = await fetch("/miniapp/create-schedule", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify(body)
+    });
 
+    const data = await res.json();
 
+    console.log("📦 RESPONSE:", data);
 
-  const data = await res.json();
+    if (data.error) {
+      showErrorModal(data.data?.desc || "Ошибка создания");
+      return;
+    }
 
-  if (data.error) {
-    showErrorModal(data.data?.desc || "Ошибка создания");
-    return;
+    showSuccess("Слот успешно создан");
+
+  } catch (e) {
+    console.error("❌ FETCH ERROR:", e);
+    showErrorModal("Ошибка сети или сервера");
   }
-
-  showSuccess("Слот успешно создан");
-
 }
+
+
 function showErrorModal(text) {
 
   const modal = document.createElement("div");
@@ -390,4 +397,8 @@ function showErrorModal(text) {
   document.getElementById("errorOkBtn").onclick = () => {
     modal.remove();
   };
+}
+
+function showSuccess(text) {
+  alert(text);
 }
