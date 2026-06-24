@@ -332,10 +332,12 @@ function formatDate(date) {
 async function handleCreateSchedule(body, isNoIntersection) {
   try {
 
+    // 🔥 если без проверок — сразу создаём
     if (!isNoIntersection) {
       return await createScheduleRequest(body);
     }
 
+    // 🔥 проверка пересечений
     const checkRes = await fetch("/miniapp/schedule-periods", {
       method: "POST",
       headers: {
@@ -349,21 +351,17 @@ async function handleCreateSchedule(body, isNoIntersection) {
       })
     });
 
-    const text = await checkRes.text();
-    console.log("CHECK RAW:", text);
+    const checkData = await checkRes.json();
+    console.log("📊 CHECK:", checkData);
 
-    let checkData;
-
-    try {
-      checkData = JSON.parse(text);
-    } catch {
+    // если ошибка проверки
+    if (checkData.error) {
       return { success: false, message: "Ошибка проверки расписания" };
     }
 
-    if (!checkData.error && checkData.data?.length) {
-      // твоя логика
-    }
+    // 🔥 тут можешь оставить свою логику конфликтов (если нужна)
 
+    // создаём слот
     return await createScheduleRequest(body);
 
   } catch (e) {
@@ -376,7 +374,6 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
 async function createScheduleRequest(body) {
   try {
-
     const res = await fetch("/miniapp/create-schedule", {
       method: "POST",
       headers: {
@@ -386,36 +383,18 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
+    const data = await res.json();
+    console.log("📥 RESPONSE:", data);
 
-const text = await res.text();
-console.log("RAW RESPONSE:", text);
+    // ✅ ЕДИНЫЙ ФОРМАТ (главное)
+    if (!data.success) {
+      return {
+        success: false,
+        message: data.message || "Ошибка создания"
+      };
+    }
 
-let data;
-
-try {
-  data = JSON.parse(text);
-} catch (e) {
-  return { success: false, message: "Ошибка сервера" };
-}
-
-// ✅ ЕДИНЫЙ ФОРМАТ
-if (data && data.success === false) {
-  return {
-    success: false,
-    message: data.message || "Ошибка"
-  };
-}
-
-// ❌ старый MIS формат (оставим на всякий случай)
-if (data && data.error) {
-  return {
-    success: false,
-    message: data?.data?.desc || "Ошибка MIS"
-  };
-}
-
-// ✅ успех
-return { success: true };
+    return { success: true };
 
   } catch (e) {
     console.error("❌ FETCH ERROR:", e);

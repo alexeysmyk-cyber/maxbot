@@ -917,14 +917,15 @@ console.log("⬅️ MIS RESPONSE:", response.data);
 
       console.log("📤 SEND TO FRONT:", JSON.stringify(response.data));
 
-      return res.json({
-  success: false,
-  message: response.data?.data?.desc || "Ошибка MIS"
-});
-      
-    }
+  return res.json({
+    success: false,
+    message: response.data?.data?.desc || "Ошибка MIS"
+  });
+}
 
-    return res.json(response.data);
+return res.json({
+  success: true
+});
 
   } catch (err) {
     console.log("create-schedule error:", err.message);
