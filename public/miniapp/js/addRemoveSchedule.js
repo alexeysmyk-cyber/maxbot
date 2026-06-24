@@ -243,8 +243,8 @@ console.log("👉 CALL handleCreateSchedule");
          const result = await handleCreateSchedule(body, noIntersections);
          console.log("🔥 RESULT:", result);
 
-if (!result.success) {
-  showErrorModal(result.message);
+if (!result || !result.success) {
+  showErrorModal(result?.message || "Ошибка создания");
   return;
 }
 
@@ -383,10 +383,10 @@ async function createScheduleRequest(body) {
     console.log("📥 RESPONSE:", data);
 
     // ❗ ВАЖНО
-    return {
-      success: data.success === true,
-      message: data.message || null
-    };
+  return {
+  success: data?.success === true,
+  message: data?.message || "Ошибка"
+};
 
   } catch (e) {
     console.error("❌ FETCH ERROR:", e);
