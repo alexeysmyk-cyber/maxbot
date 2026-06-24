@@ -196,7 +196,8 @@ timeEndInput.addEventListener("change", () => {
       const timeStart = document.getElementById("timeStart").value;
       const timeEnd = document.getElementById("timeEnd").value;
       const roomValue = document.getElementById("roomSelect").value;
-const noIntersections = document.getElementById("noIntersectionsCheckbox").checked;
+const noIntersections = document.getElementById("noIntersectionsCheckbox")?.checked;
+console.log("👉 CLICK CREATE");
       const comment = document.getElementById("cancelCommentInput")?.value || "";
 
       const body = {
@@ -223,7 +224,7 @@ if (roomValue) {
 if (noIntersections) {
   body.no_intersections = true;
 }
-
+console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
          await handleCreateSchedule(body, noIntersections);
     });
