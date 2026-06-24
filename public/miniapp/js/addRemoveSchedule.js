@@ -328,9 +328,20 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
   if (!checkData.error && checkData.data?.length) {
 
-    const conflict = checkData.data.find(item => {
-      return item.room && body.room && item.room === body.room;
-    });
+   const start = new Date(`${body.date} ${body.time_start}`);
+const end = new Date(`${body.date} ${body.time_end}`);
+
+const conflict = checkData.data.find(item => {
+
+  const itemStart = new Date(item.time_start);
+  const itemEnd = new Date(item.time_end);
+
+  const isTimeOverlap = start < itemEnd && end > itemStart;
+  const isSameRoom = item.room && body.room && item.room === body.room;
+
+  return isTimeOverlap && isSameRoom;
+});
+console.log("CONFLICT:", conflict);
 
     if (conflict) {
 
