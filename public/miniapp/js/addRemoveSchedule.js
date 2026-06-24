@@ -415,17 +415,16 @@ console.log("RAW RESPONSE:", text);
 
     let data;
 
-    try {
-      data = await res.json();
-
-    } catch (e) {
-      return { success: false, message: "Некорректный ответ сервера" };
-    }
+   try {
+  data = JSON.parse(text);
+} catch (e) {
+  return { success: false, message: text };
+}
 
     console.log("📡 STATUS:", res.status);
     console.log("📦 DATA:", data);
 
- if (!res.ok || data.error) {
+ if  (data.error) {
   console.log("❌ BACKEND ERROR FULL:", data);
 
   return {
@@ -438,7 +437,6 @@ console.log("RAW RESPONSE:", text);
   };
 }
 
-console.log("👉 RESULT:", result);
 
     return { success: true };
 
