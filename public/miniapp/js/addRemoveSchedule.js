@@ -1,68 +1,170 @@
 import { renderCalendar } from "./calendar.js";
 
-
 export async function openAddRemoveSchedule() {
 
-  // 🔥 получаем FAB
   const fab = document.getElementById("fabCreate");
-
-  // 🔥 скрываем кнопку
   if (fab) fab.style.display = "none";
 
-  // 🔥 создаём overlay
+  let isCancel = false;
+  let selectedDate = new Date(); // ✅ фикс
+
   const overlay = document.createElement("div");
   overlay.className = "visit-overlay";
 
-overlay.innerHTML = `
-  <div class="visit-container">
+  overlay.innerHTML = `
+    <div class="visit-container">
 
-    <div class="create-header">
-      <div class="create-title">
-        Управление расписанием
+      <div class="create-header">
+        <div class="create-title">
+          Управление расписанием
+        </div>
+        <div class="create-close" id="closeAddRemove">✕</div>
       </div>
-      <div class="create-close" id="closeAddRemove">✕</div>
-    </div>
 
-    <div class="card doctor-row">
-      <div class="doctor-select-wrapper" id="doctorContainer">
-        Загрузка врачей...
+      <div class="card doctor-row">
+        <div class="doctor-select-wrapper" id="doctorContainer">
+          Загрузка врачей...
+        </div>
       </div>
-    </div>
 
-    <div class="card calendar-wrapper">
-      <div id="addScheduleCalendar"></div>
-    </div>
+      <!-- ✅ КАЛЕНДАРЬ -->
+      <div class="card calendar-wrapper">
+        <div id="addScheduleCalendar"></div>
+      </div>
 
-    <div class="card" style="margin-top:20px;">
-      Тут будет логика add/remove
-    </div>
+      <!-- ✅ TOGGLE -->
+      <div class="card" style="margin-top:16px;">
 
-  </div>
-`;
+        <div class="toggle-header">Тип слота</div>
+
+        <div class="segmented-control" id="slotTypeToggle">
+          <div class="segment active" data-type="schedule">
+            Расписание
+          </div>
+          <div class="segment" data-type="cancel">
+            Отмена
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ✅ ФОРМА -->
+      <div class="card" style="margin-top:16px;">
+
+        <div class="form-group">
+          <label>Начало</label>
+          <input type="time" id="timeStart">
+        </div>
+
+        <div class="form-group">
+          <label>Конец</label>
+          <input type="time" id="timeEnd">
+        </div>
+
+        <div class="form-group">
+          <label>Кабинет</label>
+          <input type="text" id="roomInput" placeholder="Например: 101">
+        </div>
+
+        <div class="form-group" id="cancelCommentBlock" style="display:none;">
+          <label>Причина отмены</label>
+          <textarea id="cancelCommentInput"></textarea>
+        </div>
+
+      </div>
+
+      <!-- ✅ КНОПКА -->
+      <div class="fixed-bottom">
+        <button class="primary-btn" id="createScheduleBtn">
+          Создать слот
+        </button>
+      </div>
+
+    </div>
+  `;
 
   document.body.appendChild(overlay);
 
+  // ===============================
+  // 🔥 КАЛЕНДАРЬ
+  // ===============================
   renderCalendar(
-  document.getElementById("addScheduleCalendar"),
-  (date) => {
-    console.log("Выбрана дата:", date);
-  },
-  new Date()
-);
+    document.getElementById("addScheduleCalendar"),
+    (date) => {
+      selectedDate = new Date(date); // ✅ фикс
+      console.log("Дата:", selectedDate);
+    },
+    new Date()
+  );
 
-await loadDoctors();
+  // ===============================
+  // 🔥 TOGGLE (ПОСЛЕ DOM!)
+  // ===============================
+  const segments = document.querySelectorAll("#slotTypeToggle .segment");
+  const commentBlock = document.getElementById("cancelCommentBlock");
 
-  // 🔥 универсальная функция закрытия
+  segments.forEach(seg => {
+    seg.addEventListener("click", () => {
+
+      segments.forEach(s => s.classList.remove("active"));
+      seg.classList.add("active");
+
+      const type = seg.dataset.type;
+
+      if (type === "cancel") {
+        isCancel = true;
+        commentBlock.style.display = "block";
+      } else {
+        isCancel = false;
+        commentBlock.style.display = "none";
+      }
+
+    });
+  });
+
+  // ===============================
+  // 🔥 ДОКТОРА
+  // ===============================
+  await loadDoctors();
+
+  // ===============================
+  // 🔥 CREATE
+  // ===============================
+  document
+    .getElementById("createScheduleBtn")
+    .addEventListener("click", async () => {
+
+      const doctorId = document.getElementById("addScheduleDoctorSelect").value;
+      const timeStart = document.getElementById("timeStart").value;
+      const timeEnd = document.getElementById("timeEnd").value;
+      const room = document.getElementById("roomInput").value;
+      const comment = document.getElementById("cancelCommentInput")?.value || "";
+
+      const body = {
+        date: formatDate(selectedDate),
+        time_start: timeStart,
+        time_end: timeEnd,
+        user_id: doctorId,
+        clinic_id: 2997,
+        room,
+        is_cancel: isCancel ? 1 : 0,
+        comment: isCancel ? comment : ""
+      };
+
+      console.log("CREATE BODY:", body);
+    });
+
+  // ===============================
+  // 🔥 CLOSE
+  // ===============================
   function closeOverlay() {
     overlay.remove();
     if (fab) fab.style.display = "flex";
   }
 
-  // 🔥 крестик
   document
     .getElementById("closeAddRemove")
     .addEventListener("click", closeOverlay);
-
 }
 
 async function loadDoctors() {
@@ -117,4 +219,10 @@ async function loadDoctors() {
   } catch (err) {
     container.innerHTML = "Ошибка сети";
   }
+}
+function formatDate(date) {
+  const d = String(date.getDate()).padStart(2, "0");
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const y = date.getFullYear();
+  return `${d}.${m}.${y}`;
 }

@@ -2219,3 +2219,46 @@ input[type="date"].form-input {
 .schedule-bar-outside.left {
   right: calc(100% + 3px);
 }
+
+
+
+
+
+
+.segmented-control {
+  display: flex;
+  background: #f2f4f7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.segment {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.segment.active {
+  background: #2563eb;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
