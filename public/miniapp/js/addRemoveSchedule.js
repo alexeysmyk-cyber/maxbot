@@ -316,6 +316,7 @@ if (!isCancel && noIntersections) {
 }
 
 
+// Проверка пересечения расписания
 const conflict = hasScheduleIntersection({
     doctorId: body.user_id,
     date: selectedDate,
@@ -339,6 +340,30 @@ ${startTime} — ${endTime}
     );
 
     return;
+}
+
+// ===============================
+// Проверка кабинета
+// ===============================
+
+if (!isCancel && noIntersections) {
+
+    const roomConflict = hasRoomIntersection({
+
+        doctorId: body.user_id,
+
+        room: roomValue,
+
+        date: selectedDate,
+
+        start: body.time_start,
+
+        end: body.time_end
+
+    });
+
+    console.log("ROOM CONFLICT:", roomConflict);
+
 }
 
 console.log("👉 CALL handleCreateSchedule");
@@ -699,5 +724,64 @@ function parseDate(str) {
 
     return new Date(`${y}-${m}-${d}T${time}`);
 
+}
+
+export function hasRoomIntersection({
+    doctorId,
+    room,
+    date,
+    start,
+    end
+}) {
+
+    const data = getScheduleFromCache(date);
+
+    if (!data.length) {
+        return null;
+    }
+
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+
+    const newStart = new Date(`${yyyy}-${mm}-${dd}T${start}`);
+    const newEnd = new Date(`${yyyy}-${mm}-${dd}T${end}`);
+
+    for (const item of data) {
+
+        // другой день
+        if (item.date !== formatDate(date)) {
+            continue;
+        }
+
+        // другой кабинет
+        if (item.room !== room) {
+            continue;
+        }
+
+        // свой врач
+        if (String(item.user_id) === String(doctorId)) {
+            continue;
+        }
+
+        // отмены кабинет не занимают
+        if (Number(item.type) === 3) {
+            continue;
+        }
+
+        const itemStart = parseDate(item.time_start);
+        const itemEnd = parseDate(item.time_end);
+
+        const intersect =
+            newStart < itemEnd &&
+            newEnd > itemStart;
+
+        if (intersect) {
+            return item;
+        }
+
+    }
+
+    return null;
 }
 
