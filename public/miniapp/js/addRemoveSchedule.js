@@ -286,6 +286,9 @@ if (timeStart >= timeEnd) {
 
 }
 
+
+alert("1");
+
 const conflict = hasScheduleIntersection({
 
     doctorId: body.user_id,
@@ -297,6 +300,28 @@ const conflict = hasScheduleIntersection({
     end: body.time_end
 
 });
+
+alert("2");
+
+if (conflict) {
+
+    alert("3");
+
+    alert(JSON.stringify(conflict));
+
+    return;
+}
+
+alert("4");
+
+if (conflict) {
+
+    showErrorModal(
+        `Новый слот пересекается...`
+    );
+
+    return;
+}
 
 if (conflict) {
 
