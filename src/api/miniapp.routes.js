@@ -879,19 +879,14 @@ router.post("/create-schedule", async (req, res) => {
 
       console.log("❌ INVALID MIS RESPONSE");
 
-      return res.status(418).json({
-        test: "INVALID_RESPONSE"
-      });
+      return res.status(200).json(answer);
     }
 
     if (Number(response.data.error) !== 0) {
 
       console.log("❌ ERROR BRANCH");
 
-      return res.status(418).json({
-        test: "CREATE_SCHEDULE_ERROR",
-        message: "TEST_ONLY"
-      });
+      return res.status(200).json(answer);
     }
 
     console.log("✅ SUCCESS BRANCH");

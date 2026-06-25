@@ -418,11 +418,13 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
 async function createScheduleRequest(body) {
 
+  console.log("1️⃣ BEFORE FETCH");
+
+  let res;
+
   try {
 
-    console.log("1️⃣ BEFORE FETCH");
-
-    const res = await fetch("/miniapp/create-schedule", {
+    res = await fetch("/miniapp/create-schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -431,56 +433,50 @@ async function createScheduleRequest(body) {
       body: JSON.stringify(body)
     });
 
-    console.log("2️⃣ FETCH FINISHED");
-    console.log("STATUS:", res.status);
-    console.log("OK:", res.ok);
+  } catch (e) {
+
+    console.error("❌ FETCH THREW");
+    console.error(e);
+
+    return {
+      success: false,
+      message: "FETCH ERROR: " + e.message
+    };
+  }
+
+  console.log("2️⃣ FETCH RETURNED");
+  console.log(res);
+
+  try {
 
     const raw = await res.text();
 
-    console.log("3️⃣ RAW RESPONSE:");
+    console.log("3️⃣ RAW:");
     console.log(raw);
 
-    let data;
+    const data = JSON.parse(raw);
 
-    try {
-      data = JSON.parse(raw);
-    } catch (e) {
-
-      console.error("❌ JSON PARSE ERROR");
-      console.error(raw);
-
-      return {
-        success: false,
-        message: "Некорректный JSON"
-      };
-    }
-
-    console.log("4️⃣ PARSED RESPONSE:");
+    console.log("4️⃣ JSON:");
     console.log(data);
 
-    const result = {
-      success: data.success === true,
-      message: data.message || ""
+    return {
+      success: data.success,
+      message: data.message
     };
-
-    console.log("5️⃣ RETURN:");
-    console.log(result);
-
-    return result;
 
   } catch (e) {
 
-    console.error("❌ FETCH ERROR");
+    console.error("❌ READ ERROR");
     console.error(e);
 
     return {
       success: false,
       message: e.message
     };
+
   }
 
 }
-
 
 
 
