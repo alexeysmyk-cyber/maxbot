@@ -558,23 +558,23 @@ function formatMonth(date) {
 
 function mergeIntervals(list) {
 
-console.log("MERGE INPUT:");
-console.log(list);
+   const out = document.getElementById("currentDoctorSchedule");
+
+    if (out) {
+        out.innerHTML = `
+<pre style="font-size:11px;white-space:pre-wrap;">
+${JSON.stringify(list, null, 2)}
+</pre>
+`;
+    }
+
+    return list;
 
   const sorted = list.sort((a, b) => a.start - b.start);
 
   const merged = [];
 
-    list.forEach((item, i) => {
-    console.log(
-      i,
-      "start =", item.start,
-      "end =", item.end,
-      "time_start =", item.time_start,
-      "time_end =", item.time_end
-    );
-  });
-
+   
 
 
   for (const item of sorted) {
