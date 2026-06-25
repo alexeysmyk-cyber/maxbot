@@ -2514,3 +2514,49 @@ input[type="date"].form-input {
 
     background:#c3d7df;
 }
+.schedule-editor{
+    width:520px;
+    max-width:95%;
+}
+
+.editor-doctor{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+.editor-date{
+    color:#666;
+    margin-bottom:18px;
+}
+
+.editor-time-row{
+    display:flex;
+    gap:14px;
+    margin-bottom:16px;
+}
+
+.editor-field{
+    flex:1;
+}
+
+.editor-field label{
+    display:block;
+    font-size:13px;
+    margin-bottom:6px;
+}
+
+.editor-field input{
+    width:100%;
+}
+
+.checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:20px;
+}
+
+.danger-btn{
+    background:#d9534f;
+}

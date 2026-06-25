@@ -1,6 +1,10 @@
 //import { showConfirmModal } from "./addRemoveSchedule.js";
 //import { showSuccessModal } from "./addRemoveSchedule.js";
 //import { showErrorModal } from "./addRemoveSchedule.js";
+// 
+let currentSlot = null;
+let currentAppointments = [];
+let currentModal = null;
 
 const appointmentsCache = new Map();
 
@@ -17,45 +21,150 @@ function formatTime(date){
 function formatDate(date){
 
 }
-export async function openScheduleSlotEditor(item){
+export async function openScheduleSlotEditor(item) {
 
-    const modal = document.createElement("div");
+    currentSlot = structuredClone(item);
 
-    modal.className = "error-modal";
+    buildEditor();
 
-    modal.innerHTML = `
-        <div class="error-box schedule-editor">
+}
 
-            <div class="error-title">
-                Удаление расписания
-            </div>
+function buildEditor() {
 
-            <div class="error-text">
+    if (currentModal) {
+        currentModal.remove();
+    }
 
-                Здесь будет редактор
+    currentModal = document.createElement("div");
 
-            </div>
+    currentModal.className = "error-modal";
 
-            <button
-                class="primary-btn"
-                id="closeScheduleEditor">
+    currentModal.innerHTML = buildEditorHtml();
 
-                Закрыть
+    document.body.appendChild(currentModal);
 
-            </button>
+    attachEditorEvents();
+
+}
+function buildEditorHtml() {
+
+    return `
+
+<div class="error-box schedule-editor">
+
+    <div class="error-title">
+
+        Управление расписанием
+
+    </div>
+
+    <div class="editor-doctor">
+
+        👨‍⚕️ ${currentSlot.doctor_name || currentSlot.doctor || ""}
+
+    </div>
+
+    <div class="editor-date">
+
+        📅 ${currentSlot.date}
+
+    </div>
+
+    <div class="editor-time-row">
+
+        <div class="editor-field">
+
+            <label>Начало</label>
+
+            <input
+                id="editorStart"
+                type="time"
+                value="${currentSlot.time_start.split(" ")[1].slice(0,5)}">
 
         </div>
-    `;
 
-    document.body.appendChild(modal);
+        <div class="editor-field">
+
+            <label>Конец</label>
+
+            <input
+                id="editorEnd"
+                type="time"
+                value="${currentSlot.time_end.split(" ")[1].slice(0,5)}">
+
+        </div>
+
+    </div>
+
+    ${currentSlot.type !== 3 ? `
+
+    <label class="checkbox-row">
+
+        <input
+            id="deleteCancels"
+            type="checkbox">
+
+        Удалить также отмены
+
+    </label>
+
+    ` : ""}
+
+    <div id="appointmentsContainer">
+
+        Загрузка пациентов...
+
+    </div>
+
+    <div class="modal-buttons">
+
+        <button
+            class="primary-btn danger-btn"
+            id="removeScheduleBtn">
+
+            Удалить расписание
+
+        </button>
+
+        <button
+            class="primary-btn secondary-btn"
+            id="closeScheduleEditor">
+
+            Закрыть
+
+        </button>
+
+    </div>
+
+</div>
+
+`;
+
+}
+
+function attachEditorEvents() {
 
     document
         .getElementById("closeScheduleEditor")
         .onclick = () => {
 
-            modal.remove();
+            currentModal.remove();
+
+            currentModal = null;
 
         };
+
+}
+
+function getDate(str){
+
+    return str.split(" ")[0];
+
+}
+
+function getTime(str){
+
+    return str.split(" ")[1].slice(0,5);
 
 }
 async function loadAppointments(){
