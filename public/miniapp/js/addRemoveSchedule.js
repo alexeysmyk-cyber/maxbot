@@ -359,9 +359,9 @@ const roomConflict = hasRoomIntersection({
 if (roomConflict) {
 
     const doctorName =
-        window.doctorsMap?.[String(roomConflict.user_id)] ||
-        "Другой врач";
-
+    window.doctorsMap?.[String(roomConflict.user_id)] ||
+    `Врач ID ${roomConflict.user_id}`;
+    
     const startTime = roomConflict.time_start.split(" ")[1].slice(0, 5);
     const endTime = roomConflict.time_end.split(" ")[1].slice(0, 5);
 
@@ -460,6 +460,12 @@ async function loadDoctors() {
     }
 
     const { doctors = [], isDirector = false, currentDoctorId } = data;
+
+    window.doctorsMap = {};
+
+doctors.forEach(d => {
+    window.doctorsMap[String(d.id)] = d.name;
+});
 
     let allowedDoctors = [];
 
@@ -663,17 +669,17 @@ export function showConfirmModal(text, onYes) {
                 ${text}
             </div>
 
-            <div class="modal-buttons">
+           <div class="modal-buttons">
 
-                <button id="confirmNo">
-                    Нет
-                </button>
+    <button class="primary-btn secondary-btn" id="confirmNo">
+        Нет
+    </button>
 
-                <button id="confirmYes">
-                    Да
-                </button>
+    <button class="primary-btn" id="confirmYes">
+        Да
+    </button>
 
-            </div>
+</div>
 
         </div>
     `;

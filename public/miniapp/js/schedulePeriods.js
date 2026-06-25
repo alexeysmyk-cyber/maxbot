@@ -218,7 +218,10 @@ filteredItems.forEach(item => {
     start: parseDate(item.time_start),
     end: parseDate(item.time_end),
     type: item.type,
-    room: item.room
+    room: item.room,
+      without_crossing: item.without_crossing,
+      start: parseDate(item.time_start),
+    end: parseDate(item.time_end)
   });
   });
 
