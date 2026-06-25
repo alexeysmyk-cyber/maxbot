@@ -877,57 +877,41 @@ router.post("/create-schedule", async (req, res) => {
 
     if (!response.data || typeof response.data !== "object") {
 
-      const answer = {
-        success: false,
-        message: "Некорректный ответ MIS"
-      };
+      console.log("❌ INVALID MIS RESPONSE");
 
-      console.log("📤 RESPONSE:", answer);
-      console.log("📤 HEADERS SENT:", res.headersSent);
-
-      return res.status(200).json(answer);
+      return res.status(418).json({
+        test: "INVALID_RESPONSE"
+      });
     }
 
     if (Number(response.data.error) !== 0) {
 
-      const answer = {
-        success: false,
-        message: response.data?.data?.desc || "Ошибка создания расписания"
-      };
+      console.log("❌ ERROR BRANCH");
 
-      console.log("📤 RESPONSE:", answer);
-      console.log("📤 HEADERS SENT:", res.headersSent);
-
-      return res.status(200).json(answer);
+      return res.status(418).json({
+        test: "CREATE_SCHEDULE_ERROR",
+        message: "TEST_ONLY"
+      });
     }
 
-    const answer = {
+    console.log("✅ SUCCESS BRANCH");
+
+    return res.status(200).json({
       success: true,
       message: "OK"
-    };
-
-    console.log("📤 RESPONSE:", answer);
-    console.log("📤 HEADERS SENT:", res.headersSent);
-
-return res.status(418).json({
-    abc: 123,
-    xyz: "TEST_ONLY"
-});
+    });
 
   } catch (err) {
 
     console.error("❌ CREATE ERROR:", err);
 
-    const answer = {
-      success: false,
-      message: "Ошибка сервера"
-    };
-
     if (!res.headersSent) {
-      return res.status(500).json(answer);
+      return res.status(500).json({
+        success: false,
+        message: "Ошибка сервера"
+      });
     }
   }
-
 });
 
 
