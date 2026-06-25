@@ -290,6 +290,8 @@ let html = `
 // ===============================
 
 let occupiedZones = [];
+const barItems = [];
+
 function isFree(start, end) {
   return !occupiedZones.some(z =>
     !(end < z.start || start > z.end)
