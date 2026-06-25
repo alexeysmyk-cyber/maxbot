@@ -608,51 +608,30 @@ export function hasScheduleIntersection({
 
     const data = getScheduleFromCache(date);
 
-    console.log("===== CHECK INTERSECTION =====");
-console.log("DATE:", date);
-console.log("DOCTOR:", doctorId);
-console.log("CACHE:", data);
-console.log("CACHE LENGTH:", data.length);
-
     if (!data.length) {
         return null;
     }
 
-    const day = formatLocalDate(date);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
 
-    const startMinutes = getMinutes(
-        new Date(`${day.split(".").reverse().join("-")}T${start}`)
-    );
-
-    const endMinutes = getMinutes(
-        new Date(`${day.split(".").reverse().join("-")}T${end}`)
-    );
+    const newStart = new Date(`${yyyy}-${mm}-${dd}T${start}`);
+    const newEnd = new Date(`${yyyy}-${mm}-${dd}T${end}`);
 
     for (const item of data) {
-
-        console.log("ITEM:", item);
 
         if (String(item.user_id) !== String(doctorId)) {
             continue;
         }
 
-        const itemStart = getMinutes(
-            new Date(item.time_start.replace(" ", "T"))
-        );
+        const itemStart = new Date(item.time_start.replace(" ", "T"));
+        const itemEnd = new Date(item.time_end.replace(" ", "T"));
 
-        const itemEnd = getMinutes(
-            new Date(item.time_end.replace(" ", "T"))
-        );
-
-        // Есть пересечение
-        if (startMinutes < itemEnd && endMinutes > itemStart) {
-
+        if (newStart < itemEnd && newEnd > itemStart) {
             return item;
-
         }
-
     }
 
     return null;
-
 }
