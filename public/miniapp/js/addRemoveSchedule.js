@@ -1,5 +1,8 @@
 import { renderCalendar } from "./calendar.js";
-import { renderDoctorTimeline } from "./schedulePeriods.js";
+import {
+    renderDoctorTimeline,
+    getScheduleFromCache
+} from "./schedulePeriods.js";
 
 export async function openAddRemoveSchedule() {
 
