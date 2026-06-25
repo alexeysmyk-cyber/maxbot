@@ -19,10 +19,43 @@ function formatDate(date){
 }
 export async function openScheduleSlotEditor(item){
 
-    
-    console.log("OPEN SLOT");
+    const modal = document.createElement("div");
 
-    console.log(item);
+    modal.className = "error-modal";
+
+    modal.innerHTML = `
+        <div class="error-box schedule-editor">
+
+            <div class="error-title">
+                Удаление расписания
+            </div>
+
+            <div class="error-text">
+
+                Здесь будет редактор
+
+            </div>
+
+            <button
+                class="primary-btn"
+                id="closeScheduleEditor">
+
+                Закрыть
+
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document
+        .getElementById("closeScheduleEditor")
+        .onclick = () => {
+
+            modal.remove();
+
+        };
 
 }
 async function loadAppointments(){
