@@ -7,6 +7,7 @@ export async function openAddRemoveSchedule() {
 
   let isCancel = false;
   let selectedDate = new Date(); // ✅ фикс
+  window.selectedScheduleDate = selectedDate;
 
   const overlay = document.createElement("div");
   overlay.className = "visit-overlay";
@@ -114,6 +115,7 @@ renderCalendar(
   (date) => {
 
     selectedDate = new Date(date);
+    window.selectedScheduleDate = selectedDate;
 
     console.log("Дата:", selectedDate);
 
@@ -498,35 +500,32 @@ function showSuccess(text) {
 
 function renderCurrentDoctorSchedule() {
 
-  const container =
-    document.getElementById("currentDoctorSchedule");
+    const container =
+        document.getElementById("currentDoctorSchedule");
 
-  if (!container) return;
+    if (!container) return;
 
-  const doctorId =
-    document.getElementById("addScheduleDoctorSelect")?.value;
+    const doctorId =
+        document.getElementById("addScheduleDoctorSelect")?.value;
 
-  if (!doctorId) {
-    container.innerHTML = "";
-    return;
-  }
+    if (!doctorId) {
+        container.innerHTML = "";
+        return;
+    }
 
-  const date = formatDate(selectedDate);
+    const date =
+        formatDate(window.selectedScheduleDate);
 
-  const periods = window.currentSchedule || [];
+    const periods =
+        window.scheduleData || [];
 
-  const doctorPeriods = periods.filter(item => {
+    console.log("DATE:", date);
+    console.log("DOCTOR:", doctorId);
+    console.log("PERIODS:", periods.length);
 
-    return (
-      String(item.user_id) === String(doctorId) &&
-      item.date === date
-    );
+    container.innerHTML =
+        "<pre>" +
+        JSON.stringify(periods.slice(0, 5), null, 2) +
+        "</pre>";
 
-  });
-
-  container.innerHTML = `
-    <pre style="font-size:12px;overflow:auto;">
-${JSON.stringify(doctorPeriods, null, 2)}
-    </pre>
-  `;
 }

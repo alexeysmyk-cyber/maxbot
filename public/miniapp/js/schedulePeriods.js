@@ -4,6 +4,7 @@
 
 
 const scheduleCache = new Map();
+window.scheduleData = [];
 const CACHE_TTL = 20 * 1000; // 20 секунд
 
 
@@ -76,7 +77,8 @@ const response = await fetch("/miniapp/schedule-periods", {
 });
 
 const data = await response.json();
-window.currentSchedule = data.data;
+
+window.scheduleData = data.data || [];
 
 if (!response.ok || data.error) {
   throw new Error("LOAD_ERROR");
