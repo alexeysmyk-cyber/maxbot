@@ -19,7 +19,10 @@ function formatDate(date){
 }
 export async function openScheduleSlotEditor(item){
 
-     console.log("OPEN SLOT", item);
+    
+    console.log("OPEN SLOT");
+
+    console.log(item);
 
 }
 async function loadAppointments(){

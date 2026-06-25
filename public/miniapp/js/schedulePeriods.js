@@ -215,14 +215,14 @@ filteredItems.forEach(item => {
   }
 
   grouped[room][item.user_id].push({
+
+    ...item,
+
     start: parseDate(item.time_start),
-    end: parseDate(item.time_end),
-    type: item.type,
-    room: item.room,
-      without_crossing: item.without_crossing,
-      start: parseDate(item.time_start),
+
     end: parseDate(item.time_end)
-  });
+
+});
   });
 
 let html = `
@@ -499,9 +499,10 @@ function buildBarHtml({ left, width, mode, text, item }) {
         </div>
       ` : ``}
 
-      <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
-           data-start="${formatTime(item.start)}"
-           data-end="${formatTime(item.end)}">
+      <div  class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
+    data-index="${item.__index}"
+    data-start="${formatTime(item.start)}"
+    data-end="${formatTime(item.end)}">
 
         ${item.without_crossing ? `
           <div class="bar-without-crossing">
@@ -613,10 +614,12 @@ function attachBarEvents(container) {
 
         el.onclick = () => {
 
-           // alert(
-            //    el.dataset.start + " - " + el.dataset.end
-           // );
-openScheduleSlotEditor(item);
+            const item = barItems[
+                Number(el.dataset.index)
+            ];
+
+            openScheduleSlotEditor(item);
+
         };
 
     });
@@ -662,19 +665,17 @@ function renderDoctorRow(userId, items, doctorsMap) {
 
     });
 
-    occupiedZones = [];
+occupiedZones = [];
 
-console.log("MERGED:", merged);
+barItems.length = 0;
 
 const bars = merged.map((i, idx) => {
 
-    console.log("BAR ITEM:", i);
+    i.__index = idx;
 
-    const html = renderBar(i, idx, merged);
+    barItems[idx] = i;
 
-    console.log("BAR HTML:", html);
-
-    return html;
+    return renderBar(i, idx, merged);
 
 });
 
