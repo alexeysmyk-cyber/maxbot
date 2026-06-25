@@ -736,24 +736,7 @@ export function renderDoctorTimeline({
 
   const data = getScheduleFromCache(date);
 
-  container.innerHTML = `
-<div style="
-padding:10px;
-font-size:12px;
-white-space:pre-wrap;
-">
-doctorId = ${doctorId}
 
-date = ${date}
-
-cache = ${data.length}
-
-first =
-${JSON.stringify(data[0], null, 2)}
-</div>
-`;
-
-return;
 
   console.log("CACHE LENGTH:", data.length);
 
@@ -780,6 +763,23 @@ return;
     item.date === formattedDate &&
     String(item.user_id) === String(doctorId)
   );
+
+container.innerHTML = `
+<div style="padding:10px;font-size:12px;white-space:pre-wrap;">
+doctorId = ${doctorId}
+
+date = ${formattedDate}
+
+cache = ${data.length}
+
+found = ${doctorItems.length}
+
+first found =
+${JSON.stringify(doctorItems[0], null, 2)}
+</div>
+`;
+
+return;
 
   console.log("FOUND ITEMS:", doctorItems.length);
 
