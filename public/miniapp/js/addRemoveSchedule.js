@@ -328,12 +328,16 @@ function formatDate(date) {
 async function handleCreateSchedule(body, isNoIntersection) {
   try {
 
-    // 🔥 если без проверок — сразу создаём
+    console.log("🚀 HANDLE START");
+
+    // Если проверка пересечений отключена
     if (!isNoIntersection) {
+      console.log("➡️ CREATE WITHOUT CHECK");
       return await createScheduleRequest(body);
     }
 
-    // 🔥 проверка пересечений
+    console.log("➡️ CHECK SCHEDULE");
+
     const checkRes = await fetch("/miniapp/schedule-periods", {
       method: "POST",
       headers: {
@@ -341,29 +345,102 @@ async function handleCreateSchedule(body, isNoIntersection) {
         "Authorization": "Bearer " + localStorage.getItem("token")
       },
       body: JSON.stringify({
-        time_start: `${body.date} ${body.time_start}`,
-        time_end: `${body.date} ${body.time_end}`,
-        clinic_id: body.clinic_id
+        date: body.date,
+        user_id: body.user_id
       })
     });
 
-    const checkData = await checkRes.json();
-    console.log("📊 CHECK:", checkData);
+    console.log("✅ CHECK STATUS:", checkRes.status);
 
-    // если ошибка проверки
+    const checkData = await checkRes.json();
+
+    console.log("📊 CHECK DATA:", checkData);
+
     if (checkData.error) {
-      return { success: false, message: "Ошибка проверки расписания" };
+      return {
+        success: false,
+        message: "Ошибка проверки расписания"
+      };
     }
 
-    // 🔥 тут можешь оставить свою логику конфликтов (если нужна)
+    console.log("➡️ CREATE AFTER CHECK");
 
-    // создаём слот
     return await createScheduleRequest(body);
 
   } catch (e) {
     console.error("🔥 HANDLE ERROR:", e);
-    return { success: false, message: "Ошибка при создании" };
+
+    return {
+      success: false,
+      message: e.message
+    };
   }
+}
+
+
+async function createScheduleRequest(body) {
+
+  try {
+
+    console.log("1️⃣ BEFORE FETCH");
+
+    const res = await fetch("/miniapp/create-schedule", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify(body)
+    });
+
+    console.log("2️⃣ FETCH FINISHED");
+    console.log("STATUS:", res.status);
+    console.log("OK:", res.ok);
+
+    const raw = await res.text();
+
+    console.log("3️⃣ RAW RESPONSE:");
+    console.log(raw);
+
+    let data;
+
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+
+      console.error("❌ JSON PARSE ERROR");
+      console.error(raw);
+
+      return {
+        success: false,
+        message: "Некорректный JSON"
+      };
+    }
+
+    console.log("4️⃣ PARSED RESPONSE:");
+    console.log(data);
+
+    const result = {
+      success: data.success === true,
+      message: data.message || ""
+    };
+
+    console.log("5️⃣ RETURN:");
+    console.log(result);
+
+    return result;
+
+  } catch (e) {
+
+    console.error("❌ FETCH ERROR");
+    console.error(e);
+
+    return {
+      success: false,
+      message: e.message
+    };
+  }
+
 }
 
 
