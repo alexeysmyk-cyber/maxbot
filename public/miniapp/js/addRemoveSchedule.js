@@ -608,6 +608,12 @@ export function hasScheduleIntersection({
 
     const data = getScheduleFromCache(date);
 
+    console.log("===== CHECK INTERSECTION =====");
+console.log("DATE:", date);
+console.log("DOCTOR:", doctorId);
+console.log("CACHE:", data);
+console.log("CACHE LENGTH:", data.length);
+
     if (!data.length) {
         return null;
     }
@@ -623,6 +629,8 @@ export function hasScheduleIntersection({
     );
 
     for (const item of data) {
+
+        console.log("ITEM:", item);
 
         if (String(item.user_id) !== String(doctorId)) {
             continue;
