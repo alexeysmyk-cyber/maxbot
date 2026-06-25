@@ -621,13 +621,19 @@ function attachBarEvents(container) {
 
         el.onclick = () => {
 
-            alert("CLICK");
+    alert("CLICK");
 
-            const item = barItems[Number(el.dataset.index)];
+    const item = barItems[
+        Number(el.dataset.index)
+    ];
 
-            openScheduleSlotEditor(item);
+    alert(item ? "ITEM OK" : "ITEM NULL");
 
-        };
+    openScheduleSlotEditor(item);
+
+    alert("AFTER OPEN");
+
+};
 
     });
 
