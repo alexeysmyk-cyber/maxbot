@@ -196,7 +196,21 @@ timeEndInput.addEventListener("change", () => {
   // 🔥 ДОКТОРА
   // ===============================
   await loadDoctors();
+
+
+try {
+  console.log("➡️ BEFORE renderCurrentDoctorSchedule");
+
   renderCurrentDoctorSchedule();
+
+  console.log("✅ AFTER renderCurrentDoctorSchedule");
+
+} catch (e) {
+
+  console.error("❌ RENDER ERROR");
+  console.error(e);
+
+}
 
   // ===============================
   // 🔥 CREATE
@@ -499,6 +513,9 @@ function showSuccess(text) {
 }
 
 function renderCurrentDoctorSchedule() {
+
+console.log("renderCurrentDoctorSchedule");
+
 
     const container =
         document.getElementById("currentDoctorSchedule");

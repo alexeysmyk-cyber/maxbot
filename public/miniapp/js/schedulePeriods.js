@@ -723,10 +723,22 @@ export function renderDoctorTimeline({
   date
 }) {
 
+
+
+console.log("=== renderDoctorTimeline ===");
+console.log("doctorId:", doctorId);
+console.log("date:", date);
+
+const data = getScheduleFromCache(date);
+
+console.log("CACHE DATA:", data);
+console.log("CACHE LENGTH:", data.length);
+
+
   if (!container) return;
 
   const data = getScheduleFromCache(date);
-  console.log(data[0]);
+ 
 
   if (!data.length) {
 
