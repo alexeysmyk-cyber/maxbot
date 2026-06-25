@@ -1,4 +1,3 @@
-import { showModal } from "adminjs";
 import { renderCalendar } from "./calendar.js";
 import {
     renderDoctorTimeline,
@@ -325,7 +324,7 @@ if (!result || !result.success) {
   return;
 }
 
-showModal("Слот успешно создан");
+showErrorModal("Слот успешно создан");
 invalidateScheduleMonth(selectedDate);
 
 await renderCurrentDoctorSchedule();
