@@ -807,6 +807,11 @@ router.post("/create-schedule", async (req, res) => {
 
   res.on("finish", () => {
     console.log("✅ RESPONSE FINISHED");
+    console.log("📤 STATUS:", res.statusCode);
+  });
+
+  res.on("close", () => {
+    console.log("🔒 RESPONSE CLOSED");
   });
 
   console.log("🔥 CREATE SCHEDULE HIT", Date.now());
@@ -815,7 +820,10 @@ router.post("/create-schedule", async (req, res) => {
     const user = req.user;
 
     if (!user) {
-      return send(res, false, "Нет доступа");
+      return res.status(401).json({
+        success: false,
+        message: "Нет доступа"
+      });
     }
 
     const {
@@ -826,12 +834,14 @@ router.post("/create-schedule", async (req, res) => {
       clinic_id,
       room,
       is_cancel,
-      comment,
-      no_intersections
+      comment
     } = req.body;
 
     if (!date || !time_start || !time_end || !user_id) {
-      return send(res, false, "Не все поля заполнены");
+      return res.status(400).json({
+        success: false,
+        message: "Не все поля заполнены"
+      });
     }
 
     const body = {
@@ -850,10 +860,10 @@ router.post("/create-schedule", async (req, res) => {
       body.comment = comment || "";
     }
 
-    const url = process.env.BASE_URL + "/createSchedule";
+    console.log("➡️ CREATE SCHEDULE TO MIS:", body);
 
     const response = await axios.post(
-      url,
+      process.env.BASE_URL + "/createSchedule",
       qs.stringify(body),
       {
         headers: {
@@ -863,31 +873,58 @@ router.post("/create-schedule", async (req, res) => {
       }
     );
 
-    console.log("➡️ CREATE SCHEDULE TO MIS:", body);
     console.log("⬅️ MIS RESPONSE:", response.data);
 
     if (!response.data || typeof response.data !== "object") {
-      return send(res, false, "Некорректный ответ MIS");
+
+      const answer = {
+        success: false,
+        message: "Некорректный ответ MIS"
+      };
+
+      console.log("📤 RESPONSE:", answer);
+      console.log("📤 HEADERS SENT:", res.headersSent);
+
+      return res.status(200).json(answer);
     }
 
-   if (Number(response.data.error) !== 0) {
-  const message =
-    response.data?.data?.desc || "Ошибка создания расписания";
+    if (Number(response.data.error) !== 0) {
 
-  console.log("📤 SEND TO FRONT:", {
-    success: false,
-    message
-  });
+      const answer = {
+        success: false,
+        message: response.data?.data?.desc || "Ошибка создания расписания"
+      };
 
-  return send(res, false, message);
-}
+      console.log("📤 RESPONSE:", answer);
+      console.log("📤 HEADERS SENT:", res.headersSent);
 
-    return send(res, true, "OK");
+      return res.status(200).json(answer);
+    }
+
+    const answer = {
+      success: true,
+      message: "OK"
+    };
+
+    console.log("📤 RESPONSE:", answer);
+    console.log("📤 HEADERS SENT:", res.headersSent);
+
+    return res.status(200).json(answer);
 
   } catch (err) {
-    console.log("create-schedule error:", err.message);
-    return send(res, false, "Ошибка сервера");
+
+    console.error("❌ CREATE ERROR:", err);
+
+    const answer = {
+      success: false,
+      message: "Ошибка сервера"
+    };
+
+    if (!res.headersSent) {
+      return res.status(500).json(answer);
+    }
   }
+
 });
 
 

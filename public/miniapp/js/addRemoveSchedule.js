@@ -370,6 +370,7 @@ async function handleCreateSchedule(body, isNoIntersection) {
 
 async function createScheduleRequest(body) {
   try {
+    console.log("1. Перед fetch");
     const res = await fetch("/miniapp/create-schedule", {
       method: "POST",
       headers: {
@@ -378,9 +379,10 @@ async function createScheduleRequest(body) {
       },
       body: JSON.stringify(body)
     });
-
+console.log("2. После fetch");
     const text = await res.text();
-console.log("RAW RESPONSE:", text);
+console.log("3. После text");
+console.log("RAW:", text);
 
 let data;
 try {
@@ -392,7 +394,14 @@ try {
     console.log("📥 RESPONSE:", data);
 
     // ❗ ВАЖНО
+
+    console.log("FINAL DATA:", data);
+console.log("RETURN:", {
+    success: data?.success === true,
+    message: data?.message || "Ошибка"
+});
   return {
+    
   success: data?.success === true,
   message: data?.message || "Ошибка"
 };
