@@ -558,24 +558,15 @@ function formatMonth(date) {
 
 function mergeIntervals(list) {
 
-   const out = document.getElementById("currentDoctorSchedule");
+  const normalized = list.map(item => ({
+    ...item,
+    start: parseDate(item.time_start),
+    end: parseDate(item.time_end)
+  }));
 
-    if (out) {
-        out.innerHTML = `
-<pre style="font-size:11px;white-space:pre-wrap;">
-${JSON.stringify(list, null, 2)}
-</pre>
-`;
-    }
-
-    return list;
-
-  const sorted = list.sort((a, b) => a.start - b.start);
+  const sorted = normalized.sort((a, b) => a.start - b.start);
 
   const merged = [];
-
-   
-
 
   for (const item of sorted) {
 
@@ -587,10 +578,18 @@ ${JSON.stringify(list, null, 2)}
     const last = merged[merged.length - 1];
 
     if (item.start <= last.end) {
-      last.end = new Date(Math.max(last.end, item.end));
+
+      if (item.end > last.end) {
+        last.end = item.end;
+        last.time_end = item.time_end;
+      }
+
     } else {
+
       merged.push(item);
+
     }
+
   }
 
   return merged;
