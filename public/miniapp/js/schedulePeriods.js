@@ -738,7 +738,8 @@ console.log("=== renderDoctorTimeline ===");
   console.log("CACHE LENGTH:", data.length);
 
   if (!data.length) {
-
+  console.log("FIRST USER:", data[0].user_id);
+    console.log("FIRST DATE:", data[0].date);
     container.innerHTML = `
       <div class="card empty-state">
         Нет расписания
@@ -750,10 +751,15 @@ console.log("=== renderDoctorTimeline ===");
 
   const formattedDate = formatLocalDate(date);
 
+  console.log("DATE:", formattedDate);
+console.log("DOCTOR:", doctorId);
+
   const doctorItems = data.filter(item =>
     item.date === formattedDate &&
     String(item.user_id) === String(doctorId)
   );
+
+  console.log("FOUND:", doctorItems.length);
 
   if (!doctorItems.length) {
 
