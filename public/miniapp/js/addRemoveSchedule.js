@@ -361,7 +361,7 @@ if (roomConflict) {
     const doctorName =
     window.doctorsMap?.[String(roomConflict.user_id)] ||
     `Врач ID ${roomConflict.user_id}`;
-    
+
     const startTime = roomConflict.time_start.split(" ")[1].slice(0, 5);
     const endTime = roomConflict.time_end.split(" ")[1].slice(0, 5);
 
@@ -419,7 +419,7 @@ if (!result || !result.success) {
   return;
 }
 
-showConfirmModal("Слот успешно создан");
+showSuccessModal("Слот успешно создан");
 invalidateScheduleMonth(selectedDate);
 
 await renderCurrentDoctorSchedule();

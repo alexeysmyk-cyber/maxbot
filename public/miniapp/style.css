@@ -2485,3 +2485,32 @@ input[type="date"].form-input {
 
     margin:0;
 }
+
+.secondary-btn {
+
+    background: #d7e7ee;
+
+    color: #425466;
+
+    border: 1px solid #c5d7df;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    font-weight: 600;
+
+    transition: .15s;
+}
+
+.secondary-btn:hover{
+
+    background:#ccdfe7;
+}
+
+.secondary-btn:active{
+
+    transform:scale(.97);
+
+    background:#c3d7df;
+}

@@ -201,7 +201,7 @@ editFiltersBtn.addEventListener("click", () => {
 
 });
 
-document.addEventListener("click", (e) => {
+filterPanel.addEventListener("click", (e) => {
 
   const line = e.target.closest(".toggle-line");
   if (!line) return;
@@ -209,10 +209,7 @@ document.addEventListener("click", (e) => {
   const input = line.querySelector("input");
   if (!input) return;
 
-  // 👉 вручную переключаем
   input.checked = !input.checked;
-
-  console.log("🔥 CLICK TOGGLE", input.id);
 
   if (input.id === "toggleDoctorsOnly") {
     onlyDoctors = input.checked;
@@ -226,17 +223,11 @@ document.addEventListener("click", (e) => {
     noWorktime = input.checked;
   }
 
-  console.log("STATE:", {
-    onlyDoctors,
-    noCancelled,
-    noWorktime
-  });
-
   updateDoctorSelect();
   updateFilterSummary();
   reloadSchedule();
-});
 
+});
 
 
 
