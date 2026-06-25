@@ -2,7 +2,8 @@ import { showModal } from "adminjs";
 import { renderCalendar } from "./calendar.js";
 import {
     renderDoctorTimeline,
-    getScheduleFromCache
+    getScheduleFromCache,
+    invalidateScheduleMonth
 } from "./schedulePeriods.js";
 
 export async function openAddRemoveSchedule() {
@@ -666,8 +667,3 @@ function parseDate(str) {
 
 }
 
-export function invalidateScheduleMonth(date) {
-
-    scheduleCache.delete(formatMonth(date));
-
-}

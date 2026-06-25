@@ -861,3 +861,8 @@ export async function renderDoctorTimeline({
   console.log("✅ EVENTS ATTACHED");
   console.log("==================================");
 }
+export function invalidateScheduleMonth(date) {
+
+    scheduleCache.delete(formatMonth(date));
+
+}
