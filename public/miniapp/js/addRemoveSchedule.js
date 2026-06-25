@@ -621,17 +621,42 @@ export function hasScheduleIntersection({
 
     for (const item of data) {
 
-        if (String(item.user_id) !== String(doctorId)) {
-            continue;
-        }
-
-        const itemStart = new Date(item.time_start.replace(" ", "T"));
-        const itemEnd = new Date(item.time_end.replace(" ", "T"));
-
-        if (newStart < itemEnd && newEnd > itemStart) {
-            return item;
-        }
+    if (String(item.user_id) !== String(doctorId)) {
+        continue;
     }
 
+    const itemStart = parseDate(item.time_start);
+    const itemEnd = parseDate(item.time_end);
+
+    console.log("--------------------");
+    console.log("NEW:", newStart, newEnd);
+    console.log("ITEM:", item.time_start, item.time_end);
+    console.log("PARSED:", itemStart, itemEnd);
+
+    const intersect =
+        newStart < itemEnd &&
+        newEnd > itemStart;
+
+    console.log("INTERSECT =", intersect);
+
+    if (intersect) {
+
+        console.log("❌ CONFLICT FOUND");
+
+        return item;
+    }
+}
+
+console.log("✅ NO CONFLICT");
+
     return null;
+}
+function parseDate(str) {
+
+    const [date, time] = str.split(" ");
+
+    const [d, m, y] = date.split(".");
+
+    return new Date(`${y}-${m}-${d}T${time}`);
+
 }
