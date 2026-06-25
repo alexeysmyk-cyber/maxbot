@@ -306,6 +306,15 @@ function reserve(start, end) {
 }
 function renderBar(item, index, allBars) {
 
+  console.log("========== RENDER BAR ==========");
+console.log(item);
+
+console.log("item.start =", item.start);
+console.log("item.end   =", item.end);
+
+console.log("time_start =", item.time_start);
+console.log("time_end   =", item.time_end);
+
   const totalBars = allBars.length;
 
   const dayStart = 8 * 60;
@@ -549,9 +558,24 @@ function formatMonth(date) {
 
 function mergeIntervals(list) {
 
+console.log("MERGE INPUT:");
+console.log(list);
+
   const sorted = list.sort((a, b) => a.start - b.start);
 
   const merged = [];
+
+    list.forEach((item, i) => {
+    console.log(
+      i,
+      "start =", item.start,
+      "end =", item.end,
+      "time_start =", item.time_start,
+      "time_end =", item.time_end
+    );
+  });
+
+
 
   for (const item of sorted) {
 
@@ -623,25 +647,39 @@ function renderDoctorRow(userId, items, doctorsMap) {
 
     occupiedZones = [];
 
-    return `
-        <div class="schedule-row">
+console.log("MERGED:", merged);
 
-            <div class="schedule-label">
-                👨‍⚕️ ${doctorsMap[String(userId)] || ("ID " + userId)}
-            </div>
+const bars = merged.map((i, idx) => {
 
-            <div class="schedule-line">
+    console.log("BAR ITEM:", i);
 
-                <div class="schedule-bg"></div>
+    const html = renderBar(i, idx, merged);
 
-                ${merged.map((i, idx) =>
-                    renderBar(i, idx, merged)
-                ).join("")}
+    console.log("BAR HTML:", html);
 
-            </div>
+    return html;
+
+});
+
+console.log("BARS ARRAY:", bars);
+
+return `
+    <div class="schedule-row">
+
+        <div class="schedule-label">
+            👨‍⚕️ ${doctorsMap[String(userId)] || ("ID " + userId)}
+        </div>
+
+        <div class="schedule-line">
+
+            <div class="schedule-bg"></div>
+
+            ${bars.join("")}
 
         </div>
-    `;
+
+    </div>
+`;
 
 }
 
@@ -764,22 +802,7 @@ export function renderDoctorTimeline({
     String(item.user_id) === String(doctorId)
   );
 
-container.innerHTML = `
-<div style="padding:10px;font-size:12px;white-space:pre-wrap;">
-doctorId = ${doctorId}
 
-date = ${formattedDate}
-
-cache = ${data.length}
-
-found = ${doctorItems.length}
-
-first found =
-${JSON.stringify(doctorItems[0], null, 2)}
-</div>
-`;
-
-return;
 
   console.log("FOUND ITEMS:", doctorItems.length);
 
