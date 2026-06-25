@@ -98,7 +98,7 @@ export async function openAddRemoveSchedule() {
         </button>
          
       </div>
-<div
+<div>
   id="currentDoctorSchedule"
   class="card"
   style="margin-top:12px;">
