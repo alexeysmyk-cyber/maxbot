@@ -287,65 +287,24 @@ if (timeStart >= timeEnd) {
 }
 
 
-alert("1");
 
 const conflict = hasScheduleIntersection({
-
     doctorId: body.user_id,
-
     date: selectedDate,
-
     start: body.time_start,
-
     end: body.time_end
-
 });
 
-alert("2");
-
 if (conflict) {
 
-    alert("3");
-
-    try {
-
-        alert("A");
-
-        showErrorModal("Проверка");
-
-        alert("B");
-
-    } catch (e) {
-
-        alert("ERROR");
-        alert(e.message);
-        alert(e.stack);
-
-    }
-
-    alert("C");
-
-    return;
-}
-
-alert("4");
-
-if (conflict) {
+    const startTime = conflict.time_start.split(" ")[1];
+    const endTime = conflict.time_end.split(" ")[1];
 
     showErrorModal(
-        `Новый слот пересекается...`
-    );
-
-    return;
-}
-
-if (conflict) {
-
-    showErrorModal(
-        `Новый слот пересекается с существующим расписанием.
+`Новый слот пересекается с существующим расписанием.
 
 Существующий слот:
-${conflict.time_start.slice(11,16)} - ${conflict.time_end.slice(11,16)}
+${startTime} — ${endTime}
 
 Используйте другое время либо удалите существующее расписание.`
     );
@@ -581,8 +540,7 @@ function showErrorModal(text) {
   `;
 
   document.body.appendChild(modal);
-  modal.style.border = "5px solid red";
-modal.style.background = "yellow";
+
 
   document.getElementById("errorOkBtn").onclick = () => {
     modal.remove();
