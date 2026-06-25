@@ -826,16 +826,17 @@ router.post("/create-schedule", async (req, res) => {
       });
     }
 
-    const {
-      date,
-      time_start,
-      time_end,
-      user_id,
-      clinic_id,
-      room,
-      is_cancel,
-      comment
-    } = req.body;
+   const {
+  date,
+  time_start,
+  time_end,
+  user_id,
+  clinic_id,
+  room,
+  is_cancel,
+  comment,
+  no_intersections
+} = req.body;
 
     if (!date || !time_start || !time_end || !user_id) {
       return res.status(400).json({
@@ -854,7 +855,9 @@ router.post("/create-schedule", async (req, res) => {
     };
 
     if (room) body.room = room;
-
+if (no_intersections) {
+  body.no_intersections = 1;
+}
     if (is_cancel) {
       body.is_cancel = 1;
       body.comment = comment || "";

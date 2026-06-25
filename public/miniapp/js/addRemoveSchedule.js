@@ -348,29 +348,63 @@ ${startTime} — ${endTime}
 
 if (!isCancel && noIntersections) {
 
-    const roomConflict = hasRoomIntersection({
+const roomConflict = hasRoomIntersection({
+    doctorId: body.user_id,
+    room: roomValue,
+    date: selectedDate,
+    start: body.time_start,
+    end: body.time_end
+});
 
-        doctorId: body.user_id,
+if (roomConflict) {
 
-        room: roomValue,
+    const doctorName =
+        window.doctorsMap?.[String(roomConflict.user_id)] ||
+        "Другой врач";
 
-        date: selectedDate,
+    const startTime = roomConflict.time_start.split(" ")[1].slice(0, 5);
+    const endTime = roomConflict.time_end.split(" ")[1].slice(0, 5);
 
-        start: body.time_start,
+    showConfirmModal(
 
-        end: body.time_end
+`В выбранном кабинете уже ведет прием:
+
+${doctorName}
+
+Время:
+${startTime} — ${endTime}
+
+Создать расписание с разрешением пересечения визитов?`,
+
+    async () => {
+
+        const result = await handleCreateSchedule(body, true);
+
+        if (!result.success) {
+            showErrorModal(result.message);
+            return;
+        }
+
+        showSuccessModal("Слот успешно создан.");
+
+        invalidateScheduleMonth(selectedDate);
+
+        await renderCurrentDoctorSchedule();
 
     });
 
-    console.log("ROOM CONFLICT:", roomConflict);
-
-    if (roomConflict) {
-
-    showErrorModal("НАЙДЕНО ПЕРЕСЕЧЕНИЕ КАБИНЕТА");
-
     return;
-
 }
+
+console.log("👉 CALL handleCreateSchedule");
+
+const result = await handleCreateSchedule(body, false);
+
+
+
+
+
+
 
 }
 
@@ -385,7 +419,7 @@ if (!result || !result.success) {
   return;
 }
 
-showErrorModal("Слот успешно создан");
+showConfirmModal("Слот успешно создан");
 invalidateScheduleMonth(selectedDate);
 
 await renderCurrentDoctorSchedule();
@@ -471,56 +505,28 @@ function formatDate(date) {
   return `${d}.${m}.${y}`;
 }
 
-async function handleCreateSchedule(body, isNoIntersection) {
-  try {
+async function handleCreateSchedule(body, no_intersections) {
 
-    console.log("🚀 HANDLE START");
+    try {
 
-    // Если проверка пересечений отключена
-    if (!isNoIntersection) {
-      console.log("➡️ CREATE WITHOUT CHECK");
-      return await createScheduleRequest(body);
+        const requestBody = {
+            ...body,
+            no_intersections
+        };
+
+        return await createScheduleRequest(requestBody);
+
+    } catch (e) {
+
+        console.error("🔥 HANDLE ERROR:", e);
+
+        return {
+            success: false,
+            message: e.message
+        };
+
     }
 
-    console.log("➡️ CHECK SCHEDULE");
-
-    const checkRes = await fetch("/miniapp/schedule-periods", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({
-        date: body.date,
-        user_id: body.user_id
-      })
-    });
-
-    console.log("✅ CHECK STATUS:", checkRes.status);
-
-    const checkData = await checkRes.json();
-
-    console.log("📊 CHECK DATA:", checkData);
-
-    if (checkData.error) {
-      return {
-        success: false,
-        message: "Ошибка проверки расписания"
-      };
-    }
-
-    console.log("➡️ CREATE AFTER CHECK");
-
-    return await createScheduleRequest(body);
-
-  } catch (e) {
-    console.error("🔥 HANDLE ERROR:", e);
-
-    return {
-      success: false,
-      message: e.message
-    };
-  }
 }
 
 
@@ -586,9 +592,6 @@ async function createScheduleRequest(body) {
 
 }
 
-
-
-
 function showErrorModal(text) {
 
     console.log("🔥 SHOW ERROR:", text); 
@@ -612,8 +615,85 @@ function showErrorModal(text) {
   };
 }
 
-function showSuccess(text) {
-  alert(text);
+export function showSuccessModal(text) {
+
+    const modal = document.createElement("div");
+
+    modal.className = "error-modal";
+
+    modal.innerHTML = `
+        <div class="error-box">
+
+            <div class="error-title">
+                Успешно
+            </div>
+
+            <div class="error-text">
+                ${text}
+            </div>
+
+            <button id="successOkBtn">
+                ОК
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById("successOkBtn").onclick = () => {
+        modal.remove();
+    };
+}
+
+export function showConfirmModal(text, onYes) {
+
+    const modal = document.createElement("div");
+
+    modal.className = "error-modal";
+
+    modal.innerHTML = `
+        <div class="error-box">
+
+            <div class="error-title">
+                Подтверждение
+            </div>
+
+            <div class="error-text">
+                ${text}
+            </div>
+
+            <div class="modal-buttons">
+
+                <button id="confirmNo">
+                    Нет
+                </button>
+
+                <button id="confirmYes">
+                    Да
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById("confirmNo").onclick = () => {
+        modal.remove();
+    };
+
+    document.getElementById("confirmYes").onclick = async () => {
+
+        modal.remove();
+
+        if (onYes) {
+            await onYes();
+        }
+
+    };
+
 }
 
 async function renderCurrentDoctorSchedule() {

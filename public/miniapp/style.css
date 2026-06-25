@@ -2434,3 +2434,13 @@ input[type="date"].form-input {
     font-size:15px;
     font-weight:600;
 }
+
+.modal-buttons{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+
+.modal-buttons button{
+    flex:1;
+}
