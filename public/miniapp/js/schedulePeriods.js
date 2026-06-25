@@ -497,11 +497,17 @@ function buildBarHtml({ left, width, mode, text, item }) {
       ` : ``}
 
       <div class="schedule-bar ${item.type === 3 ? 'cancelled' : ''}"
-     data-start="${formatTime(item.start)}"
-     data-end="${formatTime(item.end)}">
+           data-start="${formatTime(item.start)}"
+           data-end="${formatTime(item.end)}">
+
+        ${item.without_crossing ? `
+          <div class="bar-without-crossing">
+            <span></span>
+            <span></span>
+          </div>
+        ` : ``}
+
       </div>
-
-
 
     </div>
   `;
