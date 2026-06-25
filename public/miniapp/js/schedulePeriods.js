@@ -282,7 +282,7 @@ let html = `
   });
 });
 
-  attachBarEvents();
+  attachBarEvents(container);
 }
 
 // ===============================
@@ -607,14 +607,20 @@ function mergeIntervals(list) {
 
 }
 
-function attachBarEvents() {
-  document.querySelectorAll(".schedule-bar").forEach(el => {
-    el.addEventListener("click", () => {
-      alert(
-        el.dataset.start + " - " + el.dataset.end
-      );
+function attachBarEvents(container) {
+
+    container.querySelectorAll(".schedule-bar").forEach(el => {
+
+        el.onclick = () => {
+
+            alert(
+                el.dataset.start + " - " + el.dataset.end
+            );
+
+        };
+
     });
-  });
+
 }
 
 function showLoader(container) {
@@ -865,7 +871,7 @@ export async function renderDoctorTimeline({
 
   console.log("✅ HTML INSERTED");
 
-  attachBarEvents();
+  attachBarEvents(container);
 
   console.log("✅ EVENTS ATTACHED");
   console.log("==================================");
