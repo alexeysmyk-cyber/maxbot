@@ -23,9 +23,10 @@ function formatDate(date){
 }
 export async function openScheduleSlotEditor(item) {
 
-    currentSlot = structuredClone(item);
+  //  currentSlot = structuredClone(item);
 
-    buildEditor();
+    //buildEditor();
+    console.log(item);
 
 }
 
