@@ -909,11 +909,9 @@ router.post("/create-schedule", async (req, res) => {
     console.log("📤 RESPONSE:", answer);
     console.log("📤 HEADERS SENT:", res.headersSent);
 
-    return res.status(200).json({
-    success: false,
-    message: "ERROR_TEST_987654321",
-    serverTime: Date.now(),
-    random: Math.random()
+return res.status(418).json({
+    abc: 123,
+    xyz: "TEST_ONLY"
 });
 
   } catch (err) {
