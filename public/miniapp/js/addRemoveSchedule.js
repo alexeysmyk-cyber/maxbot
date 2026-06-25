@@ -307,9 +307,9 @@ if (conflict) {
 
     alert("3");
 
-    alert(JSON.stringify(conflict));
+    showErrorModal("ПЕРЕСЕЧЕНИЕ НАЙДЕНО");
 
-    return;
+return;
 }
 
 alert("4");
