@@ -1,6 +1,6 @@
-import { showConfirmModal } from "./addRemoveSchedule.js";
-import { showSuccessModal } from "./addRemoveSchedule.js";
-import { showErrorModal } from "./addRemoveSchedule.js";
+//import { showConfirmModal } from "./addRemoveSchedule.js";
+//import { showSuccessModal } from "./addRemoveSchedule.js";
+//import { showErrorModal } from "./addRemoveSchedule.js";
 
 const appointmentsCache = new Map();
 
