@@ -736,6 +736,25 @@ export function renderDoctorTimeline({
 
   const data = getScheduleFromCache(date);
 
+  container.innerHTML = `
+<div style="
+padding:10px;
+font-size:12px;
+white-space:pre-wrap;
+">
+doctorId = ${doctorId}
+
+date = ${date}
+
+cache = ${data.length}
+
+first =
+${JSON.stringify(data[0], null, 2)}
+</div>
+`;
+
+return;
+
   console.log("CACHE LENGTH:", data.length);
 
   if (!data.length) {

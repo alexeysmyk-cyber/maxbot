@@ -534,6 +534,8 @@ console.log("renderCurrentDoctorSchedule");
         container,
         doctorId,
         date: window.selectedScheduleDate
+
+        
     });
 
 }
