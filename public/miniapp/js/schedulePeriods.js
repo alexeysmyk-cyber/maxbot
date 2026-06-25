@@ -559,9 +559,17 @@ function formatMonth(date) {
 function mergeIntervals(list) {
 
   const normalized = list.map(item => ({
+
     ...item,
-    start: parseDate(item.time_start),
-    end: parseDate(item.time_end)
+
+    start: item.start
+      ? item.start
+      : parseDate(item.time_start),
+
+    end: item.end
+      ? item.end
+      : parseDate(item.time_end)
+
   }));
 
   const sorted = normalized.sort((a, b) => a.start - b.start);
@@ -581,7 +589,10 @@ function mergeIntervals(list) {
 
       if (item.end > last.end) {
         last.end = item.end;
-        last.time_end = item.time_end;
+
+        if (item.time_end) {
+          last.time_end = item.time_end;
+        }
       }
 
     } else {
@@ -593,6 +604,7 @@ function mergeIntervals(list) {
   }
 
   return merged;
+
 }
 
 function attachBarEvents() {
