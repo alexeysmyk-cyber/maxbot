@@ -581,6 +581,8 @@ function showErrorModal(text) {
   `;
 
   document.body.appendChild(modal);
+  modal.style.border = "5px solid red";
+modal.style.background = "yellow";
 
   document.getElementById("errorOkBtn").onclick = () => {
     modal.remove();
