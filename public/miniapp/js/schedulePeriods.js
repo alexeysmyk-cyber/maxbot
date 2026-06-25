@@ -732,6 +732,7 @@ console.log("=== renderDoctorTimeline ===");
   if (!container) return;
 
   const data = getScheduleFromCache(date);
+  console.log(data[0]);
  console.log("doctorId:", doctorId);
   console.log("date:", date);
   console.log("CACHE DATA:", data);
