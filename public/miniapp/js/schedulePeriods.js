@@ -282,7 +282,10 @@ let html = `
   });
 });
 
-  attachBarEvents(container);
+ console.log("BEFORE ATTACH");
+attachBarEvents(container);
+console.log("AFTER ATTACH");
+
 }
 
 // ===============================
