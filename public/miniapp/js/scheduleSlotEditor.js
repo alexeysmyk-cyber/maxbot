@@ -19,6 +19,8 @@ function formatDate(date){
 }
 export async function openScheduleSlotEditor(item){
 
+     console.log("OPEN SLOT", item);
+
 }
 async function loadAppointments(){
 
