@@ -4,7 +4,18 @@
 
 
 const scheduleCache = new Map();
-window.scheduleData = [];
+export function getScheduleFromCache(date) {
+
+    const key = formatMonth(date);
+
+    const cached = scheduleCache.get(key);
+
+    if (!cached) {
+        return [];
+    }
+
+    return cached.data || [];
+}
 const CACHE_TTL = 20 * 1000; // 20 секунд
 
 
@@ -22,11 +33,11 @@ export async function loadSchedulePeriods({
 
   showLoader(container);
 
-const key = `${doctorId}_${formatMonth(date)}`;
+const key = formatMonth(date);
 
 const cached = scheduleCache.get(key);
 
-console.log("KEY:", key, "doctorId:", doctorId);
+console.log("KEY:", key);
 
 if (cached) {
 
@@ -70,15 +81,15 @@ const response = await fetch("/miniapp/schedule-periods", {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + localStorage.getItem("token")
   },
-  body: JSON.stringify({
+ body: JSON.stringify({
     date: formatLocalDate(date),
-    user_id: doctorId
-  })
+    user_id: "all"
+})
 });
 
 const data = await response.json();
 
-window.scheduleData = data.data || [];
+
 
 if (!response.ok || data.error) {
   throw new Error("LOAD_ERROR");
@@ -227,47 +238,11 @@ let html = `
 
   Object.keys(doctors).forEach(userId => {
 
-    const items = doctors[userId];
-
-// 🔥 группируем по type
-const byType = {};
-
-items.forEach(i => {
-  if (!byType[i.type]) byType[i.type] = [];
-  byType[i.type].push(i);
-});
-
-// 🔥 merge отдельно по каждому type
-let merged = [];
-
-Object.keys(byType).forEach(type => {
-  const list = byType[type];
-  if (!list || !list.length) return;
-
-  const mergedByType = mergeIntervals(list);
-
-  mergedByType.forEach(m => {
-    m.type = Number(type);
-  });
-
-  merged.push(...mergedByType);
-});
-    occupiedZones = [];
-
-    html += `
-      <div class="schedule-row">
-        
-        <div class="schedule-label">
-          👨‍⚕️ ${localDoctorsMap[String(userId)] || ("ID " + userId)}
-        </div>
-
-        <div class="schedule-line">
-          <div class="schedule-bg"></div>
-            ${merged.map((i, idx) => renderBar(i, idx, merged)).join("")}
-        </div>
-
-      </div>
-    `;
+   html += renderDoctorRow(
+    userId,
+    doctors[userId],
+    localDoctorsMap
+);
   });
 
   html += `
@@ -592,6 +567,60 @@ function showLoader(container) {
   `;
 }
 
+function renderDoctorRow(userId, items, doctorsMap) {
+
+    const byType = {};
+
+    items.forEach(i => {
+        if (!byType[i.type]) {
+            byType[i.type] = [];
+        }
+
+        byType[i.type].push(i);
+    });
+
+    let merged = [];
+
+    Object.keys(byType).forEach(type => {
+
+        const list = byType[type];
+
+        if (!list.length) return;
+
+        const mergedByType = mergeIntervals(list);
+
+        mergedByType.forEach(m => {
+            m.type = Number(type);
+        });
+
+        merged.push(...mergedByType);
+
+    });
+
+    occupiedZones = [];
+
+    return `
+        <div class="schedule-row">
+
+            <div class="schedule-label">
+                👨‍⚕️ ${doctorsMap[String(userId)] || ("ID " + userId)}
+            </div>
+
+            <div class="schedule-line">
+
+                <div class="schedule-bg"></div>
+
+                ${merged.map((i, idx) =>
+                    renderBar(i, idx, merged)
+                ).join("")}
+
+            </div>
+
+        </div>
+    `;
+
+}
+
 function renderTimeScale() {
 
 const marks = []; 
@@ -663,4 +692,54 @@ function sortRooms(rooms) {
     return getPriority(ra) - getPriority(rb);
   });
 
+}
+export function renderDoctorTimeline({
+  container,
+  doctorId,
+  date
+}) {
+
+  if (!container) return;
+
+  const data = getScheduleFromCache(date);
+  console.log(data[0]);
+
+  if (!data.length) {
+
+    container.innerHTML = `
+      <div class="card empty-state">
+        Нет расписания
+      </div>
+    `;
+
+    return;
+  }
+
+  const formattedDate = formatLocalDate(date);
+
+  const doctorItems = data.filter(item =>
+    item.date === formattedDate &&
+    String(item.user_id) === String(doctorId)
+  );
+
+  if (!doctorItems.length) {
+
+    container.innerHTML = `
+      <div class="card empty-state">
+        Нет расписания
+      </div>
+    `;
+
+    return;
+  }
+
+  const doctorsMap = buildDoctorsMap();
+
+  container.innerHTML = renderDoctorRow(
+    doctorId,
+    doctorItems,
+    doctorsMap
+  );
+
+  attachBarEvents();
 }

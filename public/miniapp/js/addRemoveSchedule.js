@@ -1,4 +1,5 @@
 import { renderCalendar } from "./calendar.js";
+import { renderDoctorTimeline } from "./schedulePeriods.js";
 
 export async function openAddRemoveSchedule() {
 
@@ -513,19 +514,10 @@ function renderCurrentDoctorSchedule() {
         return;
     }
 
-    const date =
-        formatDate(window.selectedScheduleDate);
-
-    const periods =
-        window.scheduleData || [];
-
-    console.log("DATE:", date);
-    console.log("DOCTOR:", doctorId);
-    console.log("PERIODS:", periods.length);
-
-    container.innerHTML =
-        "<pre>" +
-        JSON.stringify(periods.slice(0, 5), null, 2) +
-        "</pre>";
+    renderDoctorTimeline({
+        container,
+        doctorId,
+        date: window.selectedScheduleDate
+    });
 
 }
