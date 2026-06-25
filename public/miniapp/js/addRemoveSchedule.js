@@ -364,6 +364,14 @@ if (!isCancel && noIntersections) {
 
     console.log("ROOM CONFLICT:", roomConflict);
 
+    if (roomConflict) {
+
+    showErrorModal("НАЙДЕНО ПЕРЕСЕЧЕНИЕ КАБИНЕТА");
+
+    return;
+
+}
+
 }
 
 console.log("👉 CALL handleCreateSchedule");
