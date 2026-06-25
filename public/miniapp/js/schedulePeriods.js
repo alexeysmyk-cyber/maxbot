@@ -723,24 +723,24 @@ export function renderDoctorTimeline({
   date
 }) {
 
+  console.log("==================================");
+  console.log("🔥 renderDoctorTimeline START");
+  console.log("doctorId:", doctorId);
+  console.log("date:", date);
+  console.log("container:", container);
 
-
-console.log("=== renderDoctorTimeline ===");
-
-
-
-  if (!container) return;
+  if (!container) {
+    console.log("❌ container == null");
+    return;
+  }
 
   const data = getScheduleFromCache(date);
-  console.log(data[0]);
- console.log("doctorId:", doctorId);
-  console.log("date:", date);
-  console.log("CACHE DATA:", data);
+
   console.log("CACHE LENGTH:", data.length);
 
   if (!data.length) {
-  console.log("FIRST USER:", data[0].user_id);
-    console.log("FIRST DATE:", data[0].date);
+    console.log("❌ CACHE EMPTY");
+
     container.innerHTML = `
       <div class="card empty-state">
         Нет расписания
@@ -750,19 +750,46 @@ console.log("=== renderDoctorTimeline ===");
     return;
   }
 
+  console.log("FIRST ITEM:");
+  console.log(JSON.stringify(data[0], null, 2));
+
   const formattedDate = formatLocalDate(date);
 
-  console.log("DATE:", formattedDate);
-console.log("DOCTOR:", doctorId);
+  console.log("FORMATTED DATE:", formattedDate);
 
   const doctorItems = data.filter(item =>
     item.date === formattedDate &&
     String(item.user_id) === String(doctorId)
   );
 
-  console.log("FOUND:", doctorItems.length);
+  console.log("FOUND ITEMS:", doctorItems.length);
 
-  if (!doctorItems.length) {
+  if (doctorItems.length) {
+    console.log("FIRST FOUND:");
+    console.log(JSON.stringify(doctorItems[0], null, 2));
+  } else {
+
+    console.log("========== WHY NOT FOUND ==========");
+
+    data.slice(0, 10).forEach((item, index) => {
+
+      console.log("ITEM", index);
+
+      console.log("user_id:", item.user_id);
+      console.log("date:", item.date);
+
+      console.log(
+        "USER MATCH:",
+        String(item.user_id) === String(doctorId)
+      );
+
+      console.log(
+        "DATE MATCH:",
+        item.date === formattedDate
+      );
+
+      console.log("----------------");
+    });
 
     container.innerHTML = `
       <div class="card empty-state">
@@ -772,6 +799,8 @@ console.log("DOCTOR:", doctorId);
 
     return;
   }
+
+  console.log("✅ BUILD ROW");
 
   const doctorsMap = buildDoctorsMap();
 
@@ -781,5 +810,10 @@ console.log("DOCTOR:", doctorId);
     doctorsMap
   );
 
+  console.log("✅ HTML INSERTED");
+
   attachBarEvents();
+
+  console.log("✅ EVENTS ATTACHED");
+  console.log("==================================");
 }
