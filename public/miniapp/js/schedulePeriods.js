@@ -4,6 +4,8 @@
 
 
 const scheduleCache = new Map();
+
+
 export function getScheduleFromCache(date) {
 
     const key = formatMonth(date);
@@ -15,6 +17,54 @@ export function getScheduleFromCache(date) {
     }
 
     return cached.data || [];
+}
+export async function ensureScheduleMonth(date) {
+
+    const key = formatMonth(date);
+
+    const cached = scheduleCache.get(key);
+
+    if (cached) {
+
+        const age = Date.now() - cached.timestamp;
+
+        if (age < CACHE_TTL) {
+            console.log("🟢 MONTH CACHE HIT", key);
+            return cached.data;
+        }
+
+        console.log("🔄 MONTH CACHE EXPIRED", key);
+        scheduleCache.delete(key);
+    }
+
+    console.log("🟡 MONTH CACHE MISS", key);
+
+    const response = await fetch("/miniapp/schedule-periods", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+            date: formatLocalDate(date),
+            user_id: "all"
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+        throw new Error("LOAD_ERROR");
+    }
+
+    scheduleCache.set(key, {
+        data: data.data,
+        timestamp: Date.now()
+    });
+
+    console.log("💾 MONTH SAVED", key);
+
+    return data.data;
 }
 const CACHE_TTL = 20 * 1000; // 20 секунд
 
@@ -33,105 +83,46 @@ export async function loadSchedulePeriods({
 
   showLoader(container);
 
-const key = formatMonth(date);
-
-const cached = scheduleCache.get(key);
-
-console.log("KEY:", key);
-
-if (cached) {
-
-  const age = Date.now() - cached.timestamp;
-
-if (age < CACHE_TTL) {
-  
-  console.log("🟢 CACHE HIT (MONTH)", key);
-
-  container.innerHTML = ""; // 👈 КРИТИЧНО
-
- renderSchedulePeriods(
-    cached.data,
-    date,
-    doctorId,
-    container,
-    onlyDoctors,
-    noCancelled,
-    noWorktime,
-    showAll
-);
-
-  return;
-} else {
-    console.log("🔄 CACHE EXPIRED", key);
-    scheduleCache.delete(key);
-  }
-}
-
-
-
-
-
-
-
   try {
-console.log("🟡 CACHE MISS", key);
 
-const response = await fetch("/miniapp/schedule-periods", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token")
-  },
- body: JSON.stringify({
-    date: formatLocalDate(date),
-    user_id: "all"
-})
-});
+    // 🔥 Загружаем месяц (из кэша или из MIS)
+    const data = await ensureScheduleMonth(date);
 
-const data = await response.json();
+    // 🔥 Обновляем карту врачей
+    if (window.doctorsList) {
 
+      doctorsMap = {};
 
+      window.doctorsList.forEach(d => {
+        doctorsMap[String(d.id)] = d.name;
+      });
 
-if (!response.ok || data.error) {
-  throw new Error("LOAD_ERROR");
-}
+    }
 
-// 🔥 сохраняем МЕСЯЦ
-scheduleCache.set(key, {
-  data: data.data,
-  timestamp: Date.now()
-});
-
-console.log("💾 CACHE SAVED (MONTH)", key);
-
-
-    // 🔥 ОБНОВЛЯЕМ СПИСОК ВРАЧЕЙ
-if (window.doctorsList) {
-  doctorsMap = {};
-  window.doctorsList.forEach(d => {
-    doctorsMap[String(d.id)] = d.name;
-  });
-}
-
-
-   renderSchedulePeriods(
-    data.data,
-    date,
-    doctorId,
-    container,
-    onlyDoctors,
-    noCancelled,
-    noWorktime,
-    showAll
-);
+    // 🔥 Рисуем расписание
+    renderSchedulePeriods(
+      data,
+      date,
+      doctorId,
+      container,
+      onlyDoctors,
+      noCancelled,
+      noWorktime,
+      showAll
+    );
 
   } catch (e) {
+
+    console.error(e);
+
     container.innerHTML = `
       <div class="card">
         Ошибка загрузки расписания
       </div>
     `;
+
   }
+
 }
 
 function buildDoctorsMap() {
@@ -766,7 +757,7 @@ function sortRooms(rooms) {
   });
 
 }
-export function renderDoctorTimeline({
+export async function renderDoctorTimeline({
   container,
   doctorId,
   date
@@ -783,7 +774,7 @@ export function renderDoctorTimeline({
     return;
   }
 
-  const data = getScheduleFromCache(date);
+  const data = await ensureScheduleMonth(date);
 
 
 

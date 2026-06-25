@@ -119,7 +119,7 @@ renderCalendar(
 
     console.log("Дата:", selectedDate);
 
-    renderCurrentDoctorSchedule();
+   await renderCurrentDoctorSchedule();
 
   },
   new Date()
@@ -201,7 +201,7 @@ timeEndInput.addEventListener("change", () => {
 try {
   console.log("➡️ BEFORE renderCurrentDoctorSchedule");
 
-  renderCurrentDoctorSchedule();
+ await renderCurrentDoctorSchedule();
 
   console.log("✅ AFTER renderCurrentDoctorSchedule");
 
@@ -348,7 +348,7 @@ document
   .getElementById("addScheduleDoctorSelect")
   .addEventListener("change", () => {
 
-    renderCurrentDoctorSchedule();
+    await renderCurrentDoctorSchedule();
 
   });
 
@@ -512,10 +512,12 @@ function showSuccess(text) {
   alert(text);
 }
 
-function renderCurrentDoctorSchedule() {
+async function renderCurrentDoctorSchedule() {
 
-console.log("renderCurrentDoctorSchedule");
 
+
+
+    console.log("renderCurrentDoctorSchedule");
 
     const container =
         document.getElementById("currentDoctorSchedule");
@@ -530,12 +532,31 @@ console.log("renderCurrentDoctorSchedule");
         return;
     }
 
-    renderDoctorTimeline({
-        container,
-        doctorId,
-        date: window.selectedScheduleDate
+    container.innerHTML = `
+        <div class="loader">
+            <div class="spinner"></div>
+            <div>Загрузка...</div>
+        </div>
+    `;
 
-        
-    });
+    try {
+
+        await renderDoctorTimeline({
+            container,
+            doctorId,
+            date: window.selectedScheduleDate
+        });
+
+    } catch (e) {
+
+        console.error(e);
+
+        container.innerHTML = `
+            <div class="card empty-state">
+                Ошибка загрузки
+            </div>
+        `;
+
+    }
 
 }
