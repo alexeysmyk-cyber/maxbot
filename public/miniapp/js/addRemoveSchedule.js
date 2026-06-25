@@ -1,3 +1,4 @@
+import { showModal } from "adminjs";
 import { renderCalendar } from "./calendar.js";
 import {
     renderDoctorTimeline,
@@ -323,7 +324,10 @@ if (!result || !result.success) {
   return;
 }
 
-showSuccess("Слот успешно создан");
+showModal("Слот успешно создан");
+invalidateScheduleMonth(selectedDate);
+
+await renderCurrentDoctorSchedule();
     });
 
   // ===============================
@@ -659,5 +663,11 @@ function parseDate(str) {
     const [d, m, y] = date.split(".");
 
     return new Date(`${y}-${m}-${d}T${time}`);
+
+}
+
+export function invalidateScheduleMonth(date) {
+
+    scheduleCache.delete(formatMonth(date));
 
 }
