@@ -49,15 +49,16 @@ if (age < CACHE_TTL) {
 
   container.innerHTML = ""; // 👈 КРИТИЧНО
 
-  renderSchedulePeriods(
+ renderSchedulePeriods(
     cached.data,
     date,
+    doctorId,
     container,
     onlyDoctors,
     noCancelled,
     noWorktime,
     showAll
-  );
+);
 
   return;
 } else {
@@ -113,7 +114,16 @@ if (window.doctorsList) {
 }
 
 
-    renderSchedulePeriods(data.data, date, container, onlyDoctors, noCancelled, noWorktime, showAll);
+   renderSchedulePeriods(
+    data.data,
+    date,
+    doctorId,
+    container,
+    onlyDoctors,
+    noCancelled,
+    noWorktime,
+    showAll
+);
 
   } catch (e) {
     container.innerHTML = `
@@ -140,7 +150,16 @@ function buildDoctorsMap() {
 // ===============================
 // RENDER
 // ===============================
-function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCancelled, noWorktime,showAll) {
+function renderSchedulePeriods(
+    data,
+    selectedDate,
+    doctorId,
+    container,
+    onlyDoctors,
+    noCancelled,
+    noWorktime,
+    showAll
+) {
 
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
@@ -148,9 +167,14 @@ function renderSchedulePeriods(data, selectedDate, container, onlyDoctors, noCan
 
 const dayItems = data.filter(i => i.date === formattedDate);
 
-
-
 let filteredItems = dayItems;
+
+// 🔥 Если выбран конкретный врач — оставляем только его
+if (doctorId !== "all") {
+  filteredItems = filteredItems.filter(
+    i => String(i.user_id) === String(doctorId)
+  );
+}
 
 // только врачи
 if (onlyDoctors) {
