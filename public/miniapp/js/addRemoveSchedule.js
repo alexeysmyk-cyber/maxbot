@@ -272,7 +272,7 @@ if (noIntersections) {
 
 if (!timeStart || !timeEnd) {
 
-    showError("Укажите время начала и окончания.");
+    showErrorModal("Укажите время начала и окончания.");
 
     return;
 
@@ -280,7 +280,7 @@ if (!timeStart || !timeEnd) {
 
 if (timeStart >= timeEnd) {
 
-    showError("Время окончания должно быть позже времени начала.");
+    showErrorModal("Время окончания должно быть позже времени начала.");
 
     return;
 
@@ -300,7 +300,7 @@ const conflict = hasScheduleIntersection({
 
 if (conflict) {
 
-    showError(
+    showErrorModal(
         `Новый слот пересекается с существующим расписанием.
 
 Существующий слот:
