@@ -875,19 +875,25 @@ router.post("/create-schedule", async (req, res) => {
 
     console.log("⬅️ MIS RESPONSE:", response.data);
 
-    if (!response.data || typeof response.data !== "object") {
+   if (!response.data || typeof response.data !== "object") {
 
-      console.log("❌ INVALID MIS RESPONSE");
+  console.log("❌ INVALID MIS RESPONSE");
 
-      return res.status(200).json(answer);
-    }
+  return res.status(200).json({
+    success: false,
+    message: "Некорректный ответ MIS"
+  });
+}
 
-    if (Number(response.data.error) !== 0) {
+if (Number(response.data.error) !== 0) {
 
-      console.log("❌ ERROR BRANCH");
+  console.log("❌ ERROR BRANCH");
 
-      return res.status(200).json(answer);
-    }
+  return res.status(200).json({
+    success: false,
+    message: response.data?.data?.desc || "Ошибка создания расписания"
+  });
+}
 
     console.log("✅ SUCCESS BRANCH");
 
