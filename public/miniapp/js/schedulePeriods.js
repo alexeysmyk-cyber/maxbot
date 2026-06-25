@@ -612,13 +612,19 @@ function mergeIntervals(list) {
 
 function attachBarEvents(container) {
 
+    console.log("ATTACH EVENTS");
+
     container.querySelectorAll(".schedule-bar").forEach(el => {
 
         el.onclick = () => {
 
+            console.log("CLICK");
+
             const item = barItems[
                 Number(el.dataset.index)
             ];
+
+            console.log(item);
 
             openScheduleSlotEditor(item);
 
@@ -676,6 +682,7 @@ const bars = merged.map((i, idx) => {
     i.__index = idx;
 
     barItems[idx] = i;
+    console.log("SAVE", idx, i);
 
     return renderBar(i, idx, merged);
 
