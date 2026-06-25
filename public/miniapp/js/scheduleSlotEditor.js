@@ -28,6 +28,8 @@ export async function openScheduleSlotEditor(item) {
     //buildEditor();
     console.log(item);
 
+    alert(JSON.stringify(item, null, 2));
+
 }
 
 function buildEditor() {
