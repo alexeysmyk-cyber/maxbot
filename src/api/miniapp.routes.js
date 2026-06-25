@@ -10,6 +10,8 @@ import jwt from "jsonwebtoken";
 // =====================================================
 const appointmentsCache = {};
 const scheduleCache = {};
+const appointmentsDayCache = new Map();
+const APPOINTMENTS_CACHE_TTL = 30 * 1000; // 30 секунд
 
 // очистка просроченного кэша
 function cleanExpiredCache() {
@@ -31,6 +33,21 @@ function cleanExpiredScheduleCache() {
     }
   }
 }
+
+function cleanAppointmentsCache() {
+
+  const now = Date.now();
+
+  for (const [key, value] of appointmentsDayCache.entries()) {
+
+    if (now - value.timestamp > APPOINTMENTS_CACHE_TTL) {
+      appointmentsDayCache.delete(key);
+    }
+
+  }
+
+}
+
 
 
 // автоочистка раз в минуту
@@ -345,6 +362,166 @@ if (
     );
 
     return res.status(500).json({ error: "SERVER_ERROR" });
+  }
+
+});
+
+router.post("/appointments/day", async (req, res) => {
+
+  try {
+
+    const user = req.user;
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        message: "NO_ACCESS"
+      });
+    }
+
+    const { date, doctor_id } = req.body;
+
+    if (!date || !doctor_id) {
+
+      return res.status(400).json({
+        success: false,
+        message: "INVALID_PARAMS"
+      });
+
+    }
+
+    cleanAppointmentsCache();
+
+    const key = `${doctor_id}_${date}`;
+
+    const cached = appointmentsDayCache.get(key);
+
+    if (cached) {
+
+      console.log("🟢 APPOINTMENTS CACHE HIT", key);
+
+      return res.json({
+
+        success: true,
+
+        data: cached.data
+
+      });
+
+    }
+
+    console.log("🟡 APPOINTMENTS CACHE MISS", key);
+
+    const body = {
+
+      api_key: process.env.API_KEY,
+
+      doctor_id,
+
+      date_from: `${date} 00:00`,
+
+      date_to: `${date} 23:59`,
+
+      status_id: "1,2,3"
+
+    };
+
+    console.log("➡️ GET APPOINTMENTS:", body);
+
+    const response = await axios.post(
+
+      process.env.BASE_URL + "/getAppointments",
+
+      qs.stringify(body),
+
+      {
+
+        headers: {
+
+          "Content-Type":"application/x-www-form-urlencoded"
+
+        }
+
+      }
+
+    );
+
+    console.log("⬅️ MIS:", response.data);
+
+    if (
+
+      !response.data ||
+
+      response.data.error !== 0
+
+    ){
+
+      return res.status(500).json({
+
+        success:false,
+
+        message:"MIS_ERROR"
+
+      });
+
+    }
+
+    const appointments = (response.data.data || []).map(item => ({
+
+      id:item.id,
+
+      patient_id:item.patient_id,
+
+      patient_name:item.patient_name,
+
+      patient_phone:item.patient_phone,
+
+      doctor_id:item.doctor_id,
+
+      room:item.room,
+
+      status:item.status,
+
+      status_id:item.status_id,
+
+      time_start:item.time_start,
+
+      time_end:item.time_end
+
+    }));
+
+    appointmentsDayCache.set(key,{
+
+      timestamp:Date.now(),
+
+      data:appointments
+
+    });
+
+    console.log("💾 APPOINTMENTS CACHE SAVED", key);
+
+    return res.json({
+
+      success:true,
+
+      data:appointments
+
+    });
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    return res.status(500).json({
+
+      success:false,
+
+      message:"SERVER_ERROR"
+
+    });
+
   }
 
 });

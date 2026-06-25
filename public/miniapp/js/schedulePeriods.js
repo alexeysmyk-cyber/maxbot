@@ -2,7 +2,7 @@
 // SCHEDULE PERIODS (TIMELINE)
 // ===============================
 
-
+import { openScheduleSlotEditor } from "./scheduleSlotEditor.js";
 const scheduleCache = new Map();
 
 
@@ -613,10 +613,10 @@ function attachBarEvents(container) {
 
         el.onclick = () => {
 
-            alert(
-                el.dataset.start + " - " + el.dataset.end
-            );
-
+           // alert(
+            //    el.dataset.start + " - " + el.dataset.end
+           // );
+openScheduleSlotEditor(item);
         };
 
     });

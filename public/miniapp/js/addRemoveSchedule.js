@@ -598,7 +598,7 @@ async function createScheduleRequest(body) {
 
 }
 
-function showErrorModal(text) {
+export function showErrorModal(text) {
 
     console.log("🔥 SHOW ERROR:", text); 
 
