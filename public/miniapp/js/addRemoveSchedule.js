@@ -307,9 +307,25 @@ if (conflict) {
 
     alert("3");
 
-    showErrorModal("ПЕРЕСЕЧЕНИЕ НАЙДЕНО");
+    try {
 
-return;
+        alert("A");
+
+        showErrorModal("Проверка");
+
+        alert("B");
+
+    } catch (e) {
+
+        alert("ERROR");
+        alert(e.message);
+        alert(e.stack);
+
+    }
+
+    alert("C");
+
+    return;
 }
 
 alert("4");
