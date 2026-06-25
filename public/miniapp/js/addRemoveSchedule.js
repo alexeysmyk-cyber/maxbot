@@ -180,17 +180,23 @@ timeEndInput.addEventListener("change", () => {
 
       const type = seg.dataset.type;
 
-     if (type === "cancel") {
-  isCancel = true;
-  commentBlock.style.display = "block";
+if (type === "cancel") {
 
-  if (scheduleOnly) scheduleOnly.style.display = "none"; // 👈 скрываем
+    isCancel = true;
+
+    commentBlock.style.display = "block";
+
+    if (scheduleOnly) scheduleOnly.style.display = "none";
+
+    document.getElementById("noIntersectionsCheckbox").checked = false;
 
 } else {
-  isCancel = false;
-  commentBlock.style.display = "none";
 
-  if (scheduleOnly) scheduleOnly.style.display = "block"; // 👈 показываем
+    isCancel = false;
+
+    commentBlock.style.display = "none";
+
+    if (scheduleOnly) scheduleOnly.style.display = "block";
 }
 
     });
@@ -295,6 +301,19 @@ if (isCancel && !comment.trim()) {
     return;
 }
 
+if (!isCancel && noIntersections) {
+
+    if (!roomValue) {
+
+        showErrorModal(
+            "Для режима «Без пересечений визитов» необходимо выбрать кабинет."
+        );
+
+        return;
+
+    }
+
+}
 
 
 const conflict = hasScheduleIntersection({
