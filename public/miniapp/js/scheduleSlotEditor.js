@@ -176,18 +176,3 @@ function getAppointmentsInInterval(){
 function renderAppointments(){
 
 }
-function buildEditorHtml(){
-
-}
-function attachEditorEvents(){
-
-}
-async function removeSchedule(){
-
-}
-async function removeScheduleRequest(){
-
-}
-function invalidateAppointmentsCache(){
-
-}
