@@ -28,7 +28,7 @@ const cached = scheduleCache.get(key);
 console.log("KEY:", key, "doctorId:", doctorId);
 
 if (cached) {
-  
+
   const age = Date.now() - cached.timestamp;
 
 if (age < CACHE_TTL) {
@@ -76,6 +76,7 @@ const response = await fetch("/miniapp/schedule-periods", {
 });
 
 const data = await response.json();
+window.currentSchedule = data.data;
 
 if (!response.ok || data.error) {
   throw new Error("LOAD_ERROR");

@@ -94,8 +94,13 @@ export async function openAddRemoveSchedule() {
         <button class="primary-btn" id="createScheduleBtn">
           Создать слот
         </button>
+         
       </div>
-
+<div
+  id="currentDoctorSchedule"
+  class="card"
+  style="margin-top:12px;">
+</div>
     </div>
   `;
 
@@ -104,14 +109,19 @@ export async function openAddRemoveSchedule() {
   // ===============================
   // 🔥 КАЛЕНДАРЬ
   // ===============================
-  renderCalendar(
-    document.getElementById("addScheduleCalendar"),
-    (date) => {
-      selectedDate = new Date(date); // ✅ фикс
-      console.log("Дата:", selectedDate);
-    },
-    new Date()
-  );
+renderCalendar(
+  document.getElementById("addScheduleCalendar"),
+  (date) => {
+
+    selectedDate = new Date(date);
+
+    console.log("Дата:", selectedDate);
+
+    renderCurrentDoctorSchedule();
+
+  },
+  new Date()
+);
 
   // Logika chtoby ne vybrali krivoe vremia
 
@@ -184,10 +194,15 @@ timeEndInput.addEventListener("change", () => {
   // 🔥 ДОКТОРА
   // ===============================
   await loadDoctors();
+  renderCurrentDoctorSchedule();
 
   // ===============================
   // 🔥 CREATE
   // ===============================
+  
+  
+  
+  
   document
     .getElementById("createScheduleBtn")
     .addEventListener("click", async () => {
@@ -313,6 +328,14 @@ async function loadDoctors() {
         `).join("")}
       </select>
     `;
+document
+  .getElementById("addScheduleDoctorSelect")
+  .addEventListener("change", () => {
+
+    renderCurrentDoctorSchedule();
+
+  });
+
 
   } catch (err) {
     container.innerHTML = "Ошибка сети";
@@ -471,4 +494,39 @@ function showErrorModal(text) {
 
 function showSuccess(text) {
   alert(text);
+}
+
+function renderCurrentDoctorSchedule() {
+
+  const container =
+    document.getElementById("currentDoctorSchedule");
+
+  if (!container) return;
+
+  const doctorId =
+    document.getElementById("addScheduleDoctorSelect")?.value;
+
+  if (!doctorId) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const date = formatDate(selectedDate);
+
+  const periods = window.currentSchedule || [];
+
+  const doctorPeriods = periods.filter(item => {
+
+    return (
+      String(item.user_id) === String(doctorId) &&
+      item.date === date
+    );
+
+  });
+
+  container.innerHTML = `
+    <pre style="font-size:12px;overflow:auto;">
+${JSON.stringify(doctorPeriods, null, 2)}
+    </pre>
+  `;
 }
