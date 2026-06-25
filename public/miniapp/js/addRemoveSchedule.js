@@ -112,14 +112,14 @@ export async function openAddRemoveSchedule() {
   // ===============================
 renderCalendar(
   document.getElementById("addScheduleCalendar"),
-  (date) => {
+  async (date) => {
 
     selectedDate = new Date(date);
     window.selectedScheduleDate = selectedDate;
 
     console.log("Дата:", selectedDate);
 
-   await renderCurrentDoctorSchedule();
+    await renderCurrentDoctorSchedule();
 
   },
   new Date()
@@ -346,12 +346,11 @@ async function loadDoctors() {
     `;
 document
   .getElementById("addScheduleDoctorSelect")
-  .addEventListener("change", () => {
+  .addEventListener("change", async () => {
 
     await renderCurrentDoctorSchedule();
 
   });
-
 
   } catch (err) {
     container.innerHTML = "Ошибка сети";
