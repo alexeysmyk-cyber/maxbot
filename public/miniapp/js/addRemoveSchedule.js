@@ -286,6 +286,14 @@ if (timeStart >= timeEnd) {
     return;
 
 }
+if (isCancel && !comment.trim()) {
+
+    showErrorModal(
+        "Необходимо указать причину отмены."
+    );
+
+    return;
+}
 
 
 
@@ -293,7 +301,8 @@ const conflict = hasScheduleIntersection({
     doctorId: body.user_id,
     date: selectedDate,
     start: body.time_start,
-    end: body.time_end
+    end: body.time_end,
+    isCancel
 });
 
 if (conflict) {
@@ -608,7 +617,8 @@ export function hasScheduleIntersection({
     doctorId,
     date,
     start,
-    end
+    end,
+    isCancel
 }) {
 
     const data = getScheduleFromCache(date);
@@ -624,7 +634,7 @@ export function hasScheduleIntersection({
     const newStart = new Date(`${yyyy}-${mm}-${dd}T${start}`);
     const newEnd = new Date(`${yyyy}-${mm}-${dd}T${end}`);
 
-    for (const item of data) {
+ for (const item of data) {
 
     if (String(item.user_id) !== String(doctorId)) {
         continue;
@@ -633,23 +643,29 @@ export function hasScheduleIntersection({
     const itemStart = parseDate(item.time_start);
     const itemEnd = parseDate(item.time_end);
 
-    console.log("--------------------");
-    console.log("NEW:", newStart, newEnd);
-    console.log("ITEM:", item.time_start, item.time_end);
-    console.log("PARSED:", itemStart, itemEnd);
-
     const intersect =
         newStart < itemEnd &&
         newEnd > itemStart;
 
-    console.log("INTERSECT =", intersect);
+    if (!intersect) {
+        continue;
+    }
 
-    if (intersect) {
+    // Создаем отмену
+    if (isCancel) {
 
-        console.log("❌ CONFLICT FOUND");
+        // пересечение с расписанием разрешаем
+        if (item.type !== 3) {
+            continue;
+        }
 
+        // две отмены запрещены
         return item;
     }
+
+    // создаем расписание
+    // любое пересечение запрещено
+    return item;
 }
 
 console.log("✅ NO CONFLICT");
