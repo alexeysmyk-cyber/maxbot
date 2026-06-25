@@ -267,7 +267,47 @@ if (noIntersections) {
   body.no_intersections = true;
 }
 
+if (!timeStart || !timeEnd) {
 
+    showError("Укажите время начала и окончания.");
+
+    return;
+
+}
+
+if (timeStart >= timeEnd) {
+
+    showError("Время окончания должно быть позже времени начала.");
+
+    return;
+
+}
+
+const conflict = hasScheduleIntersection({
+
+    doctorId: body.user_id,
+
+    date: selectedDate,
+
+    start: body.time_start,
+
+    end: body.time_end
+
+});
+
+if (conflict) {
+
+    showError(
+        `Новый слот пересекается с существующим расписанием.
+
+Существующий слот:
+${conflict.time_start.slice(11,16)} - ${conflict.time_end.slice(11,16)}
+
+Используйте другое время либо удалите существующее расписание.`
+    );
+
+    return;
+}
 
 console.log("👉 CALL handleCreateSchedule");
       console.log("CREATE BODY:", body);
@@ -553,5 +593,55 @@ async function renderCurrentDoctorSchedule() {
         `;
 
     }
+
+}
+
+export function hasScheduleIntersection({
+    doctorId,
+    date,
+    start,
+    end
+}) {
+
+    const data = getScheduleFromCache(date);
+
+    if (!data.length) {
+        return null;
+    }
+
+    const day = formatLocalDate(date);
+
+    const startMinutes = getMinutes(
+        new Date(`${day.split(".").reverse().join("-")}T${start}`)
+    );
+
+    const endMinutes = getMinutes(
+        new Date(`${day.split(".").reverse().join("-")}T${end}`)
+    );
+
+    for (const item of data) {
+
+        if (String(item.user_id) !== String(doctorId)) {
+            continue;
+        }
+
+        const itemStart = getMinutes(
+            new Date(item.time_start.replace(" ", "T"))
+        );
+
+        const itemEnd = getMinutes(
+            new Date(item.time_end.replace(" ", "T"))
+        );
+
+        // Есть пересечение
+        if (startMinutes < itemEnd && endMinutes > itemStart) {
+
+            return item;
+
+        }
+
+    }
+
+    return null;
 
 }
