@@ -652,59 +652,20 @@ export function showSuccessModal(text) {
     };
 }
 
-export function showConfirmModal(text) {
-
-    return new Promise((resolve) => {
-
-        const modal = document.createElement("div");
-
-        modal.className = "error-modal";
-
-        modal.innerHTML = `
-            <div class="error-box">
-
-                <div class="error-title">
-                    Подтверждение
-                </div>
-
-                <div class="error-text">
-                    ${text}
-                </div>
-
-                <div class="modal-buttons">
-
-                    <button class="primary-btn secondary-btn" id="confirmNo">
-                        Нет
-                    </button>
-
-                    <button class="primary-btn" id="confirmYes">
-                        Да
-                    </button>
-
-                </div>
-
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        document.getElementById("confirmNo").onclick = () => {
-
-            modal.remove();
-            resolve(false);
-
-        };
-
-        document.getElementById("confirmYes").onclick = () => {
-
-            modal.remove();
-            resolve(true);
-
-        };
-
-    });
-
-}
+export function showConfirmModal(text, onYes) { 
+  const modal = document.createElement("div"); 
+  modal.className = "error-modal"; 
+  modal.innerHTML = <div class="error-box"> 
+  <div class="error-title"> Подтверждение </div>
+   <div class="error-text"> ${text} </div> 
+   <div class="modal-buttons"> 
+    <button class="primary-btn secondary-btn" id="confirmNo"> Нет </button> 
+    <button class="primary-btn" id="confirmYes"> Да </button> </div> </div> ;
+     document.body.appendChild(modal); 
+     document.getElementById("confirmNo").onclick = () => {
+       modal.remove(); }; document.getElementById("confirmYes").onclick = async () 
+       => { modal.remove(); if (onYes) { await onYes(); } }; 
+      }
 
 export async function renderCurrentDoctorSchedule() {
 
