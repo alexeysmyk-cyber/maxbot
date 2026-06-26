@@ -897,6 +897,18 @@ const user = req.user;
       }
     );
 
+
+console.log("SERVICES COUNT:", response.data.data?.[0]?.services?.length);
+console.log("SUM VALUE:", response.data.data?.[0]?.sum_value);
+console.log(
+    "SERVICES:",
+    JSON.stringify(response.data.data?.[0]?.services, null, 2)
+);
+
+
+
+
+
     if (!response.data || response.data.error !== 0) {
       return res.status(500).json({ error: "MIS_ERROR" });
     }
