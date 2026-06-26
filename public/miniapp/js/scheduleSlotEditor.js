@@ -194,19 +194,19 @@ function buildEditorHtml() {
 
     </div>
 
-    ${currentSlot.type !== 3 ? `
+${currentSlot.type !== 3 && !editorOptions.readOnly ? `
 
-    <label class="checkbox-row">
+<label class="checkbox-row">
 
-        <input
-            id="deleteCancels"
-            type="checkbox">
+    <input
+        id="deleteCancels"
+        type="checkbox">
 
-        Удалить также отмены
+    Удалить также отмены
 
-    </label>
+</label>
 
-    ` : ""}
+` : ""}
 
 <div class="appointments-block">
 
