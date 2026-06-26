@@ -449,15 +449,20 @@ async function removeSchedule() {
 // Полностью очищаем кэш визитов
 appointmentsCache.clear();
 
+console.log("STEP 1");
+
 invalidateScheduleMonth(
     parseDate(currentSlot.time_start)
 );
 
+console.log("STEP 2");
+
+await renderCurrentDoctorSchedule();
+
+console.log("STEP 3");
+
 currentModal.remove();
 currentModal = null;
-console.log("BEFORE RENDER");
-await renderCurrentDoctorSchedule();
-console.log("AFTER RENDER");
     }
 
     catch (e) {

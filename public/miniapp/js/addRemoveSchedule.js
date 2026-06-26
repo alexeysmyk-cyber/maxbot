@@ -705,7 +705,7 @@ export function showConfirmModal(text, onYes) {
 export async function renderCurrentDoctorSchedule() {
 
 
-console.log("renderCurrentDoctorSchedule");
+alert("renderCurrentDoctorSchedule");
 
     const container =
         document.getElementById("currentDoctorSchedule");

@@ -800,6 +800,8 @@ export async function renderDoctorTimeline({
   date
 }) {
 
+  alert("renderDoctorTimeline");
+
   console.log("==================================");
   console.log("🔥 renderDoctorTimeline START");
   console.log("doctorId:", doctorId);
@@ -813,7 +815,7 @@ export async function renderDoctorTimeline({
 
   const data = await ensureScheduleMonth(date);
 
-
+alert("Всего записей: " + data.length);
 
   console.log("CACHE LENGTH:", data.length);
 
@@ -841,6 +843,8 @@ export async function renderDoctorTimeline({
     String(item.user_id) === String(doctorId)
   );
 
+  alert("doctorItems = " + doctorItems.length);
+  
 console.log("DOCTOR ITEMS:", doctorItems.length);
 
 
