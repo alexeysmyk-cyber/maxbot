@@ -710,10 +710,14 @@ alert("renderCurrentDoctorSchedule");
     const container =
         document.getElementById("currentDoctorSchedule");
 
+        alert("container = " + (container ? "OK" : "NULL"));
+
     if (!container) return;
 
     const doctorId =
         document.getElementById("addScheduleDoctorSelect")?.value;
+
+alert("doctorId = " + doctorId);
 
     if (!doctorId) {
         container.innerHTML = "";
