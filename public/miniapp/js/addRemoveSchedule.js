@@ -652,72 +652,76 @@ export function showSuccessModal(text) {
     };
 }
 
-export function showConfirmModal(text, onYes) {
+export function showConfirmModal(text) {
 
-    const modal = document.createElement("div");
+    return new Promise((resolve) => {
 
-    modal.className = "error-modal";
+        const modal = document.createElement("div");
 
-    modal.innerHTML = `
-        <div class="error-box">
+        modal.className = "error-modal";
 
-            <div class="error-title">
-                Подтверждение
+        modal.innerHTML = `
+            <div class="error-box">
+
+                <div class="error-title">
+                    Подтверждение
+                </div>
+
+                <div class="error-text">
+                    ${text}
+                </div>
+
+                <div class="modal-buttons">
+
+                    <button class="primary-btn secondary-btn" id="confirmNo">
+                        Нет
+                    </button>
+
+                    <button class="primary-btn" id="confirmYes">
+                        Да
+                    </button>
+
+                </div>
+
             </div>
+        `;
 
-            <div class="error-text">
-                ${text}
-            </div>
+        document.body.appendChild(modal);
 
-           <div class="modal-buttons">
+        document.getElementById("confirmNo").onclick = () => {
 
-    <button class="primary-btn secondary-btn" id="confirmNo">
-        Нет
-    </button>
+            modal.remove();
+            resolve(false);
 
-    <button class="primary-btn" id="confirmYes">
-        Да
-    </button>
+        };
 
-</div>
+        document.getElementById("confirmYes").onclick = () => {
 
-        </div>
-    `;
+            modal.remove();
+            resolve(true);
 
-    document.body.appendChild(modal);
+        };
 
-    document.getElementById("confirmNo").onclick = () => {
-        modal.remove();
-    };
-
-    document.getElementById("confirmYes").onclick = async () => {
-
-        modal.remove();
-
-        if (onYes) {
-            await onYes();
-        }
-
-    };
+    });
 
 }
 
 export async function renderCurrentDoctorSchedule() {
 
 
-alert("renderCurrentDoctorSchedule");
+
 
     const container =
         document.getElementById("currentDoctorSchedule");
 
-        alert("container = " + (container ? "OK" : "NULL"));
+        
 
     if (!container) return;
 
     const doctorId =
         document.getElementById("addScheduleDoctorSelect")?.value;
 
-alert("doctorId = " + doctorId);
+
 
     if (!doctorId) {
         container.innerHTML = "";
