@@ -619,8 +619,7 @@ function mergeIntervals(list) {
 
 function attachBarEvents(container) {
 
-    alert("ATTACH");
-
+    
     container.querySelectorAll(".schedule-bar").forEach(el => {
 
         el.onclick = () => {

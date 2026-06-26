@@ -218,14 +218,13 @@ function buildEditorHtml() {
 
     </div>
 
-    <div
-        id="appointmentsContainer"
-        class="appointments-container">
+<div
+    id="appointmentsContainer"
+    class="appointments-container collapsed">
 
-        Загрузка пациентов...
+    Загрузка пациентов...
 
-    </div>
-
+</div>
 </div>
 
     <div class="modal-buttons">
@@ -338,12 +337,22 @@ function getAppointmentsInInterval() {
 function renderAppointments() {
 
     const container = document.getElementById("appointmentsContainer");
+    const header = document.getElementById("appointmentsHeader");
 
     if (!container) {
         return;
     }
 
     const appointments = getAppointmentsInInterval();
+
+    if (header) {
+
+        const collapsed = container.classList.contains("collapsed");
+
+        header.textContent =
+            `${collapsed ? "▶" : "▼"} Пациенты (${appointments.length})`;
+
+    }
 
     if (!appointments.length) {
 
@@ -354,36 +363,27 @@ function renderAppointments() {
         `;
 
         return;
+
     }
 
-    container.innerHTML = `
+    container.innerHTML = appointments.map(item => `
 
-        <div class="appointments-title">
-            Пациенты (${appointments.length})
-        </div>
+        <div class="appointment-row">
 
-        ${appointments.map(item => `
+            <div class="appointment-time">
 
-            <div class="appointment-row">
-
-                <div class="appointment-time">
-                    ${getTime(item.time_start)} – ${getTime(item.time_end)}
-                </div>
-
-                <div class="appointment-name">
-                    ${item.patient_name}
-                </div>
-
-                ${
-                    item.patient_phone
-                        ? `<div class="appointment-phone">${item.patient_phone}</div>`
-                        : ""
-                }
+                ${getTime(item.time_start)} – ${getTime(item.time_end)}
 
             </div>
 
-        `).join("")}
+            <div class="appointment-name">
 
-    `;
+                ${item.patient_name}
+
+            </div>
+
+        </div>
+
+    `).join("");
 
 }
