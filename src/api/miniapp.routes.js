@@ -420,10 +420,9 @@ router.post("/appointments/day", async (req, res) => {
 
       date_from: `${date} 00:00`,
 
-      date_to: `${date} 23:59`,
+      date_to: `${date} 23:59`
 
-      status_id: "1,2,3"
-
+      
     };
 
     console.log("➡️ GET APPOINTMENTS:", body);
