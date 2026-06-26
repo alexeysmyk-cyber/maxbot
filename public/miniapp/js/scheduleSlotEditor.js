@@ -252,6 +252,28 @@ function attachEditorEvents() {
 
         };
 
+const startInput = document.getElementById("editorStart");
+
+const endInput = document.getElementById("editorEnd");
+startInput.addEventListener("change", () => {
+
+    currentSlot.time_start =
+        `${currentSlot.date} ${startInput.value}`;
+
+    renderAppointments();
+
+});
+
+endInput.addEventListener("change", () => {
+
+    currentSlot.time_end =
+        `${currentSlot.date} ${endInput.value}`;
+
+    renderAppointments();
+
+});
+
+
 }
 
 function getDate(str){
