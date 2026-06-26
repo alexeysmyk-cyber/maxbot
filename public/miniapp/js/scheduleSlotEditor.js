@@ -383,7 +383,7 @@ function renderAppointments() {
 }
 async function removeSchedule() {
 
-     alert(JSON.stringify(currentSlot, null, 2));
+    
 
 
 
