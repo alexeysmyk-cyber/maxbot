@@ -53,9 +53,13 @@ export async function ensureScheduleMonth(date) {
 
     const data = await response.json();
 
+    console.log("SERVER DATA:", data.data.length);
+
     if (!response.ok || data.error) {
         throw new Error("LOAD_ERROR");
     }
+
+console.log("CACHE SAVE:", data.data.length);
 
     scheduleCache.set(key, {
         data: data.data,
@@ -837,9 +841,8 @@ export async function renderDoctorTimeline({
     String(item.user_id) === String(doctorId)
   );
 
+console.log("DOCTOR ITEMS:", doctorItems.length);
 
-
-  console.log("FOUND ITEMS:", doctorItems.length);
 
   if (doctorItems.length) {
     console.log("FIRST FOUND:");

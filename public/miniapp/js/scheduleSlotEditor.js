@@ -453,11 +453,10 @@ invalidateScheduleMonth(
     parseDate(currentSlot.time_start)
 );
 
-await renderCurrentDoctorSchedule();
-
 currentModal.remove();
 currentModal = null;
 
+await renderCurrentDoctorSchedule();
     }
 
     catch (e) {
