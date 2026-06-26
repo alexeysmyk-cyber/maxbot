@@ -164,6 +164,19 @@ function buildEditorHtml() {
 
     </div>
 
+<div class="editor-room">
+
+    🏥 ${
+        currentSlot.room_name
+            ? currentSlot.room_name
+            : currentSlot.room
+                ? `${currentSlot.room}`
+                : "Без кабинета"
+    }
+
+</div>
+
+
     <div class="editor-time-row">
 
        <div class="form-group">
