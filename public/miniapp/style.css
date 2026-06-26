@@ -2674,3 +2674,12 @@ input[type="date"].form-input {
     font-size:15px;
 
 }
+.editor-doctor,
+.editor-date,
+.editor-room {
+
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 10px;
+
+}
