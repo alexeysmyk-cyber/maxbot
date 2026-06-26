@@ -1062,8 +1062,10 @@ body {
 }
 
 .services-content.open {
-  max-height: 1000px;
-  opacity: 1;
+
+    max-height: 99999px;
+    opacity: 1;
+
 }
 
 /* стрелка */

@@ -898,11 +898,7 @@ const user = req.user;
     );
 
 
-console.log("SERVICES COUNT:", response.data.data?.[0]?.services?.length);
-console.log("SUM VALUE:", response.data.data?.[0]?.sum_value);
-console.log(
-    "SERVICES:",
-    JSON.stringify(response.data.data?.[0]?.services, null, 2)
+
 );
 
 
