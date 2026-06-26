@@ -652,37 +652,70 @@ export function showSuccessModal(text) {
     };
 }
 
-export function showConfirmModal(text, onYes) { 
-  const modal = document.createElement("div"); 
-  modal.className = "error-modal"; 
-  modal.innerHTML = <div class="error-box"> 
-  <div class="error-title"> Подтверждение </div>
-   <div class="error-text"> ${text} </div> 
-   <div class="modal-buttons"> 
-    <button class="primary-btn secondary-btn" id="confirmNo"> Нет </button> 
-    <button class="primary-btn" id="confirmYes"> Да </button> </div> </div> ;
-     document.body.appendChild(modal); 
-     document.getElementById("confirmNo").onclick = () => {
-       modal.remove(); }; document.getElementById("confirmYes").onclick = async () 
-       => { modal.remove(); if (onYes) { await onYes(); } }; 
-      }
 
-export async function renderCurrentDoctorSchedule() {
+export function showConfirmModal(text, onYes) {
+
+    const modal = document.createElement("div");
+
+    modal.className = "error-modal";
+
+    modal.innerHTML = `
+        <div class="error-box">
+
+            <div class="error-title">
+                Подтверждение
+            </div>
+
+            <div class="error-text">
+                ${text}
+            </div>
+
+           <div class="modal-buttons">
+
+    <button class="primary-btn secondary-btn" id="confirmNo">
+        Нет
+    </button>
+
+    <button class="primary-btn" id="confirmYes">
+        Да
+    </button>
+
+</div>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById("confirmNo").onclick = () => {
+        modal.remove();
+    };
+
+    document.getElementById("confirmYes").onclick = async () => {
+
+        modal.remove();
+
+        if (onYes) {
+            await onYes();
+        }
+
+    };
+
+}
+async function renderCurrentDoctorSchedule() {
 
 
 
+
+    console.log("renderCurrentDoctorSchedule");
 
     const container =
         document.getElementById("currentDoctorSchedule");
-
-        
 
     if (!container) return;
 
     const doctorId =
         document.getElementById("addScheduleDoctorSelect")?.value;
-
-
 
     if (!doctorId) {
         container.innerHTML = "";
