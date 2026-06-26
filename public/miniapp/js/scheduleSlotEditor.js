@@ -2,7 +2,7 @@
 //import { showSuccessModal } from "./addRemoveSchedule.js";
 //import { showErrorModal } from "./addRemoveSchedule.js";
 import { invalidateScheduleMonth } from "./schedulePeriods.js";
-import { renderCurrentDoctorSchedule } from "./addRemoveSchedule.js";
+
 let currentSlot = null;
 let currentAppointments = [];
 let currentModal = null;
@@ -457,7 +457,9 @@ invalidateScheduleMonth(
 
 console.log("STEP 2");
 
-await renderCurrentDoctorSchedule();
+if (window.reloadSchedule) {
+    await window.reloadSchedule();
+}
 
 console.log("STEP 3");
 

@@ -131,19 +131,23 @@ content.innerHTML = `
   const scheduleContainer = document.getElementById("scheduleContainer");
 function reloadSchedule() {
 
-  const doctorSelect = document.getElementById("scheduleDoctorSelect"); // 🔥 каждый раз заново
+    const doctorSelect =
+        document.getElementById("scheduleDoctorSelect");
 
-  if (!selectedDate) return;
+    if (!selectedDate) return;
 
-  loadSchedulePeriods({
-    container: scheduleContainer,
-    date: selectedDate,
-    doctorId: showAll ? "all" : doctorSelect.value,
-    onlyDoctors,
-    noCancelled,
-    noWorktime
-  });
+    loadSchedulePeriods({
+        container: scheduleContainer,
+        date: selectedDate,
+        doctorId: showAll ? "all" : doctorSelect.value,
+        onlyDoctors,
+        noCancelled,
+        noWorktime
+    });
+
 }
+
+window.reloadSchedule = reloadSchedule;
 
 // Убираем для директора
 if (!isDirector) {
