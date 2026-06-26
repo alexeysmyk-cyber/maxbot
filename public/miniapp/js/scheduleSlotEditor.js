@@ -23,12 +23,22 @@ function formatDate(date){
 }
 export async function openScheduleSlotEditor(item) {
 
-  //  currentSlot = structuredClone(item);
+    currentSlot = structuredClone(item);
 
-    //buildEditor();
-    console.log(item);
+    buildEditor();
+    //console.log(item);
 
-    alert(JSON.stringify(item, null, 2));
+    //alert(JSON.stringify(item, null, 2));
+
+}
+
+function getDoctorName(id) {
+
+    const doctor = window.doctorsList?.find(
+        d => String(d.id) === String(id)
+    );
+
+    return doctor?.name || ("ID " + id);
 
 }
 
@@ -63,7 +73,7 @@ function buildEditorHtml() {
 
     <div class="editor-doctor">
 
-        👨‍⚕️ ${currentSlot.doctor_name || currentSlot.doctor || ""}
+        👨‍⚕️ ${getDoctorName(currentSlot.user_id)}
 
     </div>
 
