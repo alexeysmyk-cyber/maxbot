@@ -455,8 +455,9 @@ invalidateScheduleMonth(
 
 currentModal.remove();
 currentModal = null;
-
+console.log("BEFORE RENDER");
 await renderCurrentDoctorSchedule();
+console.log("AFTER RENDER");
     }
 
     catch (e) {
