@@ -170,27 +170,29 @@ function buildEditorHtml() {
 
     <div class="editor-time-row">
 
-        <div class="editor-field">
+       <div class="form-group">
 
-            <label>Начало</label>
+    <label>Начало</label>
 
-            <input
-                id="editorStart"
-                type="time"
-                value="${currentSlot.time_start.split(" ")[1].slice(0,5)}">
+    <input
+        class="form-input"
+        id="editorStart"
+        type="time"
+        value="${currentSlot.time_start.split(" ")[1].slice(0,5)}">
 
-        </div>
+</div>
 
-        <div class="editor-field">
+        <div class="form-group">
 
-            <label>Конец</label>
+    <label>Конец</label>
 
-            <input
-                id="editorEnd"
-                type="time"
-                value="${currentSlot.time_end.split(" ")[1].slice(0,5)}">
+    <input
+        class="form-input"
+        id="editorEnd"
+        type="time"
+        value="${currentSlot.time_end.split(" ")[1].slice(0,5)}">
 
-        </div>
+</div>
 
     </div>
 

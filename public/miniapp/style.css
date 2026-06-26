@@ -2647,3 +2647,19 @@ input[type="date"].form-input {
     text-align:center;
 
 }
+
+.editor-time-row{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.editor-time-row .form-group{
+
+    flex:1;
+
+    margin-bottom:0;
+
+}
