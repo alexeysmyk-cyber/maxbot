@@ -2560,3 +2560,40 @@ input[type="date"].form-input {
 .danger-btn{
     background:#d9534f;
 }
+.appointments-block{
+
+    margin-top:16px;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+}
+
+.appointments-header{
+
+    padding:12px 14px;
+
+    background:#f7f7f7;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    user-select:none;
+
+}
+
+.appointments-container{
+
+    padding:12px;
+
+}
+
+.appointments-container.collapsed{
+
+    display:none;
+
+}

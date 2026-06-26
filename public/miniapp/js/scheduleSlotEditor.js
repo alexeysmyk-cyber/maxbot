@@ -208,11 +208,25 @@ function buildEditorHtml() {
 
     ` : ""}
 
-    <div id="appointmentsContainer">
+<div class="appointments-block">
+
+    <div
+        id="appointmentsHeader"
+        class="appointments-header">
+
+        ▼ Пациенты
+
+    </div>
+
+    <div
+        id="appointmentsContainer"
+        class="appointments-container">
 
         Загрузка пациентов...
 
     </div>
+
+</div>
 
     <div class="modal-buttons">
 
@@ -273,6 +287,22 @@ endInput.addEventListener("change", () => {
 
 });
 
+const appointmentsHeader =
+    document.getElementById("appointmentsHeader");
+
+const appointmentsContainer =
+    document.getElementById("appointmentsContainer");
+
+appointmentsHeader.onclick = () => {
+
+    appointmentsContainer.classList.toggle("collapsed");
+
+    appointmentsHeader.textContent =
+        appointmentsContainer.classList.contains("collapsed")
+            ? "▶ Пациенты"
+            : "▼ Пациенты";
+
+};
 
 }
 
