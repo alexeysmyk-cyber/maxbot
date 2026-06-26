@@ -396,14 +396,6 @@ ${startTime} — ${endTime}
     return;
 }
 
-console.log("👉 CALL handleCreateSchedule");
-
-const result = await handleCreateSchedule(body, false);
-
-
-
-
-
 
 
 }
