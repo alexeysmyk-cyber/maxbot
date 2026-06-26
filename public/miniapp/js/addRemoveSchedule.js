@@ -670,17 +670,17 @@ export function showConfirmModal(text, onYes) {
                 ${text}
             </div>
 
-           <div class="modal-buttons">
+            <div class="modal-buttons">
 
-    <button class="primary-btn secondary-btn" id="confirmNo">
-        Нет
-    </button>
+                <button class="primary-btn secondary-btn" id="confirmNo">
+                    Нет
+                </button>
 
-    <button class="primary-btn" id="confirmYes">
-        Да
-    </button>
+                <button class="primary-btn" id="confirmYes">
+                    Да
+                </button>
 
-</div>
+            </div>
 
         </div>
     `;
@@ -688,7 +688,9 @@ export function showConfirmModal(text, onYes) {
     document.body.appendChild(modal);
 
     document.getElementById("confirmNo").onclick = () => {
+
         modal.remove();
+
     };
 
     document.getElementById("confirmYes").onclick = async () => {
