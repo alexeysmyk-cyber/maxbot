@@ -28,10 +28,7 @@ export async function openScheduleSlotEditor(item) {
     buildEditor();
 
     loadAppointments();
-    ////console.log(item);
-
-    //alert(JSON.stringify(item, null, 2));
-
+  
 }
 
 async function loadAppointments() {
@@ -385,6 +382,10 @@ function renderAppointments() {
 
 }
 async function removeSchedule() {
+
+     alert(JSON.stringify(currentSlot, null, 2));
+
+
 
     const appointments = getAppointmentsInInterval();
 
