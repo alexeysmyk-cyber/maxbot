@@ -10,7 +10,13 @@ const appointmentsCache = new Map();
 
 const APPOINTMENTS_CACHE_TTL = 30 * 1000;
 
-function parseDate(str){
+function parseDate(str) {
+
+    const [date, time] = str.split(" ");
+
+    const [day, month, year] = date.split(".");
+
+    return new Date(`${year}-${month}-${day}T${time}`);
 
 }
 
@@ -36,18 +42,29 @@ export async function openScheduleSlotEditor(item) {
 
 async function loadAppointments() {
 
-    const key = `${currentSlot.user_id}_${currentSlot.date}`;
+const key = `${currentSlot.user_id}_${currentSlot.date}`;
 
-    if (appointmentsCache.has(key)) {
+const cached = appointmentsCache.get(key);
 
-        currentAppointments = appointmentsCache.get(key);
+if (cached) {
+
+    const age = Date.now() - cached.timestamp;
+
+    if (age < APPOINTMENTS_CACHE_TTL) {
+
+        currentAppointments = cached.data;
 
         renderAppointments();
 
         return;
+
     }
 
-    try {
+    appointmentsCache.delete(key);
+
+}
+
+try {
 
         const response = await fetch("/miniapp/appointments/day", {
 
@@ -78,7 +95,10 @@ async function loadAppointments() {
 
         }
 
-        appointmentsCache.set(key, data.data);
+        appointmentsCache.set(key, {
+    timestamp: Date.now(),
+    data: data.data
+});
 
         currentAppointments = data.data;
 
@@ -245,9 +265,73 @@ function getTime(str){
     return str.split(" ")[1].slice(0,5);
 
 }
-function getAppointmentsInInterval(){
+function getAppointmentsInInterval() {
+
+    const slotStart = parseDate(currentSlot.time_start);
+    const slotEnd = parseDate(currentSlot.time_end);
+
+    return currentAppointments.filter(appointment => {
+
+        const appointmentStart = parseDate(appointment.time_start);
+        const appointmentEnd = parseDate(appointment.time_end);
+
+        return (
+            appointmentStart < slotEnd &&
+            appointmentEnd > slotStart
+        );
+
+    });
 
 }
-function renderAppointments(){
+function renderAppointments() {
+
+    const container = document.getElementById("appointmentsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const appointments = getAppointmentsInInterval();
+
+    if (!appointments.length) {
+
+        container.innerHTML = `
+            <div class="appointments-empty">
+                Пациентов в выбранном интервале нет
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = `
+
+        <div class="appointments-title">
+            Пациенты (${appointments.length})
+        </div>
+
+        ${appointments.map(item => `
+
+            <div class="appointment-row">
+
+                <div class="appointment-time">
+                    ${getTime(item.time_start)} – ${getTime(item.time_end)}
+                </div>
+
+                <div class="appointment-name">
+                    ${item.patient_name}
+                </div>
+
+                ${
+                    item.patient_phone
+                        ? `<div class="appointment-phone">${item.patient_phone}</div>`
+                        : ""
+                }
+
+            </div>
+
+        `).join("")}
+
+    `;
 
 }
