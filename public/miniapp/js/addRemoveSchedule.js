@@ -702,7 +702,7 @@ export function showConfirmModal(text, onYes) {
 
 }
 
-async function renderCurrentDoctorSchedule() {
+export async function renderCurrentDoctorSchedule() {
 
 
 

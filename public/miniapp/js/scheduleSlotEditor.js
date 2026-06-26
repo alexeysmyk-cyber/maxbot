@@ -1,7 +1,8 @@
 //import { showConfirmModal } from "./addRemoveSchedule.js";
 //import { showSuccessModal } from "./addRemoveSchedule.js";
 //import { showErrorModal } from "./addRemoveSchedule.js";
-// 
+import { invalidateScheduleMonth } from "./schedulePeriods.js";
+import { renderCurrentDoctorSchedule } from "./addRemoveSchedule.js";
 let currentSlot = null;
 let currentAppointments = [];
 let currentModal = null;
@@ -20,13 +21,6 @@ function parseDate(str) {
 
 }
 
-function formatTime(date){
-
-}
-
-function formatDate(date){
-
-}
 export async function openScheduleSlotEditor(item) {
 
     currentSlot = structuredClone(item);
@@ -298,12 +292,13 @@ appointmentsHeader.onclick = () => {
 
     appointmentsContainer.classList.toggle("collapsed");
 
-    appointmentsHeader.textContent =
-        appointmentsContainer.classList.contains("collapsed")
-            ? "▶ Пациенты"
-            : "▼ Пациенты";
+    renderAppointments();
 
 };
+
+document
+    .getElementById("removeScheduleBtn")
+    .addEventListener("click", removeSchedule);
 
 }
 
@@ -387,5 +382,90 @@ function renderAppointments() {
         </div>
 
     `).join("");
+
+}
+async function removeSchedule() {
+
+    const appointments = getAppointmentsInInterval();
+
+    let text = "Удалить расписание?";
+
+    if (appointments.length) {
+
+        text =
+            `В выбранном интервале найдено ${appointments.length} ` +
+            `визит(ов).\n\nПродолжить удаление?`;
+
+    }
+
+    if (!confirm(text)) {
+
+        return;
+
+    }
+
+    const deleteCancels =
+        document.getElementById("deleteCancels")?.checked || false;
+
+    try {
+
+        const response = await fetch("/miniapp/schedule/remove", {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization":
+                    "Bearer " + localStorage.getItem("token")
+
+            },
+
+            body: JSON.stringify({
+
+                date_start: currentSlot.time_start,
+
+                date_end: currentSlot.time_end,
+
+                user_id: currentSlot.user_id,
+
+                deleteCancels
+
+            })
+
+        });
+
+        const data = await response.json();
+
+ if (!response.ok || !data.success) {
+
+    alert("Не удалось удалить расписание.");
+
+    return;
+
+}
+
+// Полностью очищаем кэш визитов
+appointmentsCache.clear();
+
+invalidateScheduleMonth(
+    parseDate(currentSlot.time_start)
+);
+
+await renderCurrentDoctorSchedule();
+
+currentModal.remove();
+currentModal = null;
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+        alert("Ошибка удаления расписания.");
+
+    }
 
 }

@@ -1093,6 +1093,139 @@ if (Number(response.data.error) !== 0) {
     }
   }
 });
+router.post("/schedule/remove", async (req, res) => {
+
+    try {
+
+        const user = req.user;
+
+        if (!user) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message: "NO_ACCESS"
+
+            });
+
+        }
+
+        const {
+
+            date_start,
+            date_end,
+            user_id,
+            deleteCancels
+
+        } = req.body;
+
+        if (
+
+            !date_start ||
+            !date_end ||
+            !user_id
+
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "INVALID_PARAMS"
+
+            });
+
+        }
+
+        const body = {
+
+            api_key: process.env.API_KEY,
+
+            date_start,
+
+            date_end,
+
+            user_id,
+
+            clinic_id: user.clinic_id
+
+        };
+
+        // Если чекбокс НЕ отмечен —
+        // удаляем только расписание.
+        // Если отмечен — параметр type не передаем,
+        // тогда MIS удалит и расписание, и отмены.
+
+        if (!deleteCancels) {
+
+            body.type = 1;
+
+        }
+
+        console.log("➡️ REMOVE SCHEDULE:", body);
+
+        const response = await axios.post(
+
+            process.env.BASE_URL + "/removeSchedule",
+
+            qs.stringify(body),
+
+            {
+
+                headers: {
+
+                    "Content-Type": "application/x-www-form-urlencoded"
+
+                }
+
+            }
+
+        );
+
+        console.log("⬅️ REMOVE SCHEDULE:", response.data);
+
+        if (
+
+            !response.data ||
+            response.data.error !== 0 ||
+            response.data.data !== true
+
+        ) {
+
+            return res.status(500).json({
+
+                success: false,
+
+                message: "MIS_ERROR"
+
+            });
+
+        }
+
+        return res.json({
+
+            success: true
+
+        });
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "SERVER_ERROR"
+
+        });
+
+    }
+
+});
 
 
 function formatDate(dateInput) {
