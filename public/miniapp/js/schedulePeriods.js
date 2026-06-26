@@ -152,6 +152,9 @@ function renderSchedulePeriods(
     showAll
 ) {
 
+barItems.length = 0;
+nextBarIndex = 0;
+
    const localDoctorsMap = buildDoctorsMap();
   // фильтр по дню
  const formattedDate = formatLocalDate(selectedDate);
@@ -294,6 +297,7 @@ console.log("AFTER ATTACH");
 
 let occupiedZones = [];
 const barItems = [];
+let nextBarIndex = 0;
 
 function isFree(start, end) {
   return !occupiedZones.some(z =>
@@ -680,13 +684,13 @@ function renderDoctorRow(userId, items, doctorsMap) {
 
 occupiedZones = [];
 
-barItems.length = 0;
+
 
 const bars = merged.map((i, idx) => {
 
-    i.__index = idx;
+i.__index = nextBarIndex++;
 
-    barItems[idx] = i;
+barItems.push(i);
     console.log("SAVE", idx, i);
 
     return renderBar(i, idx, merged);
