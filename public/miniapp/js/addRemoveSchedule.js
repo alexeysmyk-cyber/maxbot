@@ -619,24 +619,23 @@ export function showSuccessModal(text) {
 
     modal.className = "error-modal";
 
-    modal.innerHTML = `
-        <div class="error-box">
+modal.innerHTML = `
+    <div class="error-box">
 
-            <div class="error-title">
-                Успешно
-            </div>
-
-            <div class="error-text">
-                ${text}
-            </div>
-
-            <button id="successOkBtn">
-                ОК
-            </button>
-
+        <div class="error-title">
+            Успешно
         </div>
-    `;
 
+        <div class="error-text">
+            ${text}
+        </div>
+
+        <button class="primary-btn" id="successOkBtn">
+            ОК
+        </button>
+
+    </div>
+`;
     document.body.appendChild(modal);
 
     document.getElementById("successOkBtn").onclick = () => {

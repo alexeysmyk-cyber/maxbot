@@ -621,26 +621,24 @@ function mergeIntervals(list) {
 
 }
 
-function attachBarEvents(container) {
+function attachBarEvents(container, readOnly = false) {
 
-    
     container.querySelectorAll(".schedule-bar").forEach(el => {
 
         el.onclick = () => {
 
-  
-const item = barItems[Number(el.dataset.index)];
+            const item = barItems[Number(el.dataset.index)];
 
-if (!item) {
-    console.error("Slot not found", el.dataset.index);
-    return;
-}
+            if (!item) {
+                console.error("Slot not found", el.dataset.index);
+                return;
+            }
 
-openScheduleSlotEditor(item);
+            openScheduleSlotEditor(item, {
+                readOnly
+            });
 
-    
-
-};
+        };
 
     });
 
@@ -884,8 +882,7 @@ export async function renderDoctorTimeline({
 
   console.log("✅ HTML INSERTED");
 
-  attachBarEvents(container);
-
+  attachBarEvents(container, true);
   console.log("✅ EVENTS ATTACHED");
   console.log("==================================");
 }

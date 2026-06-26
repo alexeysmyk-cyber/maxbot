@@ -6,7 +6,7 @@ import { invalidateScheduleMonth } from "./schedulePeriods.js";
 let currentSlot = null;
 let currentAppointments = [];
 let currentModal = null;
-
+let editorOptions = {};
 const appointmentsCache = new Map();
 
 const APPOINTMENTS_CACHE_TTL = 30 * 1000;
@@ -21,9 +21,14 @@ function parseDate(str) {
 
 }
 
-export async function openScheduleSlotEditor(item) {
+export async function openScheduleSlotEditor(
+    item,
+    options = {}
+) {
 
     currentSlot = structuredClone(item);
+
+    editorOptions = options;
 
     buildEditor();
 
@@ -166,10 +171,11 @@ function buildEditorHtml() {
     <label>Начало</label>
 
     <input
-        class="form-input"
-        id="editorStart"
-        type="time"
-        value="${currentSlot.time_start.split(" ")[1].slice(0,5)}">
+    class="form-input"
+    id="editorStart"
+    type="time"
+    ${editorOptions.readOnly ? "disabled" : ""}
+    value="${currentSlot.time_start.split(" ")[1].slice(0,5)}">
 
 </div>
 
@@ -177,11 +183,12 @@ function buildEditorHtml() {
 
     <label>Конец</label>
 
-    <input
-        class="form-input"
-        id="editorEnd"
-        type="time"
-        value="${currentSlot.time_end.split(" ")[1].slice(0,5)}">
+ <input
+    class="form-input"
+    id="editorEnd"
+    type="time"
+    ${editorOptions.readOnly ? "disabled" : ""}
+    value="${currentSlot.time_end.split(" ")[1].slice(0,5)}">
 
 </div>
 
@@ -220,25 +227,31 @@ function buildEditorHtml() {
 </div>
 </div>
 
-    <div class="modal-buttons">
+<div class="modal-buttons">
 
-        <button
-            class="primary-btn danger-btn"
-            id="removeScheduleBtn">
+    ${
+        !editorOptions.readOnly
+            ? `
+            <button
+                class="primary-btn danger-btn"
+                id="removeScheduleBtn">
 
-            Удалить расписание
+                Удалить расписание
 
-        </button>
+            </button>
+            `
+            : ""
+    }
 
-        <button
-            class="primary-btn secondary-btn"
-            id="closeScheduleEditor">
+    <button
+        class="primary-btn secondary-btn"
+        id="closeScheduleEditor">
 
-            Закрыть
+        Закрыть
 
-        </button>
+    </button>
 
-    </div>
+</div>
 
 </div>
 
@@ -293,9 +306,14 @@ appointmentsHeader.onclick = () => {
 
 };
 
-document
-    .getElementById("removeScheduleBtn")
-    .addEventListener("click", removeSchedule);
+const removeBtn =
+    document.getElementById("removeScheduleBtn");
+
+if (removeBtn) {
+
+    removeBtn.onclick = removeSchedule;
+
+}
 
 }
 
