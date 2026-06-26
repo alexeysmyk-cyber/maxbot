@@ -1,4 +1,4 @@
-//import { showConfirmModal } from "./addRemoveSchedule.js";
+import { showConfirmModal } from "./addRemoveSchedule.js";
 //import { showSuccessModal } from "./addRemoveSchedule.js";
 //import { showErrorModal } from "./addRemoveSchedule.js";
 import { invalidateScheduleMonth } from "./schedulePeriods.js";
@@ -399,11 +399,11 @@ async function removeSchedule() {
 
     }
 
-    if (!confirm(text)) {
+ const confirmed = await showConfirmModal(text);
 
-        return;
-
-    }
+if (!confirmed) {
+    return;
+}
 
     const deleteCancels =
         document.getElementById("deleteCancels")?.checked || false;
@@ -425,15 +425,17 @@ async function removeSchedule() {
 
             body: JSON.stringify({
 
-                date_start: currentSlot.time_start,
+    date_start: currentSlot.time_start,
 
-                date_end: currentSlot.time_end,
+    date_end: currentSlot.time_end,
 
-                user_id: currentSlot.user_id,
+    user_id: currentSlot.user_id,
 
-                deleteCancels
+    slotType: currentSlot.type,
 
-            })
+    deleteCancels
+
+})
 
         });
 
@@ -462,7 +464,7 @@ if (window.reloadSchedule) {
     await window.reloadSchedule();
 }
 
-console.log("STEP 3");
+
 
 currentModal.remove();
 currentModal = null;

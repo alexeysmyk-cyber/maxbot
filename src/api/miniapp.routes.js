@@ -1112,13 +1112,12 @@ router.post("/schedule/remove", async (req, res) => {
         }
 
         const {
-
-            date_start,
-            date_end,
-            user_id,
-            deleteCancels
-
-        } = req.body;
+    date_start,
+    date_end,
+    user_id,
+    slotType,
+    deleteCancels
+} = req.body;
 
         if (
 
@@ -1157,11 +1156,20 @@ router.post("/schedule/remove", async (req, res) => {
         // Если отмечен — параметр type не передаем,
         // тогда MIS удалит и расписание, и отмены.
 
-        if (!deleteCancels) {
+     if (slotType === 3) {
 
-            body.type = 1;
+    // Удаляем отмену
+    body.type = 2;
 
-        }
+} else if (!deleteCancels) {
+
+    // Удаляем только расписание
+    body.type = 1;
+
+}
+
+// Если deleteCancels === true,
+// type вообще не передаем — MIS удалит всё.
 
         console.log("➡️ REMOVE SCHEDULE:", body);
 
