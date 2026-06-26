@@ -800,13 +800,7 @@ export async function renderDoctorTimeline({
   date
 }) {
 
-  alert("renderDoctorTimeline");
 
-  console.log("==================================");
-  console.log("🔥 renderDoctorTimeline START");
-  console.log("doctorId:", doctorId);
-  console.log("date:", date);
-  console.log("container:", container);
 
   if (!container) {
     console.log("❌ container == null");
@@ -815,7 +809,7 @@ export async function renderDoctorTimeline({
 
   const data = await ensureScheduleMonth(date);
 
-alert("Всего записей: " + data.length);
+
 
   console.log("CACHE LENGTH:", data.length);
 
@@ -831,29 +825,23 @@ alert("Всего записей: " + data.length);
     return;
   }
 
-  console.log("FIRST ITEM:");
-  console.log(JSON.stringify(data[0], null, 2));
+
 
   const formattedDate = formatLocalDate(date);
 
-  console.log("FORMATTED DATE:", formattedDate);
+ 
 
   const doctorItems = data.filter(item =>
     item.date === formattedDate &&
     String(item.user_id) === String(doctorId)
   );
 
-  alert("doctorItems = " + doctorItems.length);
-  
-console.log("DOCTOR ITEMS:", doctorItems.length);
 
 
   if (doctorItems.length) {
-    console.log("FIRST FOUND:");
-    console.log(JSON.stringify(doctorItems[0], null, 2));
+  
   } else {
 
-    console.log("========== WHY NOT FOUND ==========");
 
     data.slice(0, 10).forEach((item, index) => {
 
