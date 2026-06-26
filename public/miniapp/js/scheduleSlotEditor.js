@@ -26,9 +26,74 @@ export async function openScheduleSlotEditor(item) {
     currentSlot = structuredClone(item);
 
     buildEditor();
+
+    loadAppointments();
     ////console.log(item);
 
     //alert(JSON.stringify(item, null, 2));
+
+}
+
+async function loadAppointments() {
+
+    const key = `${currentSlot.user_id}_${currentSlot.date}`;
+
+    if (appointmentsCache.has(key)) {
+
+        currentAppointments = appointmentsCache.get(key);
+
+        renderAppointments();
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/miniapp/appointments/day", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+
+            body: JSON.stringify({
+
+                date: currentSlot.date,
+                doctor_id: currentSlot.user_id
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+
+            document.getElementById("appointmentsContainer").innerHTML =
+                "Ошибка загрузки пациентов";
+
+            return;
+
+        }
+
+        appointmentsCache.set(key, data.data);
+
+        currentAppointments = data.data;
+
+        renderAppointments();
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+        document.getElementById("appointmentsContainer").innerHTML =
+            "Ошибка загрузки пациентов";
+
+    }
 
 }
 
@@ -178,9 +243,6 @@ function getDate(str){
 function getTime(str){
 
     return str.split(" ")[1].slice(0,5);
-
-}
-async function loadAppointments(){
 
 }
 function getAppointmentsInInterval(){

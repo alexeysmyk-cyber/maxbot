@@ -625,17 +625,17 @@ function attachBarEvents(container) {
 
         el.onclick = () => {
 
-    alert("CLICK");
+  
+const item = barItems[Number(el.dataset.index)];
 
-    const item = barItems[
-        Number(el.dataset.index)
-    ];
+if (!item) {
+    console.error("Slot not found", el.dataset.index);
+    return;
+}
 
-    alert(item ? "ITEM OK" : "ITEM NULL");
+openScheduleSlotEditor(item);
 
-    openScheduleSlotEditor(item);
-
-    alert("AFTER OPEN");
+    
 
 };
 
