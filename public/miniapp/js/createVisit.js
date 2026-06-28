@@ -35,7 +35,9 @@ export async function openCreateVisit(options = {}) {
   
   
   const previousOverlay = options.previousOverlay || null;
-
+const initialDate = options.initialDate
+  ? new Date(options.initialDate)
+  : new Date();
   isMoveMode = options.mode === "move";
   movingVisit = options.visit || null;
 if (isMoveMode && !movingVisit) {
@@ -288,11 +290,11 @@ renderCalendar(
     selectedDate = new Date(date);
     loadCreateSchedule();
   },
-  new Date()
+  initialDate
 );
 
 // первая загрузка
-selectedDate = new Date();
+selectedDate = new Date(initialDate);
 loadCreateSchedule();
 
 
@@ -313,7 +315,7 @@ async function loadDoctorsForCreate() {
   try {
 
     const token = localStorage.getItem("token");
-    console.log("🔑 TOKEN:", token);
+    //console.log("🔑 TOKEN:", token);
 
     const response = await fetch('/miniapp/doctors', {
       method: 'POST',

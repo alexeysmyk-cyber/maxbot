@@ -728,7 +728,9 @@ fab.addEventListener("click", () => {
 
   // 👉 ВИЗИТЫ
   if (currentTab === "visits") {
-    openCreateVisit();
+    openCreateVisit({
+  initialDate: selectedDate
+});
   }
 
   // 👉 РАСПИСАНИЕ

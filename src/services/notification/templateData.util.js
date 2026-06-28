@@ -30,7 +30,7 @@ export function formatTime(dateTime) {
 
 export function buildTemplateData({ data, safeAppointment }) {
 
-  const rawStart = safeAppointment?.time_start || data.time_start || '';
+const rawStart = safeAppointment?.time_start || data.time_start || '';
 const rawEnd = data.time_end || safeAppointment?.time_end || '';
 
 // 🔥 ДОБАВЬ ЭТО
