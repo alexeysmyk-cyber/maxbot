@@ -76,18 +76,23 @@ if (
 //FIX: пробрасываем имя пациента в data
 // ===================================
 
-if (patient) {
-  data.patient_name = [
-    patient.last_name,
-    patient.first_name,
-    patient.third_name
-  ]
-    .filter(Boolean)
-    .join(' ');
+// ===================================
+// FIX: пробрасываем имя пациента в data
+// ===================================
+
+if (!data.patient_name && patient) {
+  data.patient_name =
+    patient.name ||
+    [
+      patient.last_name,
+      patient.first_name,
+      patient.third_name
+    ]
+      .filter(Boolean)
+      .join(' ');
 
   console.log('🛠 SET patient_name:', data.patient_name);
 }
-
   if (!patientUser) return;
 
   await processEvent({
