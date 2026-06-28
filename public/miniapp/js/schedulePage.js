@@ -56,9 +56,11 @@ content.innerHTML = `
       <select id="scheduleDoctorSelect" ${!isDirector ? 'disabled' : ''}>
 
         ${getFilteredDoctors().map(d => `
-  <option value="${d.id}"
+  <option
+    value="${d.id}"
     data-full="${d.name}"
-    data-short="${getShortName(d.name)}">
+    data-short="${getShortName(d.name)}"
+    ${String(d.id) === String(currentDoctorId) ? "selected" : ""}>
     ${d.name}
   </option>
 `).join('')}
@@ -384,12 +386,21 @@ if (onlyDoctors) {
   }
 
 } else {
-  // обычная логика
-  if (!list.find(d => String(d.id) === String(currentValue))) {
-    select.value = list[0]?.id || "";
-  } else {
+
+  if (list.find(d => String(d.id) === String(currentValue))) {
+
     select.value = currentValue;
+
+  } else if (list.find(d => String(d.id) === String(myDoctorId))) {
+
+    select.value = myDoctorId;
+
+  } else {
+
+    select.value = list[0]?.id || "";
+
   }
+
 }
 
   // 🔥 ВАЖНО: переинициализировать select

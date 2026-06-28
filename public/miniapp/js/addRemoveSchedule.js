@@ -475,15 +475,17 @@ doctors.forEach(d => {
     }
 
     // селект без переключателя
-    container.innerHTML = `
-      <select id="addScheduleDoctorSelect">
-        ${allowedDoctors.map(d => `
-          <option value="${d.id}">
-            ${d.name}
-          </option>
-        `).join("")}
-      </select>
-    `;
+   container.innerHTML = `
+  <select id="addScheduleDoctorSelect">
+    ${allowedDoctors.map(d => `
+      <option
+        value="${d.id}"
+        ${String(d.id) === String(currentDoctorId) ? "selected" : ""}>
+        ${d.name}
+      </option>
+    `).join("")}
+  </select>
+`;
 document
   .getElementById("addScheduleDoctorSelect")
   .addEventListener("change", async () => {
