@@ -14,11 +14,6 @@ import miniappRoutes from "./src/api/miniapp.routes.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-
-
-
-
-
 startMaxBot();
 //worker after the bot start
 import './src/worker/notification.worker.js';
@@ -411,8 +406,6 @@ app.post('/api/onboarding/select-channel', async (req, res) => {
 
   return res.json({ success: true });
 });
-
-
 
 // ===== ADMIN =====
 app.get('/admin', basicAuth, (req, res) => {

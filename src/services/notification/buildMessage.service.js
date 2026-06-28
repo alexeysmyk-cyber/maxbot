@@ -83,7 +83,10 @@ if (event === 'create_appointment' || event === 'visit_create') {
   const doctor =
   safeAppointment?.doctor || data.doctor;
   const patientName =
-  safeAppointment?.patient_name || data.patient_name;
+  safeAppointment?.patient_name ||
+  safeAppointment?.patient ||
+  data.patient_name ||
+  data.patient;
   const patientPhone = data.patient_phone;
   const source =
   data.source?.trim() ||
@@ -213,7 +216,11 @@ else if (event === 'cancel_appointment' || event === 'visit_cancel') {
   return null;
 }
 
-  const patientName = data.patient_name;
+  const patientName =
+  safeAppointment?.patient_name ||
+  safeAppointment?.patient ||
+  data.patient_name ||
+  data.patient;
   const timeStart = data.time_start;
   const doctor = data.doctor;
   const room = data.room;
@@ -323,7 +330,11 @@ else if (event === 'invoice_pay' ) {
   const status = data.status;
   const paymentType = data.payment_type_name;
 
-  const patient = data.patient || data.patient_name;
+  const patientName =
+  safeAppointment?.patient_name ||
+  safeAppointment?.patient ||
+  data.patient_name ||
+  data.patient;
   const patientBirth = data.patient_birth_date;
   const patientGender = data.patient_gender;
   const patientMobile = data.patient_mobile;
