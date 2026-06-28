@@ -1277,21 +1277,24 @@ function normalizePhone(phone) {
   return digits;
 }
 function resolveAccess(roleNames = []) {
-  if (roleNames.includes("patient")) {
-    return { type: "patient" };
-  }
 
-  if (roleNames.includes("doctor")) {
-    return { type: "doctor" };
-  }
-
+  // Полный доступ
   if (roleNames.some(r => ["admin", "maxbot-app"].includes(r))) {
     return { type: "admin" };
   }
 
+  // Врач
+  if (roleNames.includes("doctor")) {
+    return { type: "doctor" };
+  }
+
+  // Пациент
+  if (roleNames.includes("patient")) {
+    return { type: "patient" };
+  }
+
   return { type: "denied" };
 }
-
 
 export default router;
 
