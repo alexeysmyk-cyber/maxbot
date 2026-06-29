@@ -350,7 +350,7 @@ else if (event === 'invoice_pay' ) {
 
   message += `\n👤 Пациент:\n`;
 
-  if (patient) message += `ФИО: ${patient}\n`;
+  if (patient) message += `ФИО: ${patientName}\n`;
   if (patientBirth) message += `🎂 Дата рождения: ${patientBirth}\n`;
   if (patientGender) message += `⚥ Пол: ${patientGender}\n`;
   if (patientMobile) message += `📞 Телефон: ${patientMobile}\n`;
