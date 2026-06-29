@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>МИС</title>
+
+  <link rel="stylesheet" href="style.css" />
+ <!-- <script src="https://st.max.ru/js/max-web-app.js"></script>-->
+</head>
+<body>
+
+  <!-- 🔥 загрузочный экран -->
+  <div id="app" style="
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:sans-serif;
+  text-align:center;
+">
+  <h2>⏳ Проверка доступа...</h2>
+</div>
+
+  <!-- 🔥 основной UI (скрыт!) -->
+  <div id="main" style="display:none">
+
+    <div class="tabs">
+      <button id="visitsTab" class="tab active">Визиты</button>
+      <button id="scheduleTab" class="tab">Расписание</button>
+    </div>
+
+    <div class="app">
+      <div id="content"></div>
+    </div>
+
+  </div>
+
+  <!-- ✅ один раз -->
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>
