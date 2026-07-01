@@ -227,7 +227,8 @@ model Notification {
 
   sendAt    DateTime @default(now())
   sentAt    DateTime?
-
+  processingAt DateTime?
+  
   externalId String?
 
   createdAt DateTime @default(now())
