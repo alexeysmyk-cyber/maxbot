@@ -234,7 +234,10 @@ function resetFilters() {
 
 async function removeSelected() {
   const checked = [...document.querySelectorAll('input[type=checkbox]:checked')];
-  const ids = checked.map(c => Number(c.value));
+
+  const ids = checked
+    .map(c => Number(c.value))
+    .filter(id => Number.isInteger(id) && id > 0);  // 🔥 ВОТ ЭТО ДОБАВИТЬ
 
   if (!ids.length) {
     alert('Ничего не выбрано');
@@ -245,9 +248,7 @@ async function removeSelected() {
 
   await fetch('/api/queue/delete', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids })
   });
 
