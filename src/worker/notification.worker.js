@@ -75,10 +75,21 @@ const list = await prisma.notification.findMany({
 let emailMessage = null;
 
 
- await prisma.notification.update({
-  where: { id: n.id },
-  data: { status: 'processing' }
+const locked = await prisma.notification.updateMany({
+  where: {
+    id: n.id,
+    status: 'pending'
+  },
+  data: {
+    status: 'processing',
+    processingAt: new Date()
+  }
 });
+
+if (locked.count === 0) {
+  console.log('⏭ ALREADY LOCKED:', n.id);
+  continue;
+}
 
 
       // =========================
@@ -648,13 +659,14 @@ await sendNotification({
       // =========================
       // 6. успех
       // =========================
-      await prisma.notification.update({
-        where: { id: n.id },
-        data: {
-          status: 'sent',
-          sentAt: new Date()
-        }
-      });
+    await prisma.notification.update({
+  where: { id: n.id },
+  data: {
+    status: 'sent',
+    sentAt: new Date(),
+    processingAt: null
+  }
+});
 
       console.log('✅ SENT:', n.id);
 
@@ -663,13 +675,14 @@ await sendNotification({
       console.error('❌ ERROR:', n.id, e.message);
 
       await prisma.notification.update({
-        where: { id: n.id },
-        data: {
-          status: 'failed',
-          lastError: e.message,
-          attempts: n.attempts + 1
-        }
-      });
+  where: { id: n.id },
+  data: {
+    status: 'failed',
+    lastError: e.message,
+    attempts: n.attempts + 1,
+    processingAt: null
+  }
+});
       
     }
   }
