@@ -290,7 +290,7 @@ let html = `
 });
 
  console.log("BEFORE ATTACH");
-attachBarEvents(container);
+attachBarEvents(container, false);
 console.log("AFTER ATTACH");
 
 }

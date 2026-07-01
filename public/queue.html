@@ -233,7 +233,9 @@ function resetFilters() {
 }
 
 async function removeSelected() {
-  const checked = [...document.querySelectorAll('input[type=checkbox]:checked')];
+  const checked = [
+  ...document.querySelectorAll('#table input[type=checkbox]:checked')
+];
 
   const ids = checked
     .map(c => Number(c.value))
