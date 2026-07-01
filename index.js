@@ -358,7 +358,9 @@ app.post('/api/notifications',basicAuth, async (req, res) => {
 });
 app.post('/api/queue/delete',basicAuth, async (req, res) => {
   const { ids } = req.body;
-
+console.log("DELETE BODY:", req.body);
+  console.log("DELETE IDS:", ids);
+  console.log("IS ARRAY:", Array.isArray(ids));
   await prisma.notification.deleteMany({
     where: {
       id: { in: ids }
