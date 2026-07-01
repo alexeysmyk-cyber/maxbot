@@ -20,7 +20,7 @@ function resolveNotificationKey(event) {
   return event;
 }
 
-
+let workerBusy = false;
 
 export async function processNotifications() {
 
@@ -40,56 +40,44 @@ export async function processNotifications() {
 
 
    // console.log('👷 WORKER TICK');
+
+  
+    if (workerBusy) {
+    console.log('⏭ WORKER BUSY');
+    return;
+  }
+
+  workerBusy = true;
+
   let bot;
 
-try {
-  bot = getBot();
-} catch (e) {
-  console.log('⏳ Bot not ready yet');
-  return;
-}
+  try {
+
+    bot = getBot();
 
 const list = await prisma.notification.findMany({
   where: {
-    OR: [
-      { status: 'pending' },
-      {
-        status: 'processing',
-        createdAt: {
-          lt: new Date(Date.now() - 60000)
-        }
-      }
-    ],
-    sendAt: { lte: new Date() }
+    status: 'pending',
+    sendAt: {
+      lte: new Date()
+    }
   },
   take: 10
 });
+    
 
-  for (const n of list) {
+    for (const n of list) {
 
- // console.log('🧪 RAW PAYLOAD FROM DB:', JSON.stringify(n.payload, null, 2));
-    try {
+      try {
+
+
         let skip = false;
 
     let finalMessage = null;
 let emailMessage = null;
 
 
-const locked = await prisma.notification.updateMany({
-  where: {
-    id: n.id,
-    status: 'pending'
-  },
-  data: {
-    status: 'processing',
-    processingAt: new Date()
-  }
-});
 
-if (locked.count === 0) {
-  console.log('⏭ ALREADY LOCKED:', n.id);
-  continue;
-}
 
 
       // =========================
@@ -485,53 +473,6 @@ if (user.type === 'PATIENT' && !patient) {
 
 
 
-/*const maxTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key: templateKey,
-      channel: 'MAX'
-    }
-  }
-});
-
-const emailTemplate = await prisma.notificationTemplate.findUnique({
-  where: {
-    key_channel: {
-      key: templateKey,
-      channel: 'EMAIL'
-    }
-  }
-});
-function formatDateRu(dateTime) {
-  if (!dateTime) return '';
-
-  const [datePart] = dateTime.split(' ');
-  const [day, month, year] = datePart.split('.');
-
-  const dateObj = new Date(`${year}-${month}-${day}`);
-
-  const weekdays = [
-    'воскресенье','понедельник','вторник',
-    'среда','четверг','пятница','суббота'
-  ];
-
-  const months = [
-    'января','февраля','марта','апреля','мая','июня',
-    'июля','августа','сентября','октября','ноября','декабря'
-  ];
-
-  return ` ${day} ${months[month - 1]} ${year}, ${weekdays[dateObj.getDay()]},`;
-}
-
-function formatTime(dateTime) {
-  if (!dateTime) return '';
-  return dateTime.split(' ')[1] || '';
-}
-
-const rawStart = safeAppointment?.time_start || data.time_start || '';
-const rawEnd = data.time_end || safeAppointment?.time_end || '';
-*/
-
 
 const templateData = buildTemplateData({
   data,
@@ -539,21 +480,6 @@ const templateData = buildTemplateData({
 });
 
 
-// MAX template
-/*if (maxTemplate?.text?.trim()) {
-  finalMessage = renderTemplate(
-    maxTemplate.text,
-    templateData
-  );
-}*/
-
-/* EMAIL template
-if (emailTemplate?.text?.trim()) {
-  emailMessage = renderTemplate(
-    emailTemplate.text,
-    templateData
-  );
-}*/
 
 console.log('🧪 FINAL MESSAGE:', finalMessage);
 
@@ -663,8 +589,8 @@ await sendNotification({
   where: { id: n.id },
   data: {
     status: 'sent',
-    sentAt: new Date(),
-    processingAt: null
+    sentAt: new Date()
+    
   }
 });
 
@@ -679,18 +605,35 @@ await sendNotification({
   data: {
     status: 'failed',
     lastError: e.message,
-    attempts: n.attempts + 1,
-    processingAt: null
+    attempts: n.attempts + 1
   }
 });
       
     }
   }
-
-
   
 }
+catch (e) {
 
-setInterval(processNotifications, 5000);
+    console.error('❌ WORKER CRASH:', e);
+
+  } finally {
+
+    workerBusy = false;
+
+  }
+}
+
+
+
+
+
+
+async function loop() {
+  await processNotifications();
+  setTimeout(loop, 2000);
+}
+
+loop();
 
 console.log('🚀 Notification worker started');
