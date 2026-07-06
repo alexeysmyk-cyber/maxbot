@@ -116,9 +116,6 @@ const payload = ctx.update?.callback?.payload;
 
 
 export function getBot() {
-  if (!botInstance) {
-    throw new Error('❌ Bot not initialized');
-  }
   return botInstance;
 }
 

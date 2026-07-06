@@ -55,6 +55,12 @@ export async function processNotifications() {
 
     bot = getBot();
 
+      if (!bot) {
+        console.log('⏳ MAX Bot ещё не готов, пропускаем цикл.');
+        return;
+    }
+
+
 const list = await prisma.notification.findMany({
   where: {
     status: 'pending',
