@@ -1,5 +1,6 @@
 
 import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { startMaxBot } from './src/max/max.service.js';
@@ -14,12 +15,13 @@ import miniappRoutes from "./src/api/miniapp.routes.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-startMaxBot();
-//worker after the bot start
-import './src/worker/notification.worker.js';
+await startMaxBot();
+
+await import("./src/worker/notification.worker.js");
 
 
-dotenv.config();
+
+
 console.log('ENV SECRET:', process.env.MIS_WEBHOOK_SECRET);
 const app = express();
 const prisma = new PrismaClient();
