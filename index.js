@@ -15,10 +15,9 @@ import miniappRoutes from "./src/api/miniapp.routes.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-await startMaxBot();
-
-await import("./src/worker/notification.worker.js");
-
+startMaxBot();
+//worker after the bot start
+import './src/worker/notification.worker.js';
 
 
 

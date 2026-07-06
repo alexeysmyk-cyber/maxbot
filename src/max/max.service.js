@@ -47,7 +47,7 @@ function patchBotApi(bot) {
 
 
 
-export async function startMaxBot() {
+export function startMaxBot() {
   console.log('🚀 BOT START');
 
 const bot = new Bot(process.env.MAX_BOT_TOKEN);
@@ -110,10 +110,8 @@ const payload = ctx.update?.callback?.payload;
   }
 });
 
-  await bot.start();
+  bot.start();
   console.log('✅ MAX bot started');
-  return bot;
-
 }
 
 
