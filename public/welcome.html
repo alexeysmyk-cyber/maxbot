@@ -190,6 +190,44 @@ p{
   .container{max-width:480px}
 }
 
+.main-button{
+
+    width:100%;
+
+    height:56px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#6A52FF;
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    margin-top:10px;
+
+    transition:.2s;
+
+}
+
+.main-button:hover{
+
+    background:#5c46ea;
+
+}
+
+.main-button:active{
+
+    transform:scale(.98);
+
+}
+
 
 </style>
 
@@ -294,28 +332,143 @@ onclick="select('MAX')">
 
 <script>
 
+
+
 const token = new URLSearchParams(window.location.search).get('token');
 
 async function select(channel) {
-  const res = await fetch('/api/onboarding/select-channel', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      token,
-      channel
-    })
-  });
 
-  const data = await res.json();
+    try {
 
-  if (channel === 'MAX') {
-    window.location.href = data.link;
-  } else {
-    document.body.innerHTML = '<h3>✅ Вы выбрали Email</h3>';
-  }
+        const res = await fetch('/api/onboarding/select-channel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token,
+                channel
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Ошибка');
+        }
+
+        if (channel === 'EMAIL') {
+            showEmailSuccess();
+        }
+
+        if (channel === 'MAX') {
+            showMaxVerification();
+        }
+
+    } catch (e) {
+
+        alert('Не удалось сохранить выбор канала.');
+
+        console.error(e);
+
+    }
+
 }
+
+function showEmailSuccess() {
+
+    document.querySelector('.card').innerHTML = `
+
+        <img src="/images/logo.png" class="logo">
+
+        <h1>✅ Спасибо!</h1>
+
+        <p>
+
+            Канал связи успешно настроен.<br><br>
+
+            Все подтверждения визитов,
+            напоминания и важные уведомления
+            теперь будут отправляться
+            на вашу электронную почту.
+
+        </p>
+
+        <button class="main-button"
+                onclick="finish()">
+
+            Готово
+
+        </button>
+
+        <div class="footer">
+
+            В дальнейшем вы сможете изменить
+            предпочтительный канал связи
+            в настройках профиля.
+
+        </div>
+
+    `;
+
+}
+
+function showMaxVerification() {
+
+    document.querySelector('.card').innerHTML = `
+
+        <img src="/images/logo.png" class="logo">
+
+        <h1>🟣 Почти готово</h1>
+
+        <p>
+
+            Для завершения настройки
+            необходимо пройти верификацию
+            в официальном боте клиники
+            в MAX Messenger.
+
+        </p>
+
+        <button class="main-button"
+                onclick="openMax()">
+
+            Открыть MAX
+
+        </button>
+
+        <div class="footer">
+
+            После подтверждения
+            уведомления будут
+            приходить в MAX Messenger.
+
+        </div>
+
+    `;
+
+}
+
+function openMax() {
+
+    window.location.href =
+    "https://max.ru/id7838129414_1_bot";
+
+}
+
+function finish() {
+
+    if (window.close) {
+
+        window.close();
+
+    }
+
+    location.href = "/";
+
+}
+
+
 
 </script>
 
