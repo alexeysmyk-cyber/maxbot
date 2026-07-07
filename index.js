@@ -371,43 +371,69 @@ console.log("DELETE BODY:", req.body);
   res.json({ ok: true });
 });
 app.post('/api/onboarding/select-channel', async (req, res) => {
-  const { token, channel } = req.body;
+  try {
 
-  if (!token || !channel) {
-    return res.status(400).json({ error: 'INVALID_DATA' });
-  }
+    const { token, channel } = req.body;
 
-  const record = await prisma.onboardingToken.findUnique({
-    where: { token },
-    include: { user: true }
-  });
-
-  if (!record) {
-    return res.status(400).json({ error: 'INVALID_TOKEN' });
-  }
-
-  // сохраняем выбор
-  await prisma.user.update({
-    where: { id: record.userId },
-    data: {
-      preferredChannel: channel // 👈 новое поле
+    if (!token || !channel) {
+      return res.status(400).json({ error: 'INVALID_DATA' });
     }
-  });
 
-  // помечаем токен
-  await prisma.onboardingToken.update({
-    where: { id: record.id },
-    data: { used: true }
-  });
-
-  // если MAX → даём ссылку
-  if (channel === 'MAX') {
-    return res.json({
-      link: 'https://max.ru/bot/YOUR_BOT'
+    const record = await prisma.onboardingToken.findUnique({
+      where: { token },
+      include: { user: true }
     });
-  }
 
-  return res.json({ success: true });
+    if (!record) {
+      return res.status(400).json({ error: 'INVALID_TOKEN' });
+    }
+
+    // Проверяем срок действия
+    if (record.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'TOKEN_EXPIRED' });
+    }
+
+    // Проверяем, не использован ли уже токен
+    if (record.usedAt) {
+      return res.status(400).json({ error: 'TOKEN_ALREADY_USED' });
+    }
+
+    // Сохраняем предпочтительный канал
+    await prisma.user.update({
+      where: { id: record.userId },
+      data: {
+        preferredChannel: channel
+      }
+    });
+
+    // Помечаем токен использованным
+    await prisma.onboardingToken.update({
+      where: { id: record.id },
+      data: {
+        usedAt: new Date()
+      }
+    });
+
+    // Если выбран MAX
+    if (channel === 'MAX') {
+      return res.json({
+        link: 'https://max.ru/id7838129414_1_bot'
+      });
+    }
+
+    return res.json({
+      success: true
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      error: 'SERVER_ERROR'
+    });
+
+  }
 });
 
 // ===== ADMIN =====
