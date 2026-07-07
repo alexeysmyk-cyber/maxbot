@@ -336,6 +336,8 @@ onclick="select('MAX')">
 
 const token = new URLSearchParams(window.location.search).get('token');
 
+checkStatus();
+
 async function select(channel) {
 
     try {
@@ -353,6 +355,16 @@ async function select(channel) {
 
         const data = await res.json();
 
+if (data.alreadyConfigured) {
+
+    showAlreadyConfigured(
+        data.channel
+    );
+
+    return;
+
+}
+
         if (!res.ok) {
             throw new Error(data.error || 'Ошибка');
         }
@@ -368,6 +380,31 @@ async function select(channel) {
     } catch (e) {
 
         alert('Не удалось сохранить выбор канала.');
+
+        console.error(e);
+
+    }
+
+}
+
+async function checkStatus() {
+
+    try {
+
+        const res = await fetch(
+            '/api/onboarding/status?token=' + token
+        );
+
+        if (!res.ok)
+            return;
+
+        const data = await res.json();
+
+        if (data.used || data.channel) {
+    showAlreadyConfigured(data.channel);
+}
+
+    } catch (e) {
 
         console.error(e);
 
@@ -406,6 +443,61 @@ function showEmailSuccess() {
             В дальнейшем вы сможете изменить
             предпочтительный канал связи
             в настройках профиля.
+
+        </div>
+
+    `;
+
+}
+
+function showAlreadyConfigured(channel) {
+
+    let icon = "📧";
+    let title = "Email";
+
+    if (channel === "MAX") {
+
+        icon = "🟣";
+        title = "MAX Messenger";
+
+    }
+
+    document.querySelector(".card").innerHTML = `
+
+        <img src="/images/logo.png"
+             class="logo">
+
+        <h1>✅ Уже настроено</h1>
+
+        <p>
+
+            Предпочтительный канал
+            связи уже выбран.
+
+            <br><br>
+
+            <strong>${icon} ${title}</strong>
+
+            <br><br>
+
+            Все уведомления будут
+            приходить именно туда.
+
+        </p>
+
+        <button
+            class="main-button"
+            onclick="finish()">
+
+            Закрыть
+
+        </button>
+
+        <div class="footer">
+
+            При необходимости
+            канал связи можно
+            изменить позднее.
 
         </div>
 

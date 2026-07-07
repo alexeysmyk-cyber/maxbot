@@ -398,6 +398,8 @@ app.post('/api/onboarding/select-channel', async (req, res) => {
       return res.status(400).json({ error: 'TOKEN_ALREADY_USED' });
     }
 
+    
+
     // Сохраняем предпочтительный канал
     await prisma.user.update({
       where: { id: record.userId },
@@ -435,6 +437,52 @@ app.post('/api/onboarding/select-channel', async (req, res) => {
 
   }
 });
+app.get('/api/onboarding/status', async (req, res) => {
+
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({
+            error: 'INVALID_TOKEN'
+        });
+    }
+
+    const record = await prisma.onboardingToken.findUnique({
+        where: { token },
+        include: {
+            user: true
+        }
+    });
+
+if (record.usedAt) {
+
+    return res.json({
+
+        alreadyConfigured: true,
+
+        channel:
+            record.user.preferredChannel
+
+    });
+
+}
+
+    if (!record) {
+        return res.status(404).json({
+            error: 'INVALID_TOKEN'
+        });
+    }
+
+    return res.json({
+
+        used: !!record.usedAt,
+
+        channel: record.user.preferredChannel || null
+
+    });
+
+});
+
 
 // ===== ADMIN =====
 app.get('/admin', basicAuth, (req, res) => {
