@@ -555,8 +555,8 @@ router.post("/get-schedule", async (req, res) => {
 
     const body = {
       api_key: process.env.API_KEY,
-      date_from: date + " 00:01",
-      date_to: date + " 23:59",
+      time_start: date + " 00:01",
+      time_end: date + " 23:59",
       step: 15,
       show_past: true,
       show_busy: true
