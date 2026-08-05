@@ -585,7 +585,18 @@ const response = await axios.post(
   expires: now + 60 * 1000
 };
 
-    console.log("💾 SAVE CACHE:", date);
+    const slots = Object.values(response.data.data || {}).flat();
+
+console.log("=================================");
+console.log("REQUEST DATE:", date);
+console.log("TOTAL:", slots.length);
+
+if (slots.length) {
+    console.log("FIRST:", slots[0]);
+}
+
+console.log("💾 SAVE CACHE:", date);
+console.log("=================================");
 
     return res.json(response.data);
 
