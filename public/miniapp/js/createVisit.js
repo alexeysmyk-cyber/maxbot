@@ -479,7 +479,7 @@ if (!response.ok || data.error !== 0) {
 const rawData = data.data || {};
 fullSchedule = Object.values(rawData).flat();
 
-const container = document.getElementById("createSlotsContainer");
+//const container = document.getElementById("createSlotsContainer");
 
 container.innerHTML = `
 <pre style="
