@@ -585,17 +585,17 @@ router.post("/get-schedule", async (req, res) => {
 
     const slots = Object.values(response.data.data || {}).flat();
 
-    console.log("REQUEST DATE:", date);
-    console.log("TOTAL SLOTS:", slots.length);
+   // console.log("REQUEST DATE:", date);
+   // console.log("TOTAL SLOTS:", slots.length);
 
-    const dates = [...new Set(slots.map(s => s.date))];
-    console.log("DATES:", dates);
-    console.log("COUNT DATES:", dates.length);
+   // const dates = [...new Set(slots.map(s => s.date))];
+   // console.log("DATES:", dates);
+   // console.log("COUNT DATES:", dates.length);
 
-    if (slots.length) {
-      console.log("FIRST:", slots[0].date, slots[0].time_start);
-      console.log("LAST :", slots[slots.length - 1].date, slots[slots.length - 1].time_start);
-    }
+    //if (slots.length) {
+    //  console.log("FIRST:", slots[0].date, slots[0].time_start);
+    //  console.log("LAST :", slots[slots.length - 1].date, slots[slots.length - 1].time_start);
+    //}
 
     // SAVE CACHE
     scheduleCache[cacheKey] = {

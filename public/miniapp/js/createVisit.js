@@ -467,38 +467,16 @@ if (!response.ok || data.error !== 0) {
 // MIS возвращает объект { user_id: [slots] }
 // Преобразуем в один массив
 // ===============================
-//const rawData = data.data || {};
-//fullSchedule = Object.values(rawData).flat();
+const rawData = data.data || {};
+fullSchedule = Object.values(rawData).flat();
 
 
 
 
 // Фильтруем по врачу
-//filterScheduleByDoctor();
+filterScheduleByDoctor();
 
-const rawData = data.data || {};
-fullSchedule = Object.values(rawData).flat();
 
-//const container = document.getElementById("createSlotsContainer");
-
-container.innerHTML = `
-<pre style="
-font-size:12px;
-padding:10px;
-white-space:pre-wrap;
-word-break:break-word;
-">
-Дата: ${date}
-
-Всего слотов: ${fullSchedule.length}
-
-Первый слот:
-
-${JSON.stringify(fullSchedule[0], null, 2)}
-</pre>
-`;
-
-return;
 
 
 
@@ -685,16 +663,7 @@ function filterScheduleByDoctor() {
   const dd = String(selectedDate.getDate()).padStart(2, "0");
   const selectedDateISO = `${yyyy}-${mm}-${dd}`;
 
-console.log("Selected doctor:", selectedDoctorId);
-console.log("Selected date ISO:", selectedDateISO);
 
-console.log("Doctors in response:",
-    [...new Set(fullSchedule.map(s => s.user_id))]
-);
-
-console.log("First slot _date:", fullSchedule[0]?._date);
-console.log("First slot date :", fullSchedule[0]?.date);
-console.log("First slot time :", fullSchedule[0]?.time_start);
 
 
 currentSchedule = fullSchedule.filter(s =>
