@@ -467,23 +467,41 @@ if (!response.ok || data.error !== 0) {
 // MIS возвращает объект { user_id: [slots] }
 // Преобразуем в один массив
 // ===============================
-const rawData = data.data || {};
-fullSchedule = Object.values(rawData).flat();
+//const rawData = data.data || {};
+//fullSchedule = Object.values(rawData).flat();
 
-console.log("================================");
-console.log("REQUEST DATE:", date);
-console.log("TOTAL SLOTS:", fullSchedule.length);
 
-if (fullSchedule.length) {
-    console.log("FIRST SLOT:", fullSchedule[0]);
-    console.log("LAST SLOT:", fullSchedule[fullSchedule.length - 1]);
-}
-
-console.log("================================");
 
 
 // Фильтруем по врачу
-filterScheduleByDoctor();
+//filterScheduleByDoctor();
+
+const rawData = data.data || {};
+fullSchedule = Object.values(rawData).flat();
+
+const container = document.getElementById("createSlotsContainer");
+
+container.innerHTML = `
+<pre style="
+font-size:12px;
+padding:10px;
+white-space:pre-wrap;
+word-break:break-word;
+">
+Дата: ${date}
+
+Всего слотов: ${fullSchedule.length}
+
+Первый слот:
+
+${JSON.stringify(fullSchedule[0], null, 2)}
+</pre>
+`;
+
+return;
+
+
+
 
 }  
 function renderSlots() {
