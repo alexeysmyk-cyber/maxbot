@@ -528,11 +528,12 @@ router.post("/appointments/day", async (req, res) => {
 
 router.post("/get-schedule", async (req, res) => {
   try {
-const user = req.user;
+    const user = req.user;
 
     if (!user) {
       return res.status(403).json({ error: "NO_ACCESS" });
     }
+
     const { date } = req.body;
 
     if (!date) {
@@ -541,13 +542,13 @@ const user = req.user;
 
     const now = Date.now();
 
-    // CACHE CHECK
+    // CACHE
     const cacheKey = user.id + "_" + date;
 
-if (
-  scheduleCache[cacheKey] &&
-  scheduleCache[cacheKey].expires > now
-) {
+    if (
+      scheduleCache[cacheKey] &&
+      scheduleCache[cacheKey].expires > now
+    ) {
       console.log("📦 SCHEDULE CACHE HIT:", date);
       return res.json(scheduleCache[cacheKey].data);
     }
@@ -564,39 +565,46 @@ if (
     const url =
       process.env.BASE_URL.replace(/\/$/, "") + "/getSchedule";
 
-const response = await axios.post(
-  url,
-  qs.stringify(body),
-  {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    timeout: 8000
-  }
-);
+    console.log("=================================");
+    console.log("BODY:", body);
+
+    const response = await axios.post(
+      url,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        timeout: 8000
+      }
+    );
 
     if (!response.data || response.data.error !== 0) {
       return res.status(500).json({ error: "MIS_ERROR" });
     }
 
-    // SAVE CACHE
-    scheduleCache[cacheKey] = {
-  data: response.data,
-  expires: now + 60 * 1000
-};
-
     const slots = Object.values(response.data.data || {}).flat();
 
-console.log("=================================");
-console.log("REQUEST DATE:", date);
-console.log("TOTAL:", slots.length);
+    console.log("REQUEST DATE:", date);
+    console.log("TOTAL SLOTS:", slots.length);
 
-if (slots.length) {
-    console.log("FIRST:", slots[0]);
-}
+    const dates = [...new Set(slots.map(s => s.date))];
+    console.log("DATES:", dates);
+    console.log("COUNT DATES:", dates.length);
 
-console.log("💾 SAVE CACHE:", date);
-console.log("=================================");
+    if (slots.length) {
+      console.log("FIRST:", slots[0].date, slots[0].time_start);
+      console.log("LAST :", slots[slots.length - 1].date, slots[slots.length - 1].time_start);
+    }
+
+    // SAVE CACHE
+    scheduleCache[cacheKey] = {
+      data: response.data,
+      expires: now + 60 * 1000
+    };
+
+    console.log("💾 SAVE CACHE:", date);
+    console.log("=================================");
 
     return res.json(response.data);
 
