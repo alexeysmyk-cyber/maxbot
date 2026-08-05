@@ -470,6 +470,18 @@ if (!response.ok || data.error !== 0) {
 const rawData = data.data || {};
 fullSchedule = Object.values(rawData).flat();
 
+console.log("================================");
+console.log("REQUEST DATE:", date);
+console.log("TOTAL SLOTS:", fullSchedule.length);
+
+if (fullSchedule.length) {
+    console.log("FIRST SLOT:", fullSchedule[0]);
+    console.log("LAST SLOT:", fullSchedule[fullSchedule.length - 1]);
+}
+
+console.log("================================");
+
+
 // Фильтруем по врачу
 filterScheduleByDoctor();
 
@@ -655,10 +667,25 @@ function filterScheduleByDoctor() {
   const dd = String(selectedDate.getDate()).padStart(2, "0");
   const selectedDateISO = `${yyyy}-${mm}-${dd}`;
 
+console.log("Selected doctor:", selectedDoctorId);
+console.log("Selected date ISO:", selectedDateISO);
+
+console.log("Doctors in response:",
+    [...new Set(fullSchedule.map(s => s.user_id))]
+);
+
+console.log("First slot _date:", fullSchedule[0]?._date);
+console.log("First slot date :", fullSchedule[0]?.date);
+console.log("First slot time :", fullSchedule[0]?.time_start);
+
+
 currentSchedule = fullSchedule.filter(s =>
   String(s.user_id) === String(selectedDoctorId) &&
   s._date === selectedDateISO
 );
+
+console.log("Filtered slots:", currentSchedule.length);
+
 
 // сортировка
 currentSchedule.sort((a, b) =>
