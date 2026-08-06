@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>RNova Widget Test</title>
+
+<script src="https://app.rnova.org/widgets"></script>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    margin:40px;
+    background:#f5f5f5;
+}
+
+.panel{
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+label{
+    display:block;
+    margin-top:10px;
+}
+
+input{
+    width:250px;
+    padding:6px;
+}
+
+button{
+    margin-top:20px;
+    padding:10px 18px;
+}
+
+.widget{
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="panel">
+
+<h2>RNova Widget Tester</h2>
+
+<label>ID врача</label>
+<input id="doctor" placeholder="например 123">
+
+<label>ID услуги</label>
+<input id="service">
+
+<label>ID категории услуг</label>
+<input id="category">
+
+<label>ID специальности</label>
+<input id="profession">
+
+<label>ID клиники</label>
+<input id="clinic">
+
+<br>
+
+<button onclick="renderWidgets()">
+Обновить
+</button>
+
+</div>
+
+<h2>Карточка врача</h2>
+
+<div id="doctorWidget"></div>
+
+<hr>
+
+<h2>Список услуг</h2>
+
+<div id="serviceWidget"></div>
+
+<script>
+
+function renderWidgets(){
+
+    const doctor=document.getElementById("doctor").value;
+    const service=document.getElementById("service").value;
+    const category=document.getElementById("category").value;
+    const profession=document.getElementById("profession").value;
+    const clinic=document.getElementById("clinic").value;
+
+    document.getElementById("doctorWidget").innerHTML=
+        `<div class="rnova-doctor"
+              data-doctor_id="${doctor}">
+         </div>`;
+
+    document.getElementById("serviceWidget").innerHTML=
+        `<div class="rnova-price_list"
+            ${service ? `data-service_id="${service}"` : ""}
+            ${category ? `data-service_category_id="${category}"` : ""}
+            ${profession ? `data-profession_id="${profession}"` : ""}
+            ${clinic ? `data-clinic_id="${clinic}"` : ""}
+            data-show_search="true"
+            data-show_children="true">
+        </div>`;
+
+    // если библиотека поддерживает повторную инициализацию
+    if(window.RNovaWidgets?.init){
+        window.RNovaWidgets.init();
+    }
+}
+
+</script>
+
+</body>
+</html>
