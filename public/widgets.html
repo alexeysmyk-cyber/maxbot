@@ -2,50 +2,140 @@
 <html lang="ru">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>RNova Widget Test</title>
 
-    <!-- Общий скрипт RNova -->
     <script src="https://app.rnova.org/widgets"
             rel="preload"
             as="script"></script>
 
     <style>
+
         body{
             margin:40px;
             font-family:Arial,sans-serif;
             background:#f5f5f5;
         }
 
-        .widget{
-            background:#fff;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0 2px 10px rgba(0,0,0,.08);
+        h2{
+            margin-top:50px;
         }
+
+        .block{
+            background:#fff;
+            border-radius:10px;
+            padding:20px;
+            margin-bottom:40px;
+            box-shadow:0 2px 8px rgba(0,0,0,.08);
+        }
+
     </style>
 
 </head>
 
 <body>
 
-<h2>Список услуг RNova</h2>
+<h1>RNova Widget Test</h1>
 
-<div class="widget">
+<!-- ====================== -->
+<!-- СПИСОК УСЛУГ -->
+<!-- ====================== -->
+
+<h2>Список услуг</h2>
+
+<div class="block">
 
     <div class="rnova-price_list"
 
-         data-clinic_id="2997"
-
          data-show_search="true"
-
          data-show_children="true">
 
     </div>
 
 </div>
+
+<!-- ====================== -->
+<!-- КАРТОЧКА ВРАЧА -->
+<!-- ====================== -->
+
+<h2>Карточка врача</h2>
+
+<div class="block">
+
+    <div class="rnova-doctor"
+
+         data-doctor_id="1">
+
+    </div>
+
+</div>
+
+<!-- ====================== -->
+<!-- ЛИЧНЫЙ КАБИНЕТ -->
+<!-- ====================== -->
+
+<h2>Личный кабинет пациента</h2>
+
+<div class="block">
+
+    <div id="rnova-office"></div>
+
+</div>
+
+<!-- ====================== -->
+<!-- ВИДЕОКОНСУЛЬТАЦИЯ -->
+<!-- ====================== -->
+
+<h2>Видео / Аудио консультация</h2>
+
+<div class="block">
+
+    <div id="rnova-video_chat"></div>
+
+</div>
+
+<script>
+
+window.rnovaWidgetsConfig = {
+
+    consultationsConfig : {
+
+        app_name : "RNova Test",
+
+        patient_login : "",
+
+        patient_password : "",
+
+        doctor_login : "",
+
+        onSdkReady(){ console.log("SDK Ready"); },
+
+        onConnectionEstablished(){},
+
+        onConnectionFailed(){},
+
+        onConnectionClosed(){},
+
+        onAuthResult(){},
+
+        onMicAccessResult(){},
+
+        onCallConnected(){},
+
+        onCallDisconnected(){},
+
+        onCallFailed(){},
+
+        onMessageReceived(){}
+
+    }
+
+};
+
+</script>
 
 </body>
 
