@@ -1,143 +1,52 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-<meta charset="UTF-8">
-<title>RNova Widget Tester</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://app.rnova.org/widgets"></script>
+    <title>RNova Widget Test</title>
 
-<style>
+    <!-- Общий скрипт RNova -->
+    <script src="https://app.rnova.org/widgets"
+            rel="preload"
+            as="script"></script>
 
-body{
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
-    margin:40px;
-}
+    <style>
+        body{
+            margin:40px;
+            font-family:Arial,sans-serif;
+            background:#f5f5f5;
+        }
 
-.panel{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    margin-bottom:30px;
-    box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-
-label{
-    display:block;
-    margin-top:12px;
-    font-weight:bold;
-}
-
-input{
-    width:260px;
-    padding:8px;
-}
-
-button{
-    margin-top:20px;
-    padding:10px 20px;
-    cursor:pointer;
-}
-
-.widget{
-    background:white;
-    padding:20px;
-    margin-bottom:30px;
-    border-radius:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
-}
-
-</style>
+        .widget{
+            background:#fff;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0 2px 10px rgba(0,0,0,.08);
+        }
+    </style>
 
 </head>
 
 <body>
 
-<div class="panel">
-
-<h2>RNova Widget Tester</h2>
-
-<label>ID врача</label>
-<input id="doctor">
-
-<label>ID услуги</label>
-<input id="service">
-
-<label>ID категории</label>
-<input id="category">
-
-<label>ID специальности</label>
-<input id="profession">
-
-<label>ID клиники</label>
-<input id="clinic">
-
-<br>
-
-<button onclick="updateWidgets()">
-Обновить
-</button>
-
-</div>
+<h2>Список услуг RNova</h2>
 
 <div class="widget">
 
-<h2>Карточка врача</h2>
+    <div class="rnova-price_list"
 
-<div
-    id="doctorWidget"
-    class="rnova-doctor">
-</div>
+         data-clinic_id="2997"
 
-</div>
+         data-show_search="true"
 
-<div class="widget">
+         data-show_children="true">
 
-<h2>Список услуг</h2>
-
-<div
-    id="serviceWidget"
-    class="rnova-price_list">
-</div>
+    </div>
 
 </div>
-
-<script>
-
-function setOrRemove(element,name,value){
-
-    if(value && value.trim()!=="")
-        element.setAttribute(name,value);
-    else
-        element.removeAttribute(name);
-
-}
-
-function updateWidgets(){
-
-    const doctor=document.getElementById("doctor").value;
-    const service=document.getElementById("service").value;
-    const category=document.getElementById("category").value;
-    const profession=document.getElementById("profession").value;
-    const clinic=document.getElementById("clinic").value;
-
-    const doctorWidget=document.getElementById("doctorWidget");
-    const serviceWidget=document.getElementById("serviceWidget");
-
-    setOrRemove(doctorWidget,"data-doctor_id",doctor);
-
-    setOrRemove(serviceWidget,"data-service_id",service);
-    setOrRemove(serviceWidget,"data-service_category_id",category);
-    setOrRemove(serviceWidget,"data-profession_id",profession);
-    setOrRemove(serviceWidget,"data-clinic_id",clinic);
-
-    serviceWidget.setAttribute("data-show_search","true");
-    serviceWidget.setAttribute("data-show_children","true");
-
-    console.log("Если RNova требует ручной инициализации, вызови её здесь.");
-}
-
-</script>
 
 </body>
+
 </html>
